@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
+import { saveHistoryItem } from "@/lib/ia-history";
 
 export const Route = createFileRoute("/_authenticated/ia/peca")({
   head: () => ({
@@ -49,6 +50,7 @@ const TIPOS = [
 
 function Page() {
   const { data: ctx } = useDiagnosticContext();
+  const queryClient = useQueryClient();
   const [tipo, setTipo] = useState("defesa-conselho");
   const [destinatario, setDestinatario] = useState("");
   const [fatos, setFatos] = useState("");
@@ -73,8 +75,7 @@ function Page() {
     setGenerating(true);
     setTimeout(() => {
       const tipoLabel = TIPOS.find((t) => t.value === tipo)?.label ?? "Peça";
-      setDraft(
-        [
+      const text = [
           `${tipoLabel.toUpperCase()}`,
           destinatario ? `Ao(À) ${destinatario}` : "",
           "",
@@ -96,9 +97,22 @@ function Page() {
           "(Rascunho gerado pela IA Jurídica — revise com seu advogado antes do protocolo.)",
         ]
           .filter((line) => line !== undefined)
-          .join("\n"),
-      );
+        .join("\n");
+      setDraft(text);
       setGenerating(false);
+
+      void saveHistoryItem({
+        origem: "peca",
+        tipo: tipoLabel,
+        titulo: destinatario ? `${tipoLabel} — ${destinatario}` : tipoLabel,
+        conteudo: text,
+        contexto: { score: ctx?.score ?? null, level: ctx?.level?.name ?? null },
+      })
+        .then(() => {
+          void queryClient.invalidateQueries({ queryKey: ["ia-history"] });
+          toast.success("Rascunho salvo no histórico.");
+        })
+        .catch(() => toast.error("Rascunho gerado, mas não foi salvo no histórico."));
     }, 900);
   };
 
