@@ -74,13 +74,20 @@ function Page() {
   const [status, setStatus] = useState<"ready" | "submitted" | "streaming">("ready");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (
+    _message: { text: string; files?: File[] },
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
     const text = input.trim();
     if (!text || status !== "ready") return;
 
     setStatus("submitted");
-    const userMessage: ChatMessage = { id: `u-${Date.now()}`, role: "user", content: text };
+    const userMessage: ChatMessage = {
+      id: `u-${Date.now()}`,
+      role: "user",
+      content: text,
+    };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
 
