@@ -132,7 +132,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col">
         <SiteHeader />
-        <main className="flex-1 pt-[4.75rem] pb-24 lg:pt-[5.25rem] lg:pb-0">
+        <main className="flex-1 pt-[calc(var(--header-h)+1rem)] pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+1.5rem)] lg:pb-0">
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
         </main>
