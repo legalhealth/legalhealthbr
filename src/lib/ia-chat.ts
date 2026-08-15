@@ -22,6 +22,75 @@ async function currentUserId(): Promise<string | null> {
   return data.user?.id ?? null;
 }
 
+export type ChatTurn = { role: ChatRole; content: string };
+
+/**
+ * Chama a rota protegida /api/ai-chat (a chave de IA vive apenas no servidor)
+ * e entrega o texto em pedaços conforme chega.
+ */
+export async function streamAiChat(
+  messages: ChatTurn[],
+  task: string,
+  onDelta: (chunk: string) => void,
+): Promise<string> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new Error("Sessão expirada. Faça login novamente.");
+
+  const response = await fetch("/api/ai-chat", {
+    method: "POST",
+    headers: { "content-type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ messages, task }),
+  });
+
+  if (!response.ok || !response.body) {
+    let message = "Não foi possível falar com a IA agora. Tente novamente.";
+    try {
+      const payload = (await response.json()) as { error?: string };
+      if (payload.error) message = payload.error;
+    } catch {
+      /* resposta sem corpo JSON */
+    }
+    throw new Error(message);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let full = "";
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data:")) continue;
+      const payload = trimmed.slice(5).trim();
+      if (!payload || payload === "[DONE]") continue;
+      try {
+        const parsed = JSON.parse(payload) as {
+          choices?: { delta?: { content?: string } }[];
+        };
+        const delta = parsed.choices?.[0]?.delta?.content;
+        if (delta) {
+          full += delta;
+          onDelta(delta);
+        }
+      } catch {
+        /* fragmento incompleto — ignorado */
+      }
+    }
+  }
+
+  if (!full.trim()) {
+    throw new Error("A IA não retornou conteúdo. Tente reformular sua pergunta.");
+  }
+  return full;
+}
+
 export function useChatThreads() {
   return useQuery({
     queryKey: ["chat-threads"],
