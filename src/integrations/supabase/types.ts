@@ -65,6 +65,47 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_recommendations: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          origem: string
+          status: string
+          thread_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          origem?: string
+          status?: string
+          thread_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          origem?: string
+          status?: string
+          thread_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_recommendations_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           content: string | null
@@ -106,6 +147,45 @@ export type Database = {
           created_at?: string
           id?: string
           title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      documents: {
+        Row: {
+          created_at: string
+          id: string
+          mime: string | null
+          nome: string
+          size_bytes: number | null
+          storage_path: string
+          tag: string
+          texto: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mime?: string | null
+          nome: string
+          size_bytes?: number | null
+          storage_path: string
+          tag?: string
+          texto?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mime?: string | null
+          nome?: string
+          size_bytes?: number | null
+          storage_path?: string
+          tag?: string
+          texto?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
