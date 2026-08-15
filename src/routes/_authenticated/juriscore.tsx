@@ -1,11 +1,14 @@
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Scale, Shield, FileCheck, AlertTriangle, BookOpen, Gavel, Info } from "lucide-react";
+import { Scale, Shield, FileCheck, AlertTriangle, BookOpen, Gavel, Info, ListChecks } from "lucide-react";
 
 import { PageShell } from "@/components/layout/page-shell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authenticated/juriscore")({
   head: () => ({
@@ -27,6 +30,7 @@ const scoreColor = "text-success";
 const scoreStroke = "var(--color-success)";
 
 const indicators = [
+  {
   {
     id: "documentation",
     label: "Documentação médica",
