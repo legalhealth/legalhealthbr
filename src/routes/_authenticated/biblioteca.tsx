@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/layout/page-shell";
 
-export const Route = createFileRoute("/biblioteca")({
+export const Route = createFileRoute("/_authenticated/biblioteca")({
   head: () => ({
     meta: [
       { title: "Biblioteca | Legal Health" },

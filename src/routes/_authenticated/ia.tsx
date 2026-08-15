@@ -22,7 +22,7 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { Card } from "@/components/ui/card";
 
-export const Route = createFileRoute("/ia")({
+export const Route = createFileRoute("/_authenticated/ia")({
   head: () => ({
     meta: [
       { title: "IA Jurídica | Legal Health" },

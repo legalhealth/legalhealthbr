@@ -9,147 +9,147 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as BibliotecaRouteImport } from './routes/biblioteca'
-import { Route as IaRouteImport } from './routes/ia'
-import { Route as JuriscoreRouteImport } from './routes/juriscore'
-import { Route as PerfilRouteImport } from './routes/perfil'
-import { Route as PlanoRouteImport } from './routes/plano'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedBibliotecaRouteImport } from './routes/_authenticated/biblioteca'
+import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
+import { Route as AuthenticatedJuriscoreRouteImport } from './routes/_authenticated/juriscore'
+import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedPlanoRouteImport } from './routes/_authenticated/plano'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/_authenticated/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BibliotecaRoute = BibliotecaRouteImport.update({
-  id: '/biblioteca',
+const AuthenticatedBibliotecaRoute = AuthenticatedBibliotecaRouteImport.update({
+  id: '/_authenticated/biblioteca',
   path: '/biblioteca',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IaRoute = IaRouteImport.update({
-  id: '/ia',
+const AuthenticatedIaRoute = AuthenticatedIaRouteImport.update({
+  id: '/_authenticated/ia',
   path: '/ia',
   getParentRoute: () => rootRouteImport,
 } as any)
-const JuriscoreRoute = JuriscoreRouteImport.update({
-  id: '/juriscore',
+const AuthenticatedJuriscoreRoute = AuthenticatedJuriscoreRouteImport.update({
+  id: '/_authenticated/juriscore',
   path: '/juriscore',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PerfilRoute = PerfilRouteImport.update({
-  id: '/perfil',
+const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
+  id: '/_authenticated/perfil',
   path: '/perfil',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlanoRoute = PlanoRouteImport.update({
-  id: '/plano',
+const AuthenticatedPlanoRoute = AuthenticatedPlanoRouteImport.update({
+  id: '/_authenticated/plano',
   path: '/plano',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/biblioteca': typeof BibliotecaRoute
-  '/ia': typeof IaRoute
-  '/juriscore': typeof JuriscoreRoute
-  '/perfil': typeof PerfilRoute
-  '/plano': typeof PlanoRoute
+  '/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/ia': typeof AuthenticatedIaRoute
+  '/juriscore': typeof AuthenticatedJuriscoreRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
+  '/plano': typeof AuthenticatedPlanoRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/biblioteca': typeof BibliotecaRoute
-  '/ia': typeof IaRoute
-  '/juriscore': typeof JuriscoreRoute
-  '/perfil': typeof PerfilRoute
-  '/plano': typeof PlanoRoute
+  '/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/ia': typeof AuthenticatedIaRoute
+  '/juriscore': typeof AuthenticatedJuriscoreRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
+  '/plano': typeof AuthenticatedPlanoRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/biblioteca': typeof BibliotecaRoute
-  '/ia': typeof IaRoute
-  '/juriscore': typeof JuriscoreRoute
-  '/perfil': typeof PerfilRoute
-  '/plano': typeof PlanoRoute
+  '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/_authenticated/ia': typeof AuthenticatedIaRoute
+  '/_authenticated/juriscore': typeof AuthenticatedJuriscoreRoute
+  '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
+  '/_authenticated/plano': typeof AuthenticatedPlanoRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/biblioteca' | '/ia' | '/juriscore' | '/perfil' | '/plano'
+  fullPaths: '/biblioteca' | '/ia' | '/juriscore' | '/perfil' | '/plano' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/biblioteca' | '/ia' | '/juriscore' | '/perfil' | '/plano'
+  to: '/biblioteca' | '/ia' | '/juriscore' | '/perfil' | '/plano' | '/'
   id:
     | '__root__'
-    | '/'
-    | '/biblioteca'
-    | '/ia'
-    | '/juriscore'
-    | '/perfil'
-    | '/plano'
+    | '/_authenticated/biblioteca'
+    | '/_authenticated/ia'
+    | '/_authenticated/juriscore'
+    | '/_authenticated/perfil'
+    | '/_authenticated/plano'
+    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  BibliotecaRoute: typeof BibliotecaRoute
-  IaRoute: typeof IaRoute
-  JuriscoreRoute: typeof JuriscoreRoute
-  PerfilRoute: typeof PerfilRoute
-  PlanoRoute: typeof PlanoRoute
+  AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRoute
+  AuthenticatedIaRoute: typeof AuthenticatedIaRoute
+  AuthenticatedJuriscoreRoute: typeof AuthenticatedJuriscoreRoute
+  AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
+  AuthenticatedPlanoRoute: typeof AuthenticatedPlanoRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/biblioteca': {
-      id: '/biblioteca'
+    '/_authenticated/biblioteca': {
+      id: '/_authenticated/biblioteca'
       path: '/biblioteca'
       fullPath: '/biblioteca'
-      preLoaderRoute: typeof BibliotecaRouteImport
+      preLoaderRoute: typeof AuthenticatedBibliotecaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ia': {
-      id: '/ia'
+    '/_authenticated/ia': {
+      id: '/_authenticated/ia'
       path: '/ia'
       fullPath: '/ia'
-      preLoaderRoute: typeof IaRouteImport
+      preLoaderRoute: typeof AuthenticatedIaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/juriscore': {
-      id: '/juriscore'
+    '/_authenticated/juriscore': {
+      id: '/_authenticated/juriscore'
       path: '/juriscore'
       fullPath: '/juriscore'
-      preLoaderRoute: typeof JuriscoreRouteImport
+      preLoaderRoute: typeof AuthenticatedJuriscoreRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/perfil': {
-      id: '/perfil'
+    '/_authenticated/perfil': {
+      id: '/_authenticated/perfil'
       path: '/perfil'
       fullPath: '/perfil'
-      preLoaderRoute: typeof PerfilRouteImport
+      preLoaderRoute: typeof AuthenticatedPerfilRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/plano': {
-      id: '/plano'
+    '/_authenticated/plano': {
+      id: '/_authenticated/plano'
       path: '/plano'
       fullPath: '/plano'
-      preLoaderRoute: typeof PlanoRouteImport
+      preLoaderRoute: typeof AuthenticatedPlanoRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  BibliotecaRoute: BibliotecaRoute,
-  IaRoute: IaRoute,
-  JuriscoreRoute: JuriscoreRoute,
-  PerfilRoute: PerfilRoute,
-  PlanoRoute: PlanoRoute,
+  AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRoute,
+  AuthenticatedIaRoute: AuthenticatedIaRoute,
+  AuthenticatedJuriscoreRoute: AuthenticatedJuriscoreRoute,
+  AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
+  AuthenticatedPlanoRoute: AuthenticatedPlanoRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

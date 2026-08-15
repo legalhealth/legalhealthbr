@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
-export const Route = createFileRoute("/juriscore")({
+export const Route = createFileRoute("/_authenticated/juriscore")({
   head: () => ({
     meta: [
       { title: "Juriscore® | Legal Health" },
