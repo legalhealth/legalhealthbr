@@ -264,6 +264,8 @@ function Page() {
       </div>
 
       {/* Aviso e recomendações */}
+      <CriteriaPanel />
+
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card className="border border-border bg-card rounded-2xl shadow-none">
           <CardHeader className="pb-4">
