@@ -31,7 +31,6 @@ const scoreStroke = "var(--color-success)";
 
 const indicators = [
   {
-  {
     id: "documentation",
     label: "Documentação médica",
     value: 86,
