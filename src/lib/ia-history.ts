@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 
 export type HistoryOrigem = "risco" | "peca";
 
@@ -67,7 +68,7 @@ export async function saveHistoryItem(input: {
   tipo: string;
   titulo: string;
   conteudo: string;
-  contexto?: Record<string, unknown>;
+  contexto?: Json;
 }): Promise<void> {
   const { data: auth } = await supabase.auth.getUser();
   const userId = auth.user?.id;
