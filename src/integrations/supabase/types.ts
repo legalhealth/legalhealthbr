@@ -168,41 +168,59 @@ export type Database = {
         Row: {
           biometria: boolean
           cidade: string | null
+          clinica: string | null
           created_at: string
           crm: string | null
+          email_alerts: boolean
           especialidade: string | null
           id: string
+          new_jurisprudence: boolean
           nome: string | null
           offline: boolean
           plano: string
           push: boolean
+          risk_notifications: boolean
+          updated_at: string
           user_id: string
+          weekly_digest: boolean
         }
         Insert: {
           biometria?: boolean
           cidade?: string | null
+          clinica?: string | null
           created_at?: string
           crm?: string | null
+          email_alerts?: boolean
           especialidade?: string | null
           id?: string
+          new_jurisprudence?: boolean
           nome?: string | null
           offline?: boolean
           plano?: string
           push?: boolean
+          risk_notifications?: boolean
+          updated_at?: string
           user_id: string
+          weekly_digest?: boolean
         }
         Update: {
           biometria?: boolean
           cidade?: string | null
+          clinica?: string | null
           created_at?: string
           crm?: string | null
+          email_alerts?: boolean
           especialidade?: string | null
           id?: string
+          new_jurisprudence?: boolean
           nome?: string | null
           offline?: boolean
           plano?: string
           push?: boolean
+          risk_notifications?: boolean
+          updated_at?: string
           user_id?: string
+          weekly_digest?: boolean
         }
         Relationships: []
       }
