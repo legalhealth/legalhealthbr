@@ -29,8 +29,8 @@ export function SiteHeader() {
                 key={to}
                 to={to}
                 activeOptions={{ exact }}
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                activeProps={{ className: "text-gold" }}
+                className="relative py-1 text-sm text-muted-foreground transition-colors hover:text-foreground after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-center after:scale-x-0 after:bg-gold after:transition-transform data-[status=active]:text-gold data-[status=active]:after:scale-x-100"
+                activeProps={{ className: "font-medium" }}
               >
                 {label}
               </Link>
