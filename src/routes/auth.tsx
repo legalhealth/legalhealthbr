@@ -117,13 +117,15 @@ function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-5 py-12">
+    <div className="flex min-h-svh flex-col items-center justify-center px-5 py-10 sm:py-14">
       <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
+        <div className="mb-8 flex justify-center sm:mb-10">
           <img
             src={verticalLogoAsset.url}
             alt="Legal Health — Inteligência Jurídica para Medicina"
-            className="mx-auto h-auto w-full max-w-[220px]"
+            width={260}
+            height={260}
+            className="block h-auto w-[62%] min-w-[168px] max-w-[200px] object-contain sm:w-full sm:max-w-[240px]"
           />
         </div>
 
