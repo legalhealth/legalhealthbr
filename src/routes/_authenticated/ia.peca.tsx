@@ -185,6 +185,42 @@ function Page() {
           />
         </div>
 
+        {(recommendations ?? []).length > 0 ? (
+          <div className="mt-6 space-y-3">
+            <Label>Recomendações salvas do Assistente</Label>
+            <p className="text-xs text-subtle">
+              Selecione as recomendações que devem constar como medidas em andamento na peça.
+            </p>
+            <ul className="space-y-2">
+              {(recommendations ?? []).slice(0, 8).map((rec) => {
+                const active = selectedRecs.includes(rec.id);
+                return (
+                  <li key={rec.id}>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelectedRecs((prev) =>
+                          active ? prev.filter((id) => id !== rec.id) : [...prev, rec.id],
+                        )
+                      }
+                      className={`w-full rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
+                        active
+                          ? "border-gold/60 bg-gold/10 text-foreground"
+                          : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <span className="line-clamp-2">{rec.content}</span>
+                      <span className="mt-1 block text-xs text-subtle">
+                        {new Date(rec.created_at).toLocaleDateString("pt-BR")}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ) : null}
+
         <Button
           onClick={handleGenerate}
           disabled={generating}
