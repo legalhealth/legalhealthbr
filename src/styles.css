@@ -48,6 +48,7 @@
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
   --color-success: var(--success);
+  --color-success-light: var(--success-light);
   --color-warn: var(--warn);
   --color-danger: var(--danger);
 
@@ -103,6 +104,7 @@
   --info: oklch(0.546 0.245 262.9); /* #2563EB */
   --info-foreground: oklch(0.98 0 0);
   --success: oklch(0.708 0.153 158); /* #2FBF7B */
+  --success-light: oklch(0.774 0.148 138); /* #7BC96F */
   --warn: oklch(0.756 0.115 82); /* #D9A648 */
   --danger: oklch(0.664 0.157 22); /* #E0655F */
   --destructive: var(--danger);
