@@ -29,6 +29,26 @@ export const Route = createFileRoute("/_authenticated/perfil")({
   component: Page,
 });
 
+const optionalText = (max: number, label: string) =>
+  z
+    .string()
+    .trim()
+    .max(max, { message: `${label} deve ter no máximo ${max} caracteres.` });
+
+const profileSchema = z.object({
+  nome: z
+    .string()
+    .trim()
+    .min(3, { message: "Informe seu nome completo (mínimo 3 caracteres)." })
+    .max(120, { message: "Nome deve ter no máximo 120 caracteres." }),
+  clinica: optionalText(150, "Clínica"),
+  crm: optionalText(20, "CRM").refine((v) => v === "" || /^[A-Za-z]{0,4}[\s/-]*[A-Za-z]{2}\s?\d{3,8}$/.test(v), {
+    message: "Formato esperado: CRM/SP 123456.",
+  }),
+  especialidade: optionalText(100, "Especialidade"),
+  cidade: optionalText(100, "Cidade"),
+});
+
 function Page() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
