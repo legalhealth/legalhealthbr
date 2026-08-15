@@ -28,6 +28,9 @@ export const Route = createFileRoute("/_authenticated/perfil")({
 });
 
 function Page() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const [name, setName] = useState("");
   const [clinic, setClinic] = useState("");
   const [email, setEmail] = useState("");
@@ -50,6 +53,13 @@ function Page() {
     toast.success("Alterações salvas localmente", {
       description: "Em breve sincronizaremos com sua conta.",
     });
+  };
+
+  const handleSignOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
   };
 
   return (
