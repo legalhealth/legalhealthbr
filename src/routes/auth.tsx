@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 
 import monogramAsset from "@/assets/LH_monograma_gradiente.png.asset.json";
+import verticalLogoAsset from "@/assets/LH_vertical_gradiente.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
