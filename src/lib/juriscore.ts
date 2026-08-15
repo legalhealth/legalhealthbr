@@ -196,7 +196,7 @@ export function computePillarScores(answers: Answers): PillarScore[] {
 }
 
 export function computeScore(answers: Answers): number {
-  const total = Object.values(answers).reduce((sum, value) => sum + value, 0);
+  const total = Object.values(answers).reduce<number>((sum, value) => sum + value, 0);
   return Math.round((total / MAX_POINTS) * 100);
 }
 
