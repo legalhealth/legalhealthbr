@@ -1,22 +1,42 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { Scale, Shield, FileCheck, AlertTriangle, BookOpen, Gavel, Info, ListChecks } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { ArrowLeft, ArrowRight, Check, Loader2, RotateCcw, Sparkles } from "lucide-react";
+import { PolarAngleAxis, PolarGrid, Radar, RadarChart, ResponsiveContainer } from "recharts";
 
+import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import {
+  ANSWER_OPTIONS,
+  MAX_POINTS,
+  PILLARS,
+  TOTAL_QUESTIONS,
+  computePillarScores,
+  computeScore,
+  getLevel,
+  pillarColor,
+  pillarTextClass,
+  type Answers,
+  type AnswerValue,
+} from "@/lib/juriscore";
 
 export const Route = createFileRoute("/_authenticated/juriscore")({
   head: () => ({
     meta: [
       { title: "Juriscore® | Legal Health" },
-      { name: "description", content: "Índice de risco jurídico da sua prática médica, atualizado continuamente." },
+      {
+        name: "description",
+        content: "Diagnóstico de risco jurídico em 5 pilares: responda 15 perguntas e receba seu Juriscore®.",
+      },
       { property: "og:title", content: "Juriscore® | Legal Health" },
-      { property: "og:description", content: "Índice de risco jurídico da sua prática médica, atualizado continuamente." },
+      {
+        property: "og:description",
+        content: "Diagnóstico de risco jurídico em 5 pilares: responda 15 perguntas e receba seu Juriscore®.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -24,308 +44,296 @@ export const Route = createFileRoute("/_authenticated/juriscore")({
   component: Page,
 });
 
-const score = 78;
-const scoreLabel = "Bom";
-const scoreColor = "text-success";
-const scoreStroke = "var(--color-success)";
+function Page() {
+  const navigate = useNavigate();
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<Answers>({});
+  const [finished, setFinished] = useState(false);
 
-const indicators = [
-  {
-    id: "documentation",
-    label: "Documentação médica",
-    value: 86,
-    status: "Bom",
-    color: "text-success",
-    stroke: "var(--color-success)",
-    description: "Prontuários e registros seguem padrões adequados.",
-  },
-  {
-    id: "processes",
-    label: "Processos e protocolos",
-    value: 62,
-    status: "Médio",
-    color: "text-warn",
-    stroke: "var(--color-warn)",
-    description: "Há gargalos em fluxos de consentimento e autorização.",
-  },
-  {
-    id: "contracts",
-    label: "Contratos e vínculos",
-    value: 45,
-    status: "Atenção",
-    color: "text-danger",
-    stroke: "var(--color-danger)",
-    description: "Cláusulas de responsabilidade precisam ser revisadas.",
-  },
-  {
-    id: "compliance",
-    label: "Conformidade regulatória",
-    value: 91,
-    status: "Excelente",
-    color: "text-success",
-    stroke: "var(--color-success)",
-    description: "LGPD, CREMESP e CFM estão alinhados.",
-  },
-];
+  const pillar = PILLARS[step]!;
+  const pillarScores = useMemo(() => computePillarScores(answers), [answers]);
+  const score = useMemo(() => computeScore(answers), [answers]);
+  const level = getLevel(score);
+  const answeredCount = Object.keys(answers).length;
+  const pillarComplete = pillar.questions.every((q) => answers[q.key] !== undefined);
+  const isLast = step === PILLARS.length - 1;
 
-const criteria = [
-  { key: "prontuario", label: "Prontuários eletrônicos completos e assinados", weight: 20, hint: "Registro clínico de todos os atendimentos" },
-  { key: "consentimento", label: "Termos de consentimento atualizados", weight: 20, hint: "Modelos específicos por procedimento" },
-  { key: "contratos", label: "Contratos revisados nos últimos 12 meses", weight: 15, hint: "Prestação de serviço e parcerias" },
-  { key: "lgpd", label: "Política de privacidade e LGPD implementadas", weight: 15, hint: "Base legal e tratamento de dados de pacientes" },
-  { key: "protocolos", label: "Protocolos internos documentados", weight: 15, hint: "Fluxos de atendimento e intercorrências" },
-  { key: "seguro", label: "Seguro de responsabilidade civil vigente", weight: 15, hint: "Cobertura adequada à especialidade" },
-] as const;
-
-function CriteriaPanel() {
-  const [checked, setChecked] = useState<Record<string, boolean>>({
-    prontuario: true,
-    lgpd: true,
+  const save = useMutation({
+    mutationFn: async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      const userId = auth.user?.id;
+      if (!userId) throw new Error("Sessão expirada. Entre novamente.");
+      const byPillar = Object.fromEntries(computePillarScores(answers).map((p) => [p.id, p.percent]));
+      const { error } = await supabase.from("juriscore_results").insert({
+        user_id: userId,
+        score: computeScore(answers),
+        by_pillar: byPillar,
+        answers,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setFinished(true);
+      toast.success("Juriscore® calculado", { description: "Resultado salvo no seu histórico." });
+    },
+    onError: (error) => {
+      setFinished(true);
+      toast.error("Resultado não foi salvo no histórico", {
+        description: error instanceof Error ? error.message : "Tente novamente mais tarde.",
+      });
+    },
   });
 
-  const toggle = (key: string) => setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
+  const select = (key: string, value: AnswerValue) => {
+    setAnswers((prev) => ({ ...prev, [key]: value }));
+  };
 
-  const { progress, done } = useMemo(() => {
-    const total = criteria.reduce((sum, c) => sum + c.weight, 0);
-    const earned = criteria.reduce((sum, c) => (checked[c.key] ? sum + c.weight : sum), 0);
-    return {
-      progress: Math.round((earned / total) * 100),
-      done: criteria.filter((c) => checked[c.key]).length,
-    };
-  }, [checked]);
+  const restart = () => {
+    setAnswers({});
+    setStep(0);
+    setFinished(false);
+  };
 
-  const tone =
-    progress >= 80
-      ? { label: "Baixo risco", color: "text-success" }
-      : progress >= 50
-        ? { label: "Risco médio", color: "text-warn" }
-        : { label: "Risco alto", color: "text-danger" };
-
-  return (
-    <Card className="mt-6 border border-border bg-card rounded-2xl shadow-none">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
-          <ListChecks className="h-5 w-5 text-gold" />
-          Painel de critérios
-        </CardTitle>
-        <CardDescription>
-          Marque o que já está em prática na sua clínica e acompanhe a evolução em tempo real.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-4">
-          <div className="flex items-end justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-subtle">Conformidade declarada</p>
-              <p className={`mt-1 text-2xl font-light ${tone.color}`}>{progress}%</p>
-            </div>
-            <div className="text-right">
-              <p className={`text-sm font-medium ${tone.color}`}>{tone.label}</p>
-              <p className="text-xs text-muted-foreground">
-                {done} de {criteria.length} critérios atendidos
+  if (finished) {
+    return (
+      <PageShell title="Seu Juriscore®" description={`Diagnóstico concluído com ${TOTAL_QUESTIONS} respostas nos 5 pilares.`}>
+        <div className="mt-10 grid gap-6 lg:grid-cols-3">
+          <Card className="border border-border bg-card rounded-2xl shadow-none lg:col-span-1">
+            <CardContent className="flex flex-col items-center gap-6 pt-6">
+              <ScoreRing score={score} color={level.color} />
+              <div className="text-center">
+                <span
+                  className="inline-flex items-center rounded-full border px-4 py-1 text-sm font-medium"
+                  style={{ borderColor: level.color, color: level.color }}
+                >
+                  {level.name}
+                </span>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{level.phrase}</p>
+              </div>
+              <Separator className="bg-border" />
+              <p className="text-xs text-subtle">
+                {Object.values(answers).reduce<number>((s, v) => s + v, 0)} de {MAX_POINTS} pontos possíveis
               </p>
-            </div>
-          </div>
-          <Progress value={progress} className="h-2 bg-muted" />
-        </div>
+            </CardContent>
+          </Card>
 
-        <div className="space-y-5">
-          {criteria.map((c, index) => (
-            <div key={c.key}>
-              {index > 0 && <Separator className="mb-5 bg-border" />}
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-0.5">
-                  <Label htmlFor={c.key} className="font-medium text-foreground">
-                    {c.label}
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    {c.hint} · peso {c.weight}
-                  </p>
-                </div>
-                <Switch id={c.key} checked={Boolean(checked[c.key])} onCheckedChange={() => toggle(c.key)} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function Page() {
-  return (
-    <PageShell
-      title="Juriscore®"
-      description="Índice de risco jurídico da sua prática médica, atualizado continuamente."
-    >
-      <div className="mt-10 grid gap-6 lg:grid-cols-12">
-        {/* Painel principal de pontuação */}
-        <Card className="border border-border bg-card rounded-2xl shadow-none lg:col-span-5">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
-              <Scale className="h-5 w-5 text-gold" />
-              Pontuação geral
-            </CardTitle>
-            <CardDescription>Última atualização: hoje, 06:00</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center gap-6 py-8">
-            <div className="relative h-56 w-56">
-              <svg className="h-full w-full -rotate-90" viewBox="0 0 120 120">
-                <circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-border)" strokeWidth="10" />
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="52"
-                  fill="none"
-                  stroke={scoreStroke}
-                  strokeWidth="10"
-                  strokeLinecap="round"
-                  strokeDasharray={`${2 * Math.PI * 52 * (score / 100)} ${2 * Math.PI * 52}`}
-                  className="transition-all duration-1000 ease-out"
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className={`text-6xl font-serif font-medium tracking-tight ${scoreColor}`}>{score}</span>
-                <span className="text-sm font-medium text-muted-foreground">de 100</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Badge className="bg-success/10 text-success border-0">{scoreLabel}</Badge>
-              <span className="text-sm text-muted-foreground">Risco jurídico moderado-baixo</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Indicadores de risco */}
-        <div className="flex flex-col gap-6 lg:col-span-7">
-          <Card className="border border-border bg-card rounded-2xl shadow-none flex-1">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
-                <Shield className="h-5 w-5 text-gold" />
-                Indicadores de risco
-              </CardTitle>
-              <CardDescription>Dimensões analisadas pela IA e pela equipe jurídica.</CardDescription>
+          <Card className="border border-border bg-card rounded-2xl shadow-none lg:col-span-2">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-medium text-foreground">Equilíbrio entre os pilares</CardTitle>
+              <CardDescription>Quanto mais preenchido o pentágono, maior a blindagem jurídica.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {indicators.map((indicator) => (
-                <div key={indicator.id} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-foreground">{indicator.label}</span>
-                      <span className={`text-xs font-medium ${indicator.color}`}>{indicator.status}</span>
-                    </div>
-                    <span className="text-sm font-medium text-foreground">{indicator.value}</span>
+            <CardContent className="h-[300px] pt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart data={pillarScores.map((p) => ({ pilar: p.name, valor: p.percent }))} outerRadius="72%">
+                  <PolarGrid stroke="var(--color-border)" />
+                  <PolarAngleAxis
+                    dataKey="pilar"
+                    tick={{ fill: "var(--color-muted-foreground)", fontSize: 12 }}
+                  />
+                  <Radar
+                    dataKey="valor"
+                    stroke="var(--color-gold)"
+                    fill="var(--color-gold)"
+                    fillOpacity={0.28}
+                    strokeWidth={2}
+                    dot
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card className="border border-border bg-card rounded-2xl shadow-none lg:col-span-3">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-medium text-foreground">Conformidade por pilar</CardTitle>
+              <CardDescription>Verde acima de 67%, âmbar entre 34% e 66%, vermelho abaixo de 34%.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              {pillarScores.map((p) => (
+                <div key={p.id} className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-foreground">{p.name}</span>
+                    <span className={`font-medium ${pillarTextClass(p.percent)}`}>{p.percent}%</span>
                   </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-border">
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-muted/40">
                     <div
-                      className="h-full rounded-full transition-all duration-1000 ease-out"
-                      style={{ width: `${indicator.value}%`, backgroundColor: indicator.stroke }}
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{ width: `${p.percent}%`, backgroundColor: pillarColor(p.percent) }}
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">{indicator.description}</p>
                 </div>
               ))}
             </CardContent>
           </Card>
+        </div>
 
-          {/* Cartões explicativos */}
-          <div className="grid gap-6 sm:grid-cols-2">
-            <Card className="border border-border bg-card rounded-2xl shadow-none">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base font-medium text-foreground">
-                  <BookOpen className="h-4 w-4 text-gold" />
-                  O que é o Juriscore®?
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  O Juriscore® é um índice proprietário que mede a saúde jurídica da sua prática. Ele combina
-                  análise documental, conformidade regulatória e padrões de processos clínicos.
-                </p>
-              </CardContent>
-            </Card>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <Button
+            variant="outline"
+            onClick={restart}
+            className="h-11 rounded-xl border-border hover:bg-accent hover:text-accent-foreground"
+          >
+            <RotateCcw className="h-4 w-4" />
+            Refazer diagnóstico
+          </Button>
+          <Button
+            onClick={() => navigate({ to: "/plano" })}
+            className="h-11 flex-1 rounded-xl bg-gold font-medium text-primary-foreground hover:bg-gold/90"
+          >
+            <Sparkles className="h-4 w-4" />
+            Gerar Plano de Ação a partir deste Juriscore®
+          </Button>
+        </div>
+      </PageShell>
+    );
+  }
 
-            <Card className="border border-border bg-card rounded-2xl shadow-none">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base font-medium text-foreground">
-                  <Gavel className="h-4 w-4 text-gold" />
-                  Como interpretar
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  Scores acima de 75 indicam boa proteção jurídica. Entre 50 e 75, há espaços para ajustes. Abaixo
-                  de 50, recomendamos ação imediata para reduzir riscos.
-                </p>
-              </CardContent>
-            </Card>
+  return (
+    <PageShell
+      title="Juriscore®"
+      description="Diagnóstico de risco jurídico em 5 pilares, com 3 perguntas cada. Responda com sinceridade — o resultado orienta seu Plano de Ação."
+    >
+      <div className="mt-10 max-w-3xl">
+        <div className="mb-8">
+          <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
+            <span>
+              Pilar {step + 1} de {PILLARS.length}
+            </span>
+            <span>
+              {answeredCount}/{TOTAL_QUESTIONS} respostas
+            </span>
+          </div>
+          <div className="flex gap-2">
+            {PILLARS.map((p, index) => {
+              const done = p.questions.every((q) => answers[q.key] !== undefined);
+              return (
+                <div key={p.id} className="flex-1 space-y-2">
+                  <div
+                    className={`h-1 rounded-full transition-colors ${
+                      index === step ? "bg-gold" : done ? "bg-gold/50" : "bg-border"
+                    }`}
+                  />
+                  <span
+                    className={`hidden text-[11px] uppercase tracking-wider sm:block ${
+                      index === step ? "text-gold" : "text-subtle"
+                    }`}
+                  >
+                    {p.short}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
-      </div>
 
-      {/* Aviso e recomendações */}
-      <CriteriaPanel />
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card className="border border-border bg-card rounded-2xl shadow-none">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
-              <AlertTriangle className="h-5 w-5 text-warn" />
-              Recomendações prioritárias
-            </CardTitle>
-            <CardDescription>Ações que mais impactam sua pontuação neste mês.</CardDescription>
+          <CardHeader className="pb-2">
+            <span className="text-xs uppercase tracking-[0.18em] text-gold">Pilar {step + 1}</span>
+            <CardTitle className="text-xl font-medium text-foreground">{pillar.name}</CardTitle>
+            <CardDescription>{pillar.subtitle}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 h-2 w-2 rounded-full bg-danger" />
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium text-foreground">Revisar cláusulas de responsabilidade</p>
-                <p className="text-xs text-muted-foreground">Contratos de prestação de serviço médico</p>
+          <CardContent className="space-y-6 pt-4">
+            {pillar.questions.map((question, index) => (
+              <div key={question.key} className="space-y-3">
+                <p className="text-sm leading-relaxed text-foreground">
+                  <span className="mr-2 text-subtle">{index + 1}.</span>
+                  {question.text}
+                </p>
+                <div className="grid gap-2 sm:grid-cols-3">
+                  {ANSWER_OPTIONS.map((option) => {
+                    const active = answers[question.key] === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => select(question.key, option.value)}
+                        aria-pressed={active}
+                        className={`flex items-center justify-between gap-2 rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
+                          active
+                            ? "border-gold bg-gold/10 text-foreground"
+                            : "border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
+                        }`}
+                      >
+                        {option.label}
+                        {active ? <Check className="h-4 w-4 shrink-0 text-gold" /> : null}
+                      </button>
+                    );
+                  })}
+                </div>
+                {index < pillar.questions.length - 1 ? <Separator className="bg-border" /> : null}
               </div>
-            </div>
-            <Separator className="bg-border" />
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 h-2 w-2 rounded-full bg-warn" />
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium text-foreground">Padronizar termos de consentimento</p>
-                <p className="text-xs text-muted-foreground">Procedimentos de maior risco e estética</p>
-              </div>
-            </div>
-            <Separator className="bg-border" />
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 h-2 w-2 rounded-full bg-success" />
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium text-foreground">Manter atualização de registros médicos</p>
-                <p className="text-xs text-muted-foreground">Prontuários eletrônicos e assinaturas</p>
-              </div>
-            </div>
+            ))}
           </CardContent>
         </Card>
 
-        <Card className="border border-border bg-card rounded-2xl shadow-none">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
-              <Info className="h-5 w-5 text-gold" />
-              Sobre os dados
-            </CardTitle>
-            <CardDescription>Como a pontuação é calculada.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              O Juriscore® utiliza dados de três fontes: documentos e contratos enviados, bases públicas de
-              jurisprudência e regulamentação do CFM/CREMESP, e informações de rotina inseridas na plataforma.
-            </p>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              O índice é atualizado automaticamente sempre que há novas jurisprudências, mudanças regulatórias ou
-              documentos processados pela IA.
-            </p>
-            <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/30 px-4 py-3">
-              <FileCheck className="h-4 w-4 text-success" />
-              <span className="text-xs text-muted-foreground">Próxima atualização em 7 dias</span>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="mt-6 flex items-center justify-between gap-3">
+          <Button
+            variant="outline"
+            disabled={step === 0 || save.isPending}
+            onClick={() => setStep((s) => Math.max(0, s - 1))}
+            className="h-11 rounded-xl border-border hover:bg-accent hover:text-accent-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Anterior
+          </Button>
+
+          {isLast ? (
+            <Button
+              disabled={!pillarComplete || save.isPending}
+              onClick={() => save.mutate()}
+              className="h-11 rounded-xl bg-gold font-medium text-primary-foreground hover:bg-gold/90"
+            >
+              {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Calcular meu Juriscore®
+            </Button>
+          ) : (
+            <Button
+              disabled={!pillarComplete}
+              onClick={() => setStep((s) => Math.min(PILLARS.length - 1, s + 1))}
+              className="h-11 rounded-xl bg-gold font-medium text-primary-foreground hover:bg-gold/90"
+            >
+              Próximo pilar
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+
+        {!pillarComplete ? (
+          <p className="mt-3 text-right text-xs text-subtle">Responda as 3 perguntas deste pilar para avançar.</p>
+        ) : null}
       </div>
     </PageShell>
+  );
+}
+
+function ScoreRing({ score, color }: { score: number; color: string }) {
+  const radius = 88;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (score / 100) * circumference;
+
+  return (
+    <div className="relative h-[220px] w-[220px]">
+      <svg viewBox="0 0 200 200" className="h-full w-full -rotate-90">
+        <circle cx="100" cy="100" r={radius} fill="none" stroke="var(--color-border)" strokeWidth="10" />
+        <circle
+          cx="100"
+          cy="100"
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth="10"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          className="transition-all duration-1000 ease-out"
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-5xl font-light tabular-nums" style={{ color }}>
+          {score}
+        </span>
+        <span className="mt-1 text-xs uppercase tracking-[0.2em] text-subtle">de 100</span>
+      </div>
+    </div>
   );
 }
