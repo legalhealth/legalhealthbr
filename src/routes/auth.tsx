@@ -3,6 +3,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 
+import monogramAsset from "@/assets/LH_monograma_gradiente.png.asset.json";
+import verticalLogoAsset from "@/assets/LH_vertical_gradiente.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,11 +71,14 @@ function AuthPage() {
     <div className="flex min-h-screen flex-col items-center justify-center px-5 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-card">
-            <span className="font-serif text-2xl font-semibold text-gold">LH</span>
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-border bg-card">
+            <img src={monogramAsset.url} alt="Legal Health" className="h-full w-full object-contain" />
           </div>
-          <h1 className="font-serif text-2xl font-medium tracking-tight text-gold-light">LEGAL HEALTH</h1>
-          <p className="mt-1 text-xs tracking-[0.24em] text-muted-foreground uppercase">Inteligência Jurídica para Medicina</p>
+          <img
+            src={verticalLogoAsset.url}
+            alt="Legal Health — Inteligência Jurídica para Medicina"
+            className="mx-auto h-auto w-full max-w-[220px]"
+          />
         </div>
 
         <Card className="border border-border bg-card rounded-2xl shadow-none">
