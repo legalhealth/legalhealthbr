@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { User, Building2, Bell, FileText, Shield, Save, LogOut, Upload, Trash2 } from "lucide-react";
+import { z } from "zod";
+import { User, Building2, Bell, FileText, Shield, Save, LogOut, Upload, Trash2, Loader2 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
@@ -37,6 +38,52 @@ function Page() {
   const [email, setEmail] = useState("");
   const [crm, setCrm] = useState("");
   const [specialty, setSpecialty] = useState("");
+  const [city, setCity] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const [preferences, setPreferences] = useState({
+    emailAlerts: true,
+    weeklyDigest: false,
+    newJurisprudence: true,
+    riskNotifications: true,
+  });
+
+  const profileQuery = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      const userId = auth.user?.id;
+      if (!userId) throw new Error("Sessão expirada");
+      const { data, error } = await supabase
+        .from("profiles")
+        .select(
+          "nome, clinica, crm, especialidade, cidade, plano, email_alerts, weekly_digest, new_jurisprudence, risk_notifications",
+        )
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (error) throw error;
+      return { userId, email: auth.user?.email ?? "", profile: data };
+    },
+  });
+
+  useEffect(() => {
+    const data = profileQuery.data;
+    if (!data) return;
+    setEmail(data.email);
+    const p = data.profile;
+    if (!p) return;
+    setName(p.nome ?? "");
+    setClinic(p.clinica ?? "");
+    setCrm(p.crm ?? "");
+    setSpecialty(p.especialidade ?? "");
+    setCity(p.cidade ?? "");
+    setPreferences({
+      emailAlerts: p.email_alerts,
+      weeklyDigest: p.weekly_digest,
+      newJurisprudence: p.new_jurisprudence,
+      riskNotifications: p.risk_notifications,
+    });
+  }, [profileQuery.data]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -80,22 +127,65 @@ function Page() {
       .map((part) => part[0]?.toUpperCase() ?? "")
       .join("") || "LH";
 
-  const [preferences, setPreferences] = useState({
-    emailAlerts: true,
-    weeklyDigest: false,
-    newJurisprudence: true,
-    riskNotifications: true,
-  });
-
   const toggle = (key: keyof typeof preferences) => {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const saveMutation = useMutation({
+    mutationFn: async (values: z.infer<typeof profileSchema>) => {
+      const userId = profileQuery.data?.userId;
+      if (!userId) throw new Error("Sessão expirada. Entre novamente.");
+      const { error } = await supabase
+        .from("profiles")
+        .upsert(
+          {
+            user_id: userId,
+            nome: values.nome || null,
+            clinica: values.clinica || null,
+            crm: values.crm || null,
+            especialidade: values.especialidade || null,
+            cidade: values.cidade || null,
+            email_alerts: preferences.emailAlerts,
+            weekly_digest: preferences.weeklyDigest,
+            new_jurisprudence: preferences.newJurisprudence,
+            risk_notifications: preferences.riskNotifications,
+          },
+          { onConflict: "user_id" },
+        );
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      toast.success("Perfil atualizado", { description: "Seus dados foram salvos na sua conta." });
+    },
+    onError: (error) => {
+      toast.error("Não foi possível salvar", {
+        description: error instanceof Error ? error.message : "Tente novamente.",
+      });
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Alterações salvas localmente", {
-      description: "Em breve sincronizaremos com sua conta.",
+    const parsed = profileSchema.safeParse({
+      nome: name,
+      clinica: clinic,
+      crm,
+      especialidade: specialty,
+      cidade: city,
     });
+    if (!parsed.success) {
+      const fieldErrors: Record<string, string> = {};
+      for (const issue of parsed.error.issues) {
+        const key = String(issue.path[0]);
+        if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+      }
+      setErrors(fieldErrors);
+      toast.error("Verifique os campos destacados");
+      return;
+    }
+    setErrors({});
+    saveMutation.mutate(parsed.data);
   };
 
   const handleSignOut = async () => {
@@ -175,7 +265,9 @@ function Page() {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Dr. João Silva"
                   maxLength={120}
+                  aria-invalid={Boolean(errors["nome"])}
                 />
+                {errors["nome"] && <p className="text-xs text-danger">{errors["nome"]}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">E-mail</Label>
@@ -183,10 +275,11 @@ function Page() {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="joao.silva@clinica.com.br"
-                  maxLength={255}
+                  readOnly
+                  disabled
                 />
+                <p className="text-xs text-subtle">O e-mail de acesso não pode ser alterado aqui.</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="clinic">Clínica / Instituição</Label>
@@ -196,7 +289,9 @@ function Page() {
                   onChange={(e) => setClinic(e.target.value)}
                   placeholder="Clínica Médica Exemplo"
                   maxLength={150}
+                  aria-invalid={Boolean(errors["clinica"])}
                 />
+                {errors["clinica"] && <p className="text-xs text-danger">{errors["clinica"]}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="crm">CRM</Label>
@@ -206,9 +301,11 @@ function Page() {
                   onChange={(e) => setCrm(e.target.value)}
                   placeholder="CRM/SP 123456"
                   maxLength={20}
+                  aria-invalid={Boolean(errors["crm"])}
                 />
+                {errors["crm"] && <p className="text-xs text-danger">{errors["crm"]}</p>}
               </div>
-              <div className="space-y-2 sm:col-span-2">
+              <div className="space-y-2">
                 <Label htmlFor="specialty">Especialidade</Label>
                 <Input
                   id="specialty"
@@ -216,7 +313,21 @@ function Page() {
                   onChange={(e) => setSpecialty(e.target.value)}
                   placeholder="Cirurgia plástica, cardiologia, ortopedia..."
                   maxLength={100}
+                  aria-invalid={Boolean(errors["especialidade"])}
                 />
+                {errors["especialidade"] && <p className="text-xs text-danger">{errors["especialidade"]}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">Cidade</Label>
+                <Input
+                  id="city"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="São Paulo, SP"
+                  maxLength={100}
+                  aria-invalid={Boolean(errors["cidade"])}
+                />
+                {errors["cidade"] && <p className="text-xs text-danger">{errors["cidade"]}</p>}
               </div>
             </CardContent>
           </Card>
@@ -277,7 +388,9 @@ function Page() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Plano</span>
-                <span className="text-sm font-medium text-foreground">Profissional</span>
+                <span className="text-sm font-medium text-foreground capitalize">
+                  {profileQuery.data?.profile?.plano ?? "essential"}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Status</span>
@@ -316,10 +429,11 @@ function Page() {
 
           <Button
             type="submit"
+            disabled={saveMutation.isPending || profileQuery.isLoading}
             className="w-full bg-gold text-primary-foreground hover:bg-gold/90 h-11 rounded-xl font-medium"
           >
-            <Save className="h-4 w-4" />
-            Salvar alterações
+            {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            {saveMutation.isPending ? "Salvando..." : "Salvar alterações"}
           </Button>
 
           <Button
