@@ -368,11 +368,21 @@ function Page() {
                     : "text-warn"
               }
             />
-            <Metric
-              label="Pendências"
-              value={data?.hasPlan ? `${data.itemsDone}/${data.itemsTotal}` : "—"}
-              valueClass={data?.hasPlan ? "text-foreground" : "text-subtle"}
-            />
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">Pendências</p>
+              <p
+                className={`mt-3 font-serif text-3xl leading-none ${data?.hasPlan ? "text-foreground" : "text-subtle"}`}
+              >
+                {data?.hasPlan ? `${data.itemsDone}/${data.itemsTotal}` : "—"}
+              </p>
+              <Link
+                to="/plano"
+                className="mt-4 inline-flex items-center gap-2 text-xs text-gold transition-colors hover:text-gold-light"
+              >
+                {data?.hasPlan ? "Revisar plano de ação" : "Gerar plano de ação"}
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
           </section>
 
           {/* Central de alertas */}
