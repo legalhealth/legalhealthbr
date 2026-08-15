@@ -18,6 +18,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
 import { saveHistoryItem } from "@/lib/ia-history";
+import { useRecommendations } from "@/lib/ia-recommendations";
 
 export const Route = createFileRoute("/_authenticated/ia/peca")({
   head: () => ({
@@ -52,6 +53,8 @@ const TIPOS = [
 function Page() {
   const { data: ctx } = useDiagnosticContext();
   const queryClient = useQueryClient();
+  const { data: recommendations } = useRecommendations();
+  const [selectedRecs, setSelectedRecs] = useState<string[]>([]);
   const [tipo, setTipo] = useState("defesa-conselho");
   const [destinatario, setDestinatario] = useState("");
   const [fatos, setFatos] = useState("");
@@ -76,6 +79,9 @@ function Page() {
     setGenerating(true);
     setTimeout(() => {
       const tipoLabel = TIPOS.find((t) => t.value === tipo)?.label ?? "Peça";
+      const recTexts = (recommendations ?? [])
+        .filter((r) => selectedRecs.includes(r.id))
+        .map((r) => r.content);
       const text = [
           `${tipoLabel.toUpperCase()}`,
           destinatario ? `Ao(À) ${destinatario}` : "",
@@ -91,6 +97,13 @@ function Page() {
                 .map((p) => p.name)
                 .join(" e ")} como frentes de reforço, com medidas já em implementação.`
             : "A conduta observou os deveres de informação, documentação e diligência exigidos da atividade médica.",
+          ...(recTexts.length > 0
+            ? [
+                "",
+                "II.a — MEDIDAS RECOMENDADAS EM ANDAMENTO",
+                ...recTexts.map((r, i) => `${i + 1}. ${r}`),
+              ]
+            : []),
           "",
           "III — DOS PEDIDOS",
           "Requer-se o acolhimento integral desta manifestação, com o arquivamento do feito.",
