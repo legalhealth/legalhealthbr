@@ -129,7 +129,7 @@ function Page() {
                   <MessageContent
                     className={
                       message.role === "user"
-                        ? "bg-info text-info-foreground rounded-2xl px-5 py-3.5 shadow-sm"
+                        ? "group-[.is-user]:bg-info group-[.is-user]:text-info-foreground rounded-2xl px-5 py-3.5 shadow-sm"
                         : "text-foreground"
                     }
                   >
