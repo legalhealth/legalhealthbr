@@ -10,33 +10,90 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BibliotecaRouteImport } from './routes/biblioteca'
+import { Route as IaRouteImport } from './routes/ia'
+import { Route as JuriscoreRouteImport } from './routes/juriscore'
+import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as PlanoRouteImport } from './routes/plano'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BibliotecaRoute = BibliotecaRouteImport.update({
+  id: '/biblioteca',
+  path: '/biblioteca',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IaRoute = IaRouteImport.update({
+  id: '/ia',
+  path: '/ia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JuriscoreRoute = JuriscoreRouteImport.update({
+  id: '/juriscore',
+  path: '/juriscore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanoRoute = PlanoRouteImport.update({
+  id: '/plano',
+  path: '/plano',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/biblioteca': typeof BibliotecaRoute
+  '/ia': typeof IaRoute
+  '/juriscore': typeof JuriscoreRoute
+  '/perfil': typeof PerfilRoute
+  '/plano': typeof PlanoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/biblioteca': typeof BibliotecaRoute
+  '/ia': typeof IaRoute
+  '/juriscore': typeof JuriscoreRoute
+  '/perfil': typeof PerfilRoute
+  '/plano': typeof PlanoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/biblioteca': typeof BibliotecaRoute
+  '/ia': typeof IaRoute
+  '/juriscore': typeof JuriscoreRoute
+  '/perfil': typeof PerfilRoute
+  '/plano': typeof PlanoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/biblioteca' | '/ia' | '/juriscore' | '/perfil' | '/plano'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/biblioteca' | '/ia' | '/juriscore' | '/perfil' | '/plano'
+  id:
+    | '__root__'
+    | '/'
+    | '/biblioteca'
+    | '/ia'
+    | '/juriscore'
+    | '/perfil'
+    | '/plano'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BibliotecaRoute: typeof BibliotecaRoute
+  IaRoute: typeof IaRoute
+  JuriscoreRoute: typeof JuriscoreRoute
+  PerfilRoute: typeof PerfilRoute
+  PlanoRoute: typeof PlanoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +105,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/biblioteca': {
+      id: '/biblioteca'
+      path: '/biblioteca'
+      fullPath: '/biblioteca'
+      preLoaderRoute: typeof BibliotecaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ia': {
+      id: '/ia'
+      path: '/ia'
+      fullPath: '/ia'
+      preLoaderRoute: typeof IaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/juriscore': {
+      id: '/juriscore'
+      path: '/juriscore'
+      fullPath: '/juriscore'
+      preLoaderRoute: typeof JuriscoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plano': {
+      id: '/plano'
+      path: '/plano'
+      fullPath: '/plano'
+      preLoaderRoute: typeof PlanoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BibliotecaRoute: BibliotecaRoute,
+  IaRoute: IaRoute,
+  JuriscoreRoute: JuriscoreRoute,
+  PerfilRoute: PerfilRoute,
+  PlanoRoute: PlanoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
