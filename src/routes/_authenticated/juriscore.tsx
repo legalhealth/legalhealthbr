@@ -68,6 +68,90 @@ const indicators = [
   },
 ];
 
+const criteria = [
+  { key: "prontuario", label: "Prontuários eletrônicos completos e assinados", weight: 20, hint: "Registro clínico de todos os atendimentos" },
+  { key: "consentimento", label: "Termos de consentimento atualizados", weight: 20, hint: "Modelos específicos por procedimento" },
+  { key: "contratos", label: "Contratos revisados nos últimos 12 meses", weight: 15, hint: "Prestação de serviço e parcerias" },
+  { key: "lgpd", label: "Política de privacidade e LGPD implementadas", weight: 15, hint: "Base legal e tratamento de dados de pacientes" },
+  { key: "protocolos", label: "Protocolos internos documentados", weight: 15, hint: "Fluxos de atendimento e intercorrências" },
+  { key: "seguro", label: "Seguro de responsabilidade civil vigente", weight: 15, hint: "Cobertura adequada à especialidade" },
+] as const;
+
+function CriteriaPanel() {
+  const [checked, setChecked] = useState<Record<string, boolean>>({
+    prontuario: true,
+    lgpd: true,
+  });
+
+  const toggle = (key: string) => setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  const { progress, done } = useMemo(() => {
+    const total = criteria.reduce((sum, c) => sum + c.weight, 0);
+    const earned = criteria.reduce((sum, c) => (checked[c.key] ? sum + c.weight : sum), 0);
+    return {
+      progress: Math.round((earned / total) * 100),
+      done: criteria.filter((c) => checked[c.key]).length,
+    };
+  }, [checked]);
+
+  const tone =
+    progress >= 80
+      ? { label: "Baixo risco", color: "text-success" }
+      : progress >= 50
+        ? { label: "Risco médio", color: "text-warn" }
+        : { label: "Risco alto", color: "text-danger" };
+
+  return (
+    <Card className="mt-6 border border-border bg-card rounded-2xl shadow-none">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
+          <ListChecks className="h-5 w-5 text-gold" />
+          Painel de critérios
+        </CardTitle>
+        <CardDescription>
+          Marque o que já está em prática na sua clínica e acompanhe a evolução em tempo real.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-4">
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-subtle">Conformidade declarada</p>
+              <p className={`mt-1 text-2xl font-light ${tone.color}`}>{progress}%</p>
+            </div>
+            <div className="text-right">
+              <p className={`text-sm font-medium ${tone.color}`}>{tone.label}</p>
+              <p className="text-xs text-muted-foreground">
+                {done} de {criteria.length} critérios atendidos
+              </p>
+            </div>
+          </div>
+          <Progress value={progress} className="h-2 bg-muted" />
+        </div>
+
+        <div className="space-y-5">
+          {criteria.map((c, index) => (
+            <div key={c.key}>
+              {index > 0 && <Separator className="mb-5 bg-border" />}
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor={c.key} className="font-medium text-foreground">
+                    {c.label}
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    {c.hint} · peso {c.weight}
+                  </p>
+                </div>
+                <Switch id={c.key} checked={Boolean(checked[c.key])} onCheckedChange={() => toggle(c.key)} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function Page() {
   return (
     <PageShell
