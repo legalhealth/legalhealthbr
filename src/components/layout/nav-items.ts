@@ -1,9 +1,8 @@
 import { Home, Sparkles, Gauge, ClipboardList, BookOpen, User } from "lucide-react";
-import type { LinkProps } from "@tanstack/react-router";
 import type { ComponentType } from "react";
 
 type NavItem = {
-  to: LinkProps["to"];
+  to: "/" | "/ia" | "/juriscore" | "/plano" | "/biblioteca" | "/perfil";
   label: string;
   icon: ComponentType<{ className?: string; strokeWidth?: number }>;
   exact: boolean;
