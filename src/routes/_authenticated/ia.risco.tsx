@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, ScrollText, Sparkles } from "lucide-react";
@@ -11,8 +11,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
 import { saveHistoryItem } from "@/lib/ia-history";
+import { tagLabel, useDocuments } from "@/lib/ia-documents";
 
 export const Route = createFileRoute("/_authenticated/ia/risco")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    doc: typeof search['doc'] === "string" ? (search['doc'] as string) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Análise de risco | Legal Health" },
@@ -45,11 +49,31 @@ type Analysis = {
 
 function Page() {
   const { data: ctx } = useDiagnosticContext();
+  const { doc } = Route.useSearch();
+  const { data: documents } = useDocuments();
   const queryClient = useQueryClient();
   const [prazo, setPrazo] = useState("");
   const [texto, setTexto] = useState("");
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const selectedDoc = doc ? (documents ?? []).find((d) => d.id === doc) : undefined;
+
+  useEffect(() => {
+    if (!selectedDoc) return;
+    setTexto((prev) =>
+      prev.trim().length > 0
+        ? prev
+        : [
+            `Documento anexado: ${selectedDoc.nome} (${tagLabel(selectedDoc.tag)}, enviado em ${new Date(
+              selectedDoc.created_at,
+            ).toLocaleDateString("pt-BR")}).`,
+            "",
+            selectedDoc.texto ??
+              "Cole aqui o texto do documento ou descreva o seu conteúdo para a análise.",
+          ].join("\n"),
+    );
+  }, [selectedDoc]);
 
   const handleAnalyze = () => {
     if (texto.trim().length < 20) {
@@ -129,6 +153,19 @@ function Page() {
         ctx={ctx}
         note="O nível de risco da intimação é calibrado pelo seu score e pelos pilares em alerta."
       />
+
+      {selectedDoc ? (
+        <div className="rounded-2xl border border-gold/40 bg-gold/5 p-5">
+          <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">
+            Documento em contexto
+          </p>
+          <p className="mt-2 text-sm text-foreground">{selectedDoc.nome}</p>
+          <p className="mt-1 text-xs text-subtle">
+            {tagLabel(selectedDoc.tag)} ·{" "}
+            {new Date(selectedDoc.created_at).toLocaleDateString("pt-BR")}
+          </p>
+        </div>
+      ) : null}
 
       <section className="rounded-2xl border border-border bg-card p-6">
         <div className="flex items-center gap-3">
