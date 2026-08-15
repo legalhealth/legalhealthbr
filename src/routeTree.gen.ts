@@ -20,6 +20,7 @@ import { Route as AuthenticatedJuriscoreRouteImport } from './routes/_authentica
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedPlanoRouteImport } from './routes/_authenticated/plano'
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia.index'
+import { Route as AuthenticatedIaAssistenteRouteImport } from './routes/_authenticated/ia.assistente'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -75,6 +76,12 @@ const AuthenticatedIaIndexRoute = AuthenticatedIaIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedIaRoute,
 } as any)
+const AuthenticatedIaAssistenteRoute =
+  AuthenticatedIaAssistenteRouteImport.update({
+    id: '/assistente',
+    path: '/assistente',
+    getParentRoute: () => AuthenticatedIaRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/juriscore': typeof AuthenticatedJuriscoreRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/plano': typeof AuthenticatedPlanoRoute
+  '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
 }
 export interface FileRoutesByTo {
@@ -97,6 +105,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/plano': typeof AuthenticatedPlanoRoute
   '/': typeof AuthenticatedIndexRoute
+  '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia': typeof AuthenticatedIaIndexRoute
 }
 export interface FileRoutesById {
@@ -111,6 +120,7 @@ export interface FileRoutesById {
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/plano': typeof AuthenticatedPlanoRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
 }
 export interface FileRouteTypes {
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/juriscore'
     | '/perfil'
     | '/plano'
+    | '/ia/assistente'
     | '/ia/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/plano'
     | '/'
+    | '/ia/assistente'
     | '/ia'
   id:
     | '__root__'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/plano'
     | '/_authenticated/'
+    | '/_authenticated/ia/assistente'
     | '/_authenticated/ia/'
   fileRoutesById: FileRoutesById
 }
@@ -237,14 +250,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIaIndexRouteImport
       parentRoute: typeof AuthenticatedIaRoute
     }
+    '/_authenticated/ia/assistente': {
+      id: '/_authenticated/ia/assistente'
+      path: '/assistente'
+      fullPath: '/ia/assistente'
+      preLoaderRoute: typeof AuthenticatedIaAssistenteRouteImport
+      parentRoute: typeof AuthenticatedIaRoute
+    }
   }
 }
 
 interface AuthenticatedIaRouteChildren {
+  AuthenticatedIaAssistenteRoute: typeof AuthenticatedIaAssistenteRoute
   AuthenticatedIaIndexRoute: typeof AuthenticatedIaIndexRoute
 }
 
 const AuthenticatedIaRouteChildren: AuthenticatedIaRouteChildren = {
+  AuthenticatedIaAssistenteRoute: AuthenticatedIaAssistenteRoute,
   AuthenticatedIaIndexRoute: AuthenticatedIaIndexRoute,
 }
 
