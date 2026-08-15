@@ -14,9 +14,8 @@ import { saveHistoryItem } from "@/lib/ia-history";
 import { tagLabel, useDocuments } from "@/lib/ia-documents";
 
 export const Route = createFileRoute("/_authenticated/ia/risco")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    doc: typeof search['doc'] === "string" ? (search['doc'] as string) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { doc?: string } =>
+    typeof search['doc'] === "string" ? { doc: search['doc'] } : {},
   head: () => ({
     meta: [
       { title: "Análise de risco | Legal Health" },
