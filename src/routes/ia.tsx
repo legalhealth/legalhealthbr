@@ -75,10 +75,7 @@ function Page() {
   const [status, setStatus] = useState<"ready" | "submitted" | "streaming">("ready");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmit = (
-    _message: { text: string; files?: File[] },
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = (_message: PromptInputMessage, e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const text = input.trim();
     if (!text || status !== "ready") return;
