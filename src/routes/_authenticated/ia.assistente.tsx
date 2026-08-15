@@ -24,6 +24,7 @@ import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
 import {
   appendMessage,
   createThread,
+  streamAiChat,
   useChatMessages,
   useChatThreads,
   useDeleteThread,
@@ -67,6 +68,8 @@ function Page() {
   const saveRecommendation = useSaveRecommendation();
   const [input, setInput] = useState(q ?? "");
   const [status, setStatus] = useState<"ready" | "submitted" | "streaming">("ready");
+  const [pendingUser, setPendingUser] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const messages: ChatMessage[] = (storedMessages ?? []).map((m) => ({
@@ -87,21 +90,13 @@ function Page() {
   }, [ctx]);
 
   const suggestions = useMemo(() => {
-    if (ctx?.hasDiagnostic && ctx.weakest.length > 0) {
-      return [
-        `Como elevar a conformidade do pilar ${ctx.weakest[0]!.name}?`,
-        `Quais documentos faltam no pilar ${ctx.weakest[1]?.name ?? ctx.weakest[0]!.name}?`,
-        "Quais riscos do meu diagnóstico devo tratar primeiro?",
-        "O que responder a um paciente que ameaça processar?",
-      ];
-    }
     return [
-      "Analisar termo de consentimento livre e esclarecido",
-      "Avaliar riscos de uma reclamação no conselho regional",
-      "Revisar contrato de prestação de serviços médicos",
-      "Como registrar corretamente uma intercorrência no prontuário?",
+      "Posso negar o prontuário ao paciente?",
+      "Como divulgar antes e depois sem infringir o CFM?",
+      "Paciente pediu exclusão dos dados pela LGPD. O que faço?",
+      "Redija uma notificação extrajudicial de cobrança de honorários médicos.",
     ];
-  }, [ctx]);
+  }, []);
 
   useEffect(() => {
     if (q) textareaRef.current?.focus();
@@ -117,6 +112,8 @@ function Page() {
 
     setStatus("submitted");
     setInput("");
+    setPendingUser(text);
+    setDraft("");
 
     try {
       let activeThread = threadId;
@@ -128,19 +125,33 @@ function Page() {
       }
 
       await appendMessage(activeThread, "user", text);
-      void queryClient.invalidateQueries({ queryKey: ["chat-messages", activeThread] });
 
       setStatus("streaming");
-      const answer = `${contextSummary(ctx)}\n\nCom base nisso, o caminho recomendado é documentar a situação, revisar os instrumentos do pilar mais frágil e registrar a comunicação com o paciente. Descreva o caso concreto (procedimento, data e documentos existentes) para eu detalhar a estratégia.`;
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const history = [
+        ...messages.map((m) => ({ role: m.role, content: m.content })),
+        {
+          role: "user" as const,
+          content: `Contexto do diagnóstico do usuário: ${contextSummary(ctx)}\n\nPergunta: ${text}`,
+        },
+      ];
+      const answer = await streamAiChat(history, "assistente", (chunk) =>
+        setDraft((prev) => prev + chunk),
+      );
       await appendMessage(activeThread, "assistant", answer);
       await queryClient.invalidateQueries({ queryKey: ["chat-messages", activeThread] });
-    } catch {
-      toast.error("Não foi possível salvar a conversa.");
+      void queryClient.invalidateQueries({ queryKey: ["chat-threads"] });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Não foi possível falar com a IA agora.",
+      );
     } finally {
+      setPendingUser(null);
+      setDraft("");
       setStatus("ready");
     }
   };
+
+  const isBusy = status !== "ready";
 
   return (
     <div className="space-y-6">
