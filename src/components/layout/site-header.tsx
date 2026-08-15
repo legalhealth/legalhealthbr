@@ -28,7 +28,7 @@ export function SiteHeader() {
               <Link
                 key={to}
                 to={to}
-                activeOptions={exact ? { exact: true } : undefined}
+                activeOptions={{ exact }}
                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                 activeProps={{ className: "text-gold" }}
               >

@@ -12,7 +12,7 @@ export function MobileNav() {
           <li key={to}>
             <Link
               to={to}
-              activeOptions={exact ? { exact: true } : undefined}
+              activeOptions={{ exact }}
               className="flex flex-col items-center gap-1 py-2.5 text-subtle transition-colors"
               activeProps={{ className: "text-gold" }}
             >
