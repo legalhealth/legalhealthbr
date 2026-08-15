@@ -232,6 +232,16 @@ function Page() {
             <Save className="h-4 w-4" />
             Salvar alterações
           </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleSignOut}
+            className="w-full border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground h-11 rounded-xl"
+          >
+            <LogOut className="h-4 w-4" />
+            Sair da conta
+          </Button>
         </div>
       </form>
     </PageShell>
