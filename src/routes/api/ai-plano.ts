@@ -219,8 +219,16 @@ Inclua de 4 a 6 prioridades, das mais urgentes às de manutenção. Ações deve
           return jsonError("A IA devolveu um plano inválido. Tente gerar novamente.", 502);
         }
 
-        // Regenerar substitui o plano anterior e zera as marcações (cascata em action_items_done).
-        await supabase.from("action_plans").delete().eq("user_id", userId);
+        // Regenerar substitui o plano anterior e zera as marcações de conclusão.
+        const { data: oldPlans } = await supabase
+          .from("action_plans")
+          .select("id")
+          .eq("user_id", userId);
+        const oldIds = (oldPlans ?? []).map((p) => p.id);
+        if (oldIds.length > 0) {
+          await supabase.from("action_items_done").delete().in("plan_id", oldIds);
+          await supabase.from("action_plans").delete().in("id", oldIds);
+        }
 
         const { data: inserted, error: insertError } = await supabase
           .from("action_plans")

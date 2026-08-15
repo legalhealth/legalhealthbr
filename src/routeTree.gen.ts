@@ -20,6 +20,7 @@ import { Route as AuthenticatedJuriscoreRouteImport } from './routes/_authentica
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedPlanoRouteImport } from './routes/_authenticated/plano'
 import { Route as ApiAiChatRouteImport } from './routes/api/ai-chat'
+import { Route as ApiAiPlanoRouteImport } from './routes/api/ai-plano'
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia.index'
 import { Route as AuthenticatedIaAssistenteRouteImport } from './routes/_authenticated/ia.assistente'
 import { Route as AuthenticatedIaDocumentosRouteImport } from './routes/_authenticated/ia.documentos'
@@ -81,6 +82,11 @@ const ApiAiChatRoute = ApiAiChatRouteImport.update({
   path: '/api/ai-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiPlanoRoute = ApiAiPlanoRouteImport.update({
+  id: '/api/ai-plano',
+  path: '/api/ai-plano',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedIaIndexRoute = AuthenticatedIaIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -126,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/plano': typeof AuthenticatedPlanoRoute
   '/api/ai-chat': typeof ApiAiChatRoute
+  '/api/ai-plano': typeof ApiAiPlanoRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/ia/historico': typeof AuthenticatedIaHistoricoRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/plano': typeof AuthenticatedPlanoRoute
   '/api/ai-chat': typeof ApiAiChatRoute
+  '/api/ai-plano': typeof ApiAiPlanoRoute
   '/': typeof AuthenticatedIndexRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/plano': typeof AuthenticatedPlanoRoute
   '/api/ai-chat': typeof ApiAiChatRoute
+  '/api/ai-plano': typeof ApiAiPlanoRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/_authenticated/ia/documentos': typeof AuthenticatedIaDocumentosRoute
@@ -183,6 +192,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/plano'
     | '/api/ai-chat'
+    | '/api/ai-plano'
     | '/ia/assistente'
     | '/ia/documentos'
     | '/ia/historico'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/plano'
     | '/api/ai-chat'
+    | '/api/ai-plano'
     | '/'
     | '/ia/assistente'
     | '/ia/documentos'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/plano'
     | '/api/ai-chat'
+    | '/api/ai-plano'
     | '/_authenticated/'
     | '/_authenticated/ia/assistente'
     | '/_authenticated/ia/documentos'
@@ -232,6 +244,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiAiChatRoute: typeof ApiAiChatRoute
+  ApiAiPlanoRoute: typeof ApiAiPlanoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -311,6 +324,13 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-chat'
       fullPath: '/api/ai-chat'
       preLoaderRoute: typeof ApiAiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-plano': {
+      id: '/api/ai-plano'
+      path: '/api/ai-plano'
+      fullPath: '/api/ai-plano'
+      preLoaderRoute: typeof ApiAiPlanoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/ia/': {
@@ -408,6 +428,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiAiChatRoute: ApiAiChatRoute,
+  ApiAiPlanoRoute: ApiAiPlanoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
