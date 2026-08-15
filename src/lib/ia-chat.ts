@@ -24,6 +24,37 @@ async function currentUserId(): Promise<string | null> {
 
 export type ChatTurn = { role: ChatRole; content: string };
 
+export type ChatAttachment = {
+  name: string;
+  mime: string;
+  /** data:<mime>;base64,... para PDF e imagens */
+  dataUrl?: string;
+  /** conteúdo já extraído, usado para arquivos de texto */
+  text?: string;
+};
+
+export const ATTACHMENT_ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,.txt,.md";
+export const ATTACHMENT_MAX_BYTES = 8 * 1024 * 1024;
+
+/** Converte o arquivo escolhido em um anexo pronto para a IA. */
+export async function fileToAttachment(file: File): Promise<ChatAttachment> {
+  if (file.size > ATTACHMENT_MAX_BYTES) {
+    throw new Error(`${file.name} passa de 8 MB. Envie um arquivo menor.`);
+  }
+  const mime = file.type || "application/octet-stream";
+  const isText = mime.startsWith("text/") || /\.(txt|md)$/i.test(file.name);
+  if (isText) {
+    return { name: file.name, mime: "text/plain", text: (await file.text()).slice(0, 40000) };
+  }
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error("Não foi possível ler o arquivo."));
+    reader.readAsDataURL(file);
+  });
+  return { name: file.name, mime, dataUrl };
+}
+
 /**
  * Chama a rota protegida /api/ai-chat (a chave de IA vive apenas no servidor)
  * e entrega o texto em pedaços conforme chega.
@@ -32,6 +63,7 @@ export async function streamAiChat(
   messages: ChatTurn[],
   task: string,
   onDelta: (chunk: string) => void,
+  attachments?: ChatAttachment[],
 ): Promise<string> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
@@ -40,7 +72,7 @@ export async function streamAiChat(
   const response = await fetch("/api/ai-chat", {
     method: "POST",
     headers: { "content-type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ messages, task }),
+    body: JSON.stringify({ messages, task, attachments: attachments ?? [] }),
   });
 
   if (!response.ok || !response.body) {
