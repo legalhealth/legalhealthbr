@@ -1,7 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { BookmarkPlus, Gavel, MessageSquare, Plus, Scale, Send, ShieldCheck, Trash2 } from "lucide-react";
+import {
+  BookmarkPlus,
+  Gavel,
+  MessageSquare,
+  Paperclip,
+  Plus,
+  Scale,
+  Send,
+  ShieldCheck,
+  Trash2,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 
@@ -22,13 +33,16 @@ import { DiagnosticContextCard } from "@/components/ia/diagnostic-context-card";
 import { Button } from "@/components/ui/button";
 import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
 import {
+  ATTACHMENT_ACCEPT,
   appendMessage,
   createThread,
+  fileToAttachment,
   streamAiChat,
   useChatMessages,
   useChatThreads,
   useDeleteThread,
 } from "@/lib/ia-chat";
+import type { ChatAttachment } from "@/lib/ia-chat";
 import { useSaveRecommendation } from "@/lib/ia-recommendations";
 
 export const Route = createFileRoute("/_authenticated/ia/assistente")({
@@ -70,7 +84,9 @@ function Page() {
   const [status, setStatus] = useState<"ready" | "submitted" | "streaming">("ready");
   const [pendingUser, setPendingUser] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [attachments, setAttachments] = useState<ChatAttachment[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const messages: ChatMessage[] = (storedMessages ?? []).map((m) => ({
     id: m.id,
@@ -102,6 +118,23 @@ function Page() {
     if (q) textareaRef.current?.focus();
   }, [q]);
 
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const picked = Array.from(files).slice(0, 4 - attachments.length);
+    if (picked.length === 0) {
+      toast.error("Máximo de 4 anexos por mensagem.");
+      return;
+    }
+    for (const file of picked) {
+      try {
+        const attachment = await fileToAttachment(file);
+        setAttachments((prev) => [...prev, attachment]);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Arquivo não suportado.");
+      }
+    }
+  };
+
   const handleSubmit = async (
     _message: PromptInputMessage,
     e: React.FormEvent<HTMLFormElement>,
@@ -110,9 +143,16 @@ function Page() {
     const text = input.trim();
     if (!text || status !== "ready") return;
 
+    const sentAttachments = attachments;
+    const attachmentNote =
+      sentAttachments.length > 0
+        ? `\n\nArquivos anexados: ${sentAttachments.map((a) => a.name).join(", ")}`
+        : "";
+
     setStatus("submitted");
     setInput("");
-    setPendingUser(text);
+    setAttachments([]);
+    setPendingUser(text + attachmentNote);
     setDraft("");
 
     try {
@@ -124,18 +164,27 @@ function Page() {
         void queryClient.invalidateQueries({ queryKey: ["chat-threads"] });
       }
 
-      await appendMessage(activeThread, "user", text);
+      await appendMessage(activeThread, "user", text + attachmentNote);
 
       setStatus("streaming");
       const history = [
         ...messages.map((m) => ({ role: m.role, content: m.content })),
         {
           role: "user" as const,
-          content: `Contexto do diagnóstico do usuário: ${contextSummary(ctx)}\n\nPergunta: ${text}`,
+          content:
+            `Contexto do diagnóstico do usuário: ${contextSummary(ctx)}\n\nPergunta: ${text}` +
+            (sentAttachments.length > 0
+              ? `\n\nUse os arquivos anexados (${sentAttachments
+                  .map((a) => a.name)
+                  .join(", ")}) como base factual da resposta, citando trechos relevantes.`
+              : ""),
         },
       ];
-      const answer = await streamAiChat(history, "assistente", (chunk) =>
-        setDraft((prev) => prev + chunk),
+      const answer = await streamAiChat(
+        history,
+        "assistente",
+        (chunk) => setDraft((prev) => prev + chunk),
+        sentAttachments,
       );
       await appendMessage(activeThread, "assistant", answer);
       await queryClient.invalidateQueries({ queryKey: ["chat-messages", activeThread] });
@@ -339,9 +388,56 @@ function Page() {
             className="min-h-[84px] bg-transparent text-foreground placeholder:text-muted-foreground"
           />
           <PromptInputFooter className="items-center justify-between px-3 pb-3 pt-0">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <ShieldCheck className="size-3.5 text-gold" />
-              <span>As respostas são orientativas, não substituem a opinião de um advogado.</span>
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
+              {attachments.length > 0 ? (
+                <ul className="flex flex-wrap gap-2">
+                  {attachments.map((file, index) => (
+                    <li
+                      key={`${file.name}-${index}`}
+                      className="flex max-w-[220px] items-center gap-2 rounded-lg border border-gold/40 bg-gold/10 px-2.5 py-1.5 text-xs text-gold"
+                    >
+                      <Paperclip className="size-3 shrink-0" />
+                      <span className="truncate">{file.name}</span>
+                      <button
+                        type="button"
+                        aria-label={`Remover ${file.name}`}
+                        className="shrink-0 text-gold/70 transition-colors hover:text-danger"
+                        onClick={() =>
+                          setAttachments((prev) => prev.filter((_, i) => i !== index))
+                        }
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              <div className="flex items-center gap-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept={ATTACHMENT_ACCEPT}
+                  className="hidden"
+                  onChange={(event) => {
+                    void handleFiles(event.currentTarget.files);
+                    event.currentTarget.value = "";
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isBusy}
+                  className="inline-flex items-center gap-2 rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-gold/50 hover:text-gold disabled:opacity-50"
+                >
+                  <Paperclip className="size-3.5" />
+                  Anexar documento
+                </button>
+                <span className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
+                  <ShieldCheck className="size-3.5 text-gold" />
+                  As respostas são orientativas, não substituem a opinião de um advogado.
+                </span>
+              </div>
             </div>
             <PromptInputSubmit
               status={status}

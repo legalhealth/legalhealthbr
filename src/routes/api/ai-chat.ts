@@ -12,6 +12,55 @@ const corsHeaders = {
 };
 
 type IncomingMessage = { role: string; content: string };
+type IncomingAttachment = { name?: unknown; mime?: unknown; dataUrl?: unknown; text?: unknown };
+
+type ContentBlock =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } }
+  | { type: "file"; file: { filename: string; file_data: string } };
+
+type OutgoingMessage =
+  | { role: "user" | "assistant"; content: string }
+  | { role: "user"; content: ContentBlock[] };
+
+const MAX_ATTACHMENTS = 4;
+const MAX_ATTACHMENT_CHARS = 12 * 1024 * 1024; // ~8 MB em base64
+
+/** Anexa os arquivos enviados à última mensagem do usuário, em blocos multimodais. */
+function withAttachments(
+  messages: { role: "user" | "assistant"; content: string }[],
+  raw: unknown,
+): OutgoingMessage[] {
+  const list = Array.isArray(raw) ? (raw as IncomingAttachment[]).slice(0, MAX_ATTACHMENTS) : [];
+  if (list.length === 0) return messages;
+
+  const lastIndex = messages.length - 1;
+  const last = messages[lastIndex];
+  if (!last || last.role !== "user") return messages;
+
+  const blocks: ContentBlock[] = [{ type: "text", text: last.content }];
+  for (const item of list) {
+    const name = typeof item.name === "string" ? item.name.slice(0, 200) : "documento";
+    const mime = typeof item.mime === "string" ? item.mime : "application/octet-stream";
+    if (typeof item.text === "string" && item.text.trim()) {
+      blocks.push({
+        type: "text",
+        text: `Documento anexado "${name}":\n\n${item.text.slice(0, 40000)}`,
+      });
+      continue;
+    }
+    const dataUrl = typeof item.dataUrl === "string" ? item.dataUrl : "";
+    if (!dataUrl.startsWith("data:") || dataUrl.length > MAX_ATTACHMENT_CHARS) continue;
+    if (mime.startsWith("image/")) {
+      blocks.push({ type: "image_url", image_url: { url: dataUrl } });
+    } else if (mime === "application/pdf") {
+      blocks.push({ type: "file", file: { filename: name, file_data: dataUrl } });
+    }
+  }
+
+  if (blocks.length === 1) return messages;
+  return [...messages.slice(0, lastIndex), { role: "user", content: blocks }];
+}
 
 function jsonError(message: string, status: number) {
   return new Response(JSON.stringify({ error: message }), {
@@ -53,7 +102,7 @@ export const Route = createFileRoute("/api/ai-chat")({
           return jsonError("Sessão inválida ou expirada. Faça login novamente.", 401);
         }
 
-        let body: { messages?: unknown; task?: unknown };
+        let body: { messages?: unknown; task?: unknown; attachments?: unknown };
         try {
           body = (await request.json()) as typeof body;
         } catch {
@@ -113,7 +162,10 @@ export const Route = createFileRoute("/api/ai-chat")({
             body: JSON.stringify({
               model: "google/gemini-3.6-flash",
               stream: true,
-              messages: [{ role: "system", content: systemPromptFor(task) }, ...messages],
+              messages: [
+                { role: "system", content: systemPromptFor(task) },
+                ...withAttachments(messages, body.attachments),
+              ],
             }),
           });
         } catch {
