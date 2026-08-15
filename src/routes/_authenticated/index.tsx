@@ -207,25 +207,25 @@ const QUICK_ACTIONS = [
     title: "Nova peça",
     description: "Defesa, petição, notificação",
     icon: FileSignature,
-    hash: "peca",
+    to: "/ia/peca",
   },
   {
     title: "Analisar intimação",
     description: "Riscos, prazos e estratégia",
     icon: ScrollText,
-    hash: "risco",
+    to: "/ia/risco",
   },
   {
     title: "Escanear documento",
     description: "Upload e OCR",
     icon: ScanLine,
-    hash: "documentos",
+    to: "/ia/documentos",
   },
   {
     title: "Perguntar à IA",
     description: "Dúvidas do dia a dia clínico",
     icon: MessageSquare,
-    hash: "assistente",
+    to: "/ia/assistente",
   },
 ] as const;
 
@@ -440,8 +440,7 @@ function Page() {
               {QUICK_ACTIONS.map((action) => (
                 <Link
                   key={action.title}
-                  to="/ia"
-                  hash={action.hash}
+                  to={action.to}
                   className="group rounded-2xl border border-border bg-card p-5 transition-colors hover:border-gold/50"
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">

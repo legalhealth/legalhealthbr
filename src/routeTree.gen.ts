@@ -19,6 +19,11 @@ import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
 import { Route as AuthenticatedJuriscoreRouteImport } from './routes/_authenticated/juriscore'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedPlanoRouteImport } from './routes/_authenticated/plano'
+import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia.index'
+import { Route as AuthenticatedIaAssistenteRouteImport } from './routes/_authenticated/ia.assistente'
+import { Route as AuthenticatedIaDocumentosRouteImport } from './routes/_authenticated/ia.documentos'
+import { Route as AuthenticatedIaPecaRouteImport } from './routes/_authenticated/ia.peca'
+import { Route as AuthenticatedIaRiscoRouteImport } from './routes/_authenticated/ia.risco'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -69,6 +74,33 @@ const AuthenticatedPlanoRoute = AuthenticatedPlanoRouteImport.update({
   path: '/plano',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedIaIndexRoute = AuthenticatedIaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedIaRoute,
+} as any)
+const AuthenticatedIaAssistenteRoute =
+  AuthenticatedIaAssistenteRouteImport.update({
+    id: '/assistente',
+    path: '/assistente',
+    getParentRoute: () => AuthenticatedIaRoute,
+  } as any)
+const AuthenticatedIaDocumentosRoute =
+  AuthenticatedIaDocumentosRouteImport.update({
+    id: '/documentos',
+    path: '/documentos',
+    getParentRoute: () => AuthenticatedIaRoute,
+  } as any)
+const AuthenticatedIaPecaRoute = AuthenticatedIaPecaRouteImport.update({
+  id: '/peca',
+  path: '/peca',
+  getParentRoute: () => AuthenticatedIaRoute,
+} as any)
+const AuthenticatedIaRiscoRoute = AuthenticatedIaRiscoRouteImport.update({
+  id: '/risco',
+  path: '/risco',
+  getParentRoute: () => AuthenticatedIaRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -76,21 +108,30 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
-  '/ia': typeof AuthenticatedIaRoute
+  '/ia': typeof AuthenticatedIaRouteWithChildren
   '/juriscore': typeof AuthenticatedJuriscoreRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/plano': typeof AuthenticatedPlanoRoute
+  '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
+  '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
+  '/ia/peca': typeof AuthenticatedIaPecaRoute
+  '/ia/risco': typeof AuthenticatedIaRiscoRoute
+  '/ia/': typeof AuthenticatedIaIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
-  '/ia': typeof AuthenticatedIaRoute
   '/juriscore': typeof AuthenticatedJuriscoreRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/plano': typeof AuthenticatedPlanoRoute
   '/': typeof AuthenticatedIndexRoute
+  '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
+  '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
+  '/ia/peca': typeof AuthenticatedIaPecaRoute
+  '/ia/risco': typeof AuthenticatedIaRiscoRoute
+  '/ia': typeof AuthenticatedIaIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -99,11 +140,16 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRoute
-  '/_authenticated/ia': typeof AuthenticatedIaRoute
+  '/_authenticated/ia': typeof AuthenticatedIaRouteWithChildren
   '/_authenticated/juriscore': typeof AuthenticatedJuriscoreRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/plano': typeof AuthenticatedPlanoRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/ia/assistente': typeof AuthenticatedIaAssistenteRoute
+  '/_authenticated/ia/documentos': typeof AuthenticatedIaDocumentosRoute
+  '/_authenticated/ia/peca': typeof AuthenticatedIaPecaRoute
+  '/_authenticated/ia/risco': typeof AuthenticatedIaRiscoRoute
+  '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,17 +163,26 @@ export interface FileRouteTypes {
     | '/juriscore'
     | '/perfil'
     | '/plano'
+    | '/ia/assistente'
+    | '/ia/documentos'
+    | '/ia/peca'
+    | '/ia/risco'
+    | '/ia/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
     | '/reset-password'
     | '/bem-vindo'
     | '/biblioteca'
-    | '/ia'
     | '/juriscore'
     | '/perfil'
     | '/plano'
     | '/'
+    | '/ia/assistente'
+    | '/ia/documentos'
+    | '/ia/peca'
+    | '/ia/risco'
+    | '/ia'
   id:
     | '__root__'
     | '/_authenticated'
@@ -140,6 +195,11 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/plano'
     | '/_authenticated/'
+    | '/_authenticated/ia/assistente'
+    | '/_authenticated/ia/documentos'
+    | '/_authenticated/ia/peca'
+    | '/_authenticated/ia/risco'
+    | '/_authenticated/ia/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -220,13 +280,68 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlanoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ia/': {
+      id: '/_authenticated/ia/'
+      path: '/'
+      fullPath: '/ia/'
+      preLoaderRoute: typeof AuthenticatedIaIndexRouteImport
+      parentRoute: typeof AuthenticatedIaRoute
+    }
+    '/_authenticated/ia/assistente': {
+      id: '/_authenticated/ia/assistente'
+      path: '/assistente'
+      fullPath: '/ia/assistente'
+      preLoaderRoute: typeof AuthenticatedIaAssistenteRouteImport
+      parentRoute: typeof AuthenticatedIaRoute
+    }
+    '/_authenticated/ia/documentos': {
+      id: '/_authenticated/ia/documentos'
+      path: '/documentos'
+      fullPath: '/ia/documentos'
+      preLoaderRoute: typeof AuthenticatedIaDocumentosRouteImport
+      parentRoute: typeof AuthenticatedIaRoute
+    }
+    '/_authenticated/ia/peca': {
+      id: '/_authenticated/ia/peca'
+      path: '/peca'
+      fullPath: '/ia/peca'
+      preLoaderRoute: typeof AuthenticatedIaPecaRouteImport
+      parentRoute: typeof AuthenticatedIaRoute
+    }
+    '/_authenticated/ia/risco': {
+      id: '/_authenticated/ia/risco'
+      path: '/risco'
+      fullPath: '/ia/risco'
+      preLoaderRoute: typeof AuthenticatedIaRiscoRouteImport
+      parentRoute: typeof AuthenticatedIaRoute
+    }
   }
 }
+
+interface AuthenticatedIaRouteChildren {
+  AuthenticatedIaAssistenteRoute: typeof AuthenticatedIaAssistenteRoute
+  AuthenticatedIaDocumentosRoute: typeof AuthenticatedIaDocumentosRoute
+  AuthenticatedIaPecaRoute: typeof AuthenticatedIaPecaRoute
+  AuthenticatedIaRiscoRoute: typeof AuthenticatedIaRiscoRoute
+  AuthenticatedIaIndexRoute: typeof AuthenticatedIaIndexRoute
+}
+
+const AuthenticatedIaRouteChildren: AuthenticatedIaRouteChildren = {
+  AuthenticatedIaAssistenteRoute: AuthenticatedIaAssistenteRoute,
+  AuthenticatedIaDocumentosRoute: AuthenticatedIaDocumentosRoute,
+  AuthenticatedIaPecaRoute: AuthenticatedIaPecaRoute,
+  AuthenticatedIaRiscoRoute: AuthenticatedIaRiscoRoute,
+  AuthenticatedIaIndexRoute: AuthenticatedIaIndexRoute,
+}
+
+const AuthenticatedIaRouteWithChildren = AuthenticatedIaRoute._addFileChildren(
+  AuthenticatedIaRouteChildren,
+)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBemVindoRoute: typeof AuthenticatedBemVindoRoute
   AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRoute
-  AuthenticatedIaRoute: typeof AuthenticatedIaRoute
+  AuthenticatedIaRoute: typeof AuthenticatedIaRouteWithChildren
   AuthenticatedJuriscoreRoute: typeof AuthenticatedJuriscoreRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedPlanoRoute: typeof AuthenticatedPlanoRoute
@@ -236,7 +351,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBemVindoRoute: AuthenticatedBemVindoRoute,
   AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRoute,
-  AuthenticatedIaRoute: AuthenticatedIaRoute,
+  AuthenticatedIaRoute: AuthenticatedIaRouteWithChildren,
   AuthenticatedJuriscoreRoute: AuthenticatedJuriscoreRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedPlanoRoute: AuthenticatedPlanoRoute,
