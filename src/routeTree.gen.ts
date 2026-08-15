@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedBemVindoRouteImport } from './routes/_authenticated/bem-vindo'
 import { Route as AuthenticatedBibliotecaRouteImport } from './routes/_authenticated/biblioteca'
 import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
 import { Route as AuthenticatedJuriscoreRouteImport } from './routes/_authenticated/juriscore'
@@ -27,9 +29,19 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBemVindoRoute = AuthenticatedBemVindoRouteImport.update({
+  id: '/bem-vindo',
+  path: '/bem-vindo',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedBibliotecaRoute = AuthenticatedBibliotecaRouteImport.update({
@@ -61,6 +73,8 @@ const AuthenticatedPlanoRoute = AuthenticatedPlanoRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/ia': typeof AuthenticatedIaRoute
   '/juriscore': typeof AuthenticatedJuriscoreRoute
@@ -69,6 +83,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/ia': typeof AuthenticatedIaRoute
   '/juriscore': typeof AuthenticatedJuriscoreRoute
@@ -80,6 +96,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/_authenticated/ia': typeof AuthenticatedIaRoute
   '/_authenticated/juriscore': typeof AuthenticatedJuriscoreRoute
@@ -90,14 +108,32 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/biblioteca' | '/ia' | '/juriscore' | '/perfil' | '/plano'
+    | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/bem-vindo'
+    | '/biblioteca'
+    | '/ia'
+    | '/juriscore'
+    | '/perfil'
+    | '/plano'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/auth' | '/biblioteca' | '/ia' | '/juriscore' | '/perfil' | '/plano' | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/bem-vindo'
+    | '/biblioteca'
+    | '/ia'
+    | '/juriscore'
+    | '/perfil'
+    | '/plano'
+    | '/'
   id:
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/reset-password'
+    | '/_authenticated/bem-vindo'
     | '/_authenticated/biblioteca'
     | '/_authenticated/ia'
     | '/_authenticated/juriscore'
@@ -109,6 +145,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -127,11 +164,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/': {
       id: '/_authenticated/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bem-vindo': {
+      id: '/_authenticated/bem-vindo'
+      path: '/bem-vindo'
+      fullPath: '/bem-vindo'
+      preLoaderRoute: typeof AuthenticatedBemVindoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/biblioteca': {
@@ -173,6 +224,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBemVindoRoute: typeof AuthenticatedBemVindoRoute
   AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRoute
   AuthenticatedJuriscoreRoute: typeof AuthenticatedJuriscoreRoute
@@ -182,6 +234,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBemVindoRoute: AuthenticatedBemVindoRoute,
   AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRoute,
   AuthenticatedIaRoute: AuthenticatedIaRoute,
   AuthenticatedJuriscoreRoute: AuthenticatedJuriscoreRoute,
@@ -196,6 +249,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
