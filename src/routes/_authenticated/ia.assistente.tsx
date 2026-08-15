@@ -1,7 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { BookmarkPlus, Gavel, MessageSquare, Plus, Scale, Send, ShieldCheck, Trash2 } from "lucide-react";
+import {
+  BookmarkPlus,
+  Gavel,
+  MessageSquare,
+  Paperclip,
+  Plus,
+  Scale,
+  Send,
+  ShieldCheck,
+  Trash2,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 
@@ -22,13 +33,16 @@ import { DiagnosticContextCard } from "@/components/ia/diagnostic-context-card";
 import { Button } from "@/components/ui/button";
 import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
 import {
+  ATTACHMENT_ACCEPT,
   appendMessage,
   createThread,
+  fileToAttachment,
   streamAiChat,
   useChatMessages,
   useChatThreads,
   useDeleteThread,
 } from "@/lib/ia-chat";
+import type { ChatAttachment } from "@/lib/ia-chat";
 import { useSaveRecommendation } from "@/lib/ia-recommendations";
 
 export const Route = createFileRoute("/_authenticated/ia/assistente")({
@@ -70,7 +84,9 @@ function Page() {
   const [status, setStatus] = useState<"ready" | "submitted" | "streaming">("ready");
   const [pendingUser, setPendingUser] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [attachments, setAttachments] = useState<ChatAttachment[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const messages: ChatMessage[] = (storedMessages ?? []).map((m) => ({
     id: m.id,
@@ -102,6 +118,23 @@ function Page() {
     if (q) textareaRef.current?.focus();
   }, [q]);
 
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const picked = Array.from(files).slice(0, 4 - attachments.length);
+    if (picked.length === 0) {
+      toast.error("Máximo de 4 anexos por mensagem.");
+      return;
+    }
+    for (const file of picked) {
+      try {
+        const attachment = await fileToAttachment(file);
+        setAttachments((prev) => [...prev, attachment]);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Arquivo não suportado.");
+      }
+    }
+  };
+
   const handleSubmit = async (
     _message: PromptInputMessage,
     e: React.FormEvent<HTMLFormElement>,
@@ -110,9 +143,16 @@ function Page() {
     const text = input.trim();
     if (!text || status !== "ready") return;
 
+    const sentAttachments = attachments;
+    const attachmentNote =
+      sentAttachments.length > 0
+        ? `\n\nArquivos anexados: ${sentAttachments.map((a) => a.name).join(", ")}`
+        : "";
+
     setStatus("submitted");
     setInput("");
-    setPendingUser(text);
+    setAttachments([]);
+    setPendingUser(text + attachmentNote);
     setDraft("");
 
     try {
@@ -124,18 +164,27 @@ function Page() {
         void queryClient.invalidateQueries({ queryKey: ["chat-threads"] });
       }
 
-      await appendMessage(activeThread, "user", text);
+      await appendMessage(activeThread, "user", text + attachmentNote);
 
       setStatus("streaming");
       const history = [
         ...messages.map((m) => ({ role: m.role, content: m.content })),
         {
           role: "user" as const,
-          content: `Contexto do diagnóstico do usuário: ${contextSummary(ctx)}\n\nPergunta: ${text}`,
+          content:
+            `Contexto do diagnóstico do usuário: ${contextSummary(ctx)}\n\nPergunta: ${text}` +
+            (sentAttachments.length > 0
+              ? `\n\nUse os arquivos anexados (${sentAttachments
+                  .map((a) => a.name)
+                  .join(", ")}) como base factual da resposta, citando trechos relevantes.`
+              : ""),
         },
       ];
-      const answer = await streamAiChat(history, "assistente", (chunk) =>
-        setDraft((prev) => prev + chunk),
+      const answer = await streamAiChat(
+        history,
+        "assistente",
+        (chunk) => setDraft((prev) => prev + chunk),
+        sentAttachments,
       );
       await appendMessage(activeThread, "assistant", answer);
       await queryClient.invalidateQueries({ queryKey: ["chat-messages", activeThread] });
