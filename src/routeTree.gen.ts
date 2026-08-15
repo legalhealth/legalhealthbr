@@ -22,6 +22,7 @@ import { Route as AuthenticatedPlanoRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia.index'
 import { Route as AuthenticatedIaAssistenteRouteImport } from './routes/_authenticated/ia.assistente'
 import { Route as AuthenticatedIaDocumentosRouteImport } from './routes/_authenticated/ia.documentos'
+import { Route as AuthenticatedIaHistoricoRouteImport } from './routes/_authenticated/ia.historico'
 import { Route as AuthenticatedIaPecaRouteImport } from './routes/_authenticated/ia.peca'
 import { Route as AuthenticatedIaRiscoRouteImport } from './routes/_authenticated/ia.risco'
 
@@ -91,6 +92,12 @@ const AuthenticatedIaDocumentosRoute =
     path: '/documentos',
     getParentRoute: () => AuthenticatedIaRoute,
   } as any)
+const AuthenticatedIaHistoricoRoute =
+  AuthenticatedIaHistoricoRouteImport.update({
+    id: '/historico',
+    path: '/historico',
+    getParentRoute: () => AuthenticatedIaRoute,
+  } as any)
 const AuthenticatedIaPecaRoute = AuthenticatedIaPecaRouteImport.update({
   id: '/peca',
   path: '/peca',
@@ -114,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/plano': typeof AuthenticatedPlanoRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
+  '/ia/historico': typeof AuthenticatedIaHistoricoRoute
   '/ia/peca': typeof AuthenticatedIaPecaRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
@@ -129,6 +137,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
+  '/ia/historico': typeof AuthenticatedIaHistoricoRoute
   '/ia/peca': typeof AuthenticatedIaPecaRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/ia': typeof AuthenticatedIaIndexRoute
@@ -147,6 +156,7 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/_authenticated/ia/documentos': typeof AuthenticatedIaDocumentosRoute
+  '/_authenticated/ia/historico': typeof AuthenticatedIaHistoricoRoute
   '/_authenticated/ia/peca': typeof AuthenticatedIaPecaRoute
   '/_authenticated/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/plano'
     | '/ia/assistente'
     | '/ia/documentos'
+    | '/ia/historico'
     | '/ia/peca'
     | '/ia/risco'
     | '/ia/'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ia/assistente'
     | '/ia/documentos'
+    | '/ia/historico'
     | '/ia/peca'
     | '/ia/risco'
     | '/ia'
@@ -197,6 +209,7 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/ia/assistente'
     | '/_authenticated/ia/documentos'
+    | '/_authenticated/ia/historico'
     | '/_authenticated/ia/peca'
     | '/_authenticated/ia/risco'
     | '/_authenticated/ia/'
@@ -301,6 +314,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIaDocumentosRouteImport
       parentRoute: typeof AuthenticatedIaRoute
     }
+    '/_authenticated/ia/historico': {
+      id: '/_authenticated/ia/historico'
+      path: '/historico'
+      fullPath: '/ia/historico'
+      preLoaderRoute: typeof AuthenticatedIaHistoricoRouteImport
+      parentRoute: typeof AuthenticatedIaRoute
+    }
     '/_authenticated/ia/peca': {
       id: '/_authenticated/ia/peca'
       path: '/peca'
@@ -321,6 +341,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedIaRouteChildren {
   AuthenticatedIaAssistenteRoute: typeof AuthenticatedIaAssistenteRoute
   AuthenticatedIaDocumentosRoute: typeof AuthenticatedIaDocumentosRoute
+  AuthenticatedIaHistoricoRoute: typeof AuthenticatedIaHistoricoRoute
   AuthenticatedIaPecaRoute: typeof AuthenticatedIaPecaRoute
   AuthenticatedIaRiscoRoute: typeof AuthenticatedIaRiscoRoute
   AuthenticatedIaIndexRoute: typeof AuthenticatedIaIndexRoute
@@ -329,6 +350,7 @@ interface AuthenticatedIaRouteChildren {
 const AuthenticatedIaRouteChildren: AuthenticatedIaRouteChildren = {
   AuthenticatedIaAssistenteRoute: AuthenticatedIaAssistenteRoute,
   AuthenticatedIaDocumentosRoute: AuthenticatedIaDocumentosRoute,
+  AuthenticatedIaHistoricoRoute: AuthenticatedIaHistoricoRoute,
   AuthenticatedIaPecaRoute: AuthenticatedIaPecaRoute,
   AuthenticatedIaRiscoRoute: AuthenticatedIaRiscoRoute,
   AuthenticatedIaIndexRoute: AuthenticatedIaIndexRoute,

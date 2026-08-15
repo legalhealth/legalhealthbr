@@ -113,26 +113,38 @@ export type Database = {
       generated_docs: {
         Row: {
           conteudo: string | null
+          contexto: Json | null
           created_at: string
           id: string
           origem: string | null
+          status: string
           tipo: string | null
+          titulo: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
           conteudo?: string | null
+          contexto?: Json | null
           created_at?: string
           id?: string
           origem?: string | null
+          status?: string
           tipo?: string | null
+          titulo?: string | null
+          updated_at?: string
           user_id: string
         }
         Update: {
           conteudo?: string | null
+          contexto?: Json | null
           created_at?: string
           id?: string
           origem?: string | null
+          status?: string
           tipo?: string | null
+          titulo?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

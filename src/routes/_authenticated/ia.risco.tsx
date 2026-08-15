@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, ScrollText, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
+import { saveHistoryItem } from "@/lib/ia-history";
 
 export const Route = createFileRoute("/_authenticated/ia/risco")({
   head: () => ({
@@ -43,6 +45,7 @@ type Analysis = {
 
 function Page() {
   const { data: ctx } = useDiagnosticContext();
+  const queryClient = useQueryClient();
   const [prazo, setPrazo] = useState("");
   const [texto, setTexto] = useState("");
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
@@ -65,7 +68,7 @@ function Page() {
             : nivel === "Contido"
               ? "var(--color-success)"
               : "var(--color-info)";
-      setAnalysis({
+      const result: Analysis = {
         nivel,
         cor,
         prazo: prazo || "Não informado — confirme na intimação",
@@ -85,8 +88,38 @@ function Page() {
             : "Fazer o Juriscore® para dimensionar a exposição antes de responder.",
           "Elaborar a manifestação na aba Redigir peça e submeter à revisão jurídica.",
         ],
-      });
+      };
+      setAnalysis(result);
       setLoading(false);
+
+      const conteudo = [
+        `Nível de risco: ${result.nivel}`,
+        `Prazo: ${result.prazo}`,
+        "",
+        result.contexto,
+        "",
+        "Riscos identificados:",
+        ...result.riscos.map((r) => `- ${r}`),
+        "",
+        "Estratégia sugerida:",
+        ...result.estrategia.map((e, i) => `${i + 1}. ${e}`),
+        "",
+        "Documento analisado:",
+        texto.trim(),
+      ].join("\n");
+
+      void saveHistoryItem({
+        origem: "risco",
+        tipo: `Risco ${result.nivel}`,
+        titulo: `Análise de risco — nível ${result.nivel}`,
+        conteudo,
+        contexto: { score: ctx?.score ?? null, level: ctx?.level?.name ?? null },
+      })
+        .then(() => {
+          void queryClient.invalidateQueries({ queryKey: ["ia-history"] });
+          toast.success("Análise salva no histórico.");
+        })
+        .catch(() => toast.error("Análise gerada, mas não foi salva no histórico."));
     }, 900);
   };
 
