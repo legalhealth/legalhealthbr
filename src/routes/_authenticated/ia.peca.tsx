@@ -18,6 +18,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
 import { saveHistoryItem } from "@/lib/ia-history";
+import { useRecommendations } from "@/lib/ia-recommendations";
 
 export const Route = createFileRoute("/_authenticated/ia/peca")({
   head: () => ({
@@ -52,6 +53,8 @@ const TIPOS = [
 function Page() {
   const { data: ctx } = useDiagnosticContext();
   const queryClient = useQueryClient();
+  const { data: recommendations } = useRecommendations();
+  const [selectedRecs, setSelectedRecs] = useState<string[]>([]);
   const [tipo, setTipo] = useState("defesa-conselho");
   const [destinatario, setDestinatario] = useState("");
   const [fatos, setFatos] = useState("");
@@ -76,6 +79,9 @@ function Page() {
     setGenerating(true);
     setTimeout(() => {
       const tipoLabel = TIPOS.find((t) => t.value === tipo)?.label ?? "Peça";
+      const recTexts = (recommendations ?? [])
+        .filter((r) => selectedRecs.includes(r.id))
+        .map((r) => r.content);
       const text = [
           `${tipoLabel.toUpperCase()}`,
           destinatario ? `Ao(À) ${destinatario}` : "",
@@ -91,6 +97,13 @@ function Page() {
                 .map((p) => p.name)
                 .join(" e ")} como frentes de reforço, com medidas já em implementação.`
             : "A conduta observou os deveres de informação, documentação e diligência exigidos da atividade médica.",
+          ...(recTexts.length > 0
+            ? [
+                "",
+                "II.a — MEDIDAS RECOMENDADAS EM ANDAMENTO",
+                ...recTexts.map((r, i) => `${i + 1}. ${r}`),
+              ]
+            : []),
           "",
           "III — DOS PEDIDOS",
           "Requer-se o acolhimento integral desta manifestação, com o arquivamento do feito.",
@@ -171,6 +184,42 @@ function Page() {
             className="min-h-[160px]"
           />
         </div>
+
+        {(recommendations ?? []).length > 0 ? (
+          <div className="mt-6 space-y-3">
+            <Label>Recomendações salvas do Assistente</Label>
+            <p className="text-xs text-subtle">
+              Selecione as recomendações que devem constar como medidas em andamento na peça.
+            </p>
+            <ul className="space-y-2">
+              {(recommendations ?? []).slice(0, 8).map((rec) => {
+                const active = selectedRecs.includes(rec.id);
+                return (
+                  <li key={rec.id}>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelectedRecs((prev) =>
+                          active ? prev.filter((id) => id !== rec.id) : [...prev, rec.id],
+                        )
+                      }
+                      className={`w-full rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
+                        active
+                          ? "border-gold/60 bg-gold/10 text-foreground"
+                          : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <span className="line-clamp-2">{rec.content}</span>
+                      <span className="mt-1 block text-xs text-subtle">
+                        {new Date(rec.created_at).toLocaleDateString("pt-BR")}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ) : null}
 
         <Button
           onClick={handleGenerate}

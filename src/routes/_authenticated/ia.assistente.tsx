@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Gavel, Scale, Send, ShieldCheck } from "lucide-react";
+import { BookmarkPlus, Gavel, MessageSquare, Plus, Scale, Send, ShieldCheck, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 
 import {
@@ -17,12 +19,20 @@ import {
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 import { DiagnosticContextCard } from "@/components/ia/diagnostic-context-card";
+import { Button } from "@/components/ui/button";
 import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
+import {
+  appendMessage,
+  createThread,
+  useChatMessages,
+  useChatThreads,
+  useDeleteThread,
+} from "@/lib/ia-chat";
+import { useSaveRecommendation } from "@/lib/ia-recommendations";
 
 export const Route = createFileRoute("/_authenticated/ia/assistente")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    q: typeof search['q'] === "string" ? (search['q'] as string) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { q?: string } =>
+    typeof search['q'] === "string" ? { q: search['q'] } : {},
   head: () => ({
     meta: [
       { title: "Assistente Jurídico | Legal Health" },
@@ -49,10 +59,21 @@ type ChatMessage = { id: string; role: "user" | "assistant"; content: string };
 function Page() {
   const { q } = Route.useSearch();
   const { data: ctx } = useDiagnosticContext();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const queryClient = useQueryClient();
+  const [threadId, setThreadId] = useState<string | null>(null);
+  const { data: threads } = useChatThreads();
+  const { data: storedMessages } = useChatMessages(threadId);
+  const deleteThread = useDeleteThread();
+  const saveRecommendation = useSaveRecommendation();
   const [input, setInput] = useState(q ?? "");
   const [status, setStatus] = useState<"ready" | "submitted" | "streaming">("ready");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const messages: ChatMessage[] = (storedMessages ?? []).map((m) => ({
+    id: m.id,
+    role: m.role === "user" ? "user" : "assistant",
+    content: m.content ?? "",
+  }));
 
   const welcome = useMemo<ChatMessage>(() => {
     const base =
@@ -86,27 +107,39 @@ function Page() {
     if (q) textareaRef.current?.focus();
   }, [q]);
 
-  const handleSubmit = (_message: PromptInputMessage, e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    _message: PromptInputMessage,
+    e: React.FormEvent<HTMLFormElement>,
+  ) => {
     e.preventDefault();
     const text = input.trim();
     if (!text || status !== "ready") return;
 
     setStatus("submitted");
-    setMessages((prev) => [...prev, { id: `u-${Date.now()}`, role: "user", content: text }]);
     setInput("");
 
-    setTimeout(() => {
+    try {
+      let activeThread = threadId;
+      if (!activeThread) {
+        activeThread = await createThread(text);
+        if (!activeThread) throw new Error("Sem sessão");
+        setThreadId(activeThread);
+        void queryClient.invalidateQueries({ queryKey: ["chat-threads"] });
+      }
+
+      await appendMessage(activeThread, "user", text);
+      void queryClient.invalidateQueries({ queryKey: ["chat-messages", activeThread] });
+
       setStatus("streaming");
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `a-${Date.now()}`,
-          role: "assistant",
-          content: `${contextSummary(ctx)}\n\nCom base nisso, o caminho recomendado é documentar a situação, revisar os instrumentos do pilar mais frágil e registrar a comunicação com o paciente. Descreva o caso concreto (procedimento, data e documentos existentes) para eu detalhar a estratégia.`,
-        },
-      ]);
+      const answer = `${contextSummary(ctx)}\n\nCom base nisso, o caminho recomendado é documentar a situação, revisar os instrumentos do pilar mais frágil e registrar a comunicação com o paciente. Descreva o caso concreto (procedimento, data e documentos existentes) para eu detalhar a estratégia.`;
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      await appendMessage(activeThread, "assistant", answer);
+      await queryClient.invalidateQueries({ queryKey: ["chat-messages", activeThread] });
+    } catch {
+      toast.error("Não foi possível salvar a conversa.");
+    } finally {
       setStatus("ready");
-    }, 1000);
+    }
   };
 
   return (
@@ -115,6 +148,67 @@ function Page() {
         ctx={ctx}
         note="O assistente recebe esse resumo em cada resposta, priorizando seus pilares mais frágeis."
       />
+
+      <section className="rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="font-serif text-lg text-foreground">Conversas salvas</h2>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+            onClick={() => setThreadId(null)}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Nova conversa
+          </Button>
+        </div>
+        {(threads ?? []).length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">
+            Cada conversa é salva automaticamente ao enviar a primeira mensagem.
+          </p>
+        ) : (
+          <ul className="mt-4 space-y-2">
+            {(threads ?? []).map((thread) => (
+              <li
+                key={thread.id}
+                className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-sm transition-colors ${
+                  threadId === thread.id
+                    ? "border-gold/60 bg-gold/10 text-gold"
+                    : "border-border bg-muted/30 text-muted-foreground"
+                }`}
+              >
+                <MessageSquare className="h-4 w-4 shrink-0" />
+                <button
+                  type="button"
+                  onClick={() => setThreadId(thread.id)}
+                  className="min-w-0 flex-1 truncate text-left"
+                >
+                  {thread.title ?? "Conversa"}
+                </button>
+                <span className="shrink-0 text-xs text-subtle">
+                  {new Date(thread.created_at).toLocaleDateString("pt-BR")}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Excluir conversa"
+                  className="shrink-0 text-subtle transition-colors hover:text-danger"
+                  onClick={() =>
+                    deleteThread.mutate(thread.id, {
+                      onSuccess: () => {
+                        if (threadId === thread.id) setThreadId(null);
+                        toast.success("Conversa excluída.");
+                      },
+                      onError: () => toast.error("Não foi possível excluir."),
+                    })
+                  }
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <div className="flex flex-col gap-4">
         <Conversation className="min-h-[380px] rounded-2xl border border-border bg-card/30">
@@ -147,6 +241,25 @@ function Page() {
                     }
                   >
                     <MessageResponse>{message.content}</MessageResponse>
+                    {message.role === "assistant" && message.id !== "welcome" ? (
+                      <button
+                        type="button"
+                        className="mt-3 inline-flex items-center gap-2 text-xs text-gold transition-colors hover:text-gold-light"
+                        onClick={() =>
+                          saveRecommendation.mutate(
+                            { content: message.content, threadId },
+                            {
+                              onSuccess: () =>
+                                toast.success("Recomendação salva — disponível na peça e no plano."),
+                              onError: () => toast.error("Não foi possível salvar."),
+                            },
+                          )
+                        }
+                      >
+                        <BookmarkPlus className="h-3.5 w-3.5" />
+                        Salvar como recomendação
+                      </button>
+                    ) : null}
                   </MessageContent>
                 </Message>
               ))
@@ -176,7 +289,12 @@ function Page() {
           </div>
         )}
 
-        <PromptInput onSubmit={handleSubmit} className="shrink-0">
+        <PromptInput
+          onSubmit={(message, event) => {
+            void handleSubmit(message, event);
+          }}
+          className="shrink-0"
+        >
           <PromptInputTextarea
             ref={textareaRef}
             value={input}
