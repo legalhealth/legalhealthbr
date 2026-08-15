@@ -21,7 +21,7 @@ import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
 
 export const Route = createFileRoute("/_authenticated/ia/assistente")({
   validateSearch: (search: Record<string, unknown>) => ({
-    q: typeof search.q === "string" ? search.q : undefined,
+    q: typeof search['q'] === "string" ? (search['q'] as string) : undefined,
   }),
   head: () => ({
     meta: [
