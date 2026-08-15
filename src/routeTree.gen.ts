@@ -21,6 +21,8 @@ import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedPlanoRouteImport } from './routes/_authenticated/plano'
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia.index'
 import { Route as AuthenticatedIaAssistenteRouteImport } from './routes/_authenticated/ia.assistente'
+import { Route as AuthenticatedIaPecaRouteImport } from './routes/_authenticated/ia.peca'
+import { Route as AuthenticatedIaRiscoRouteImport } from './routes/_authenticated/ia.risco'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -82,6 +84,16 @@ const AuthenticatedIaAssistenteRoute =
     path: '/assistente',
     getParentRoute: () => AuthenticatedIaRoute,
   } as any)
+const AuthenticatedIaPecaRoute = AuthenticatedIaPecaRouteImport.update({
+  id: '/peca',
+  path: '/peca',
+  getParentRoute: () => AuthenticatedIaRoute,
+} as any)
+const AuthenticatedIaRiscoRoute = AuthenticatedIaRiscoRouteImport.update({
+  id: '/risco',
+  path: '/risco',
+  getParentRoute: () => AuthenticatedIaRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -94,6 +106,8 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/plano': typeof AuthenticatedPlanoRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
+  '/ia/peca': typeof AuthenticatedIaPecaRoute
+  '/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
 }
 export interface FileRoutesByTo {
@@ -106,6 +120,8 @@ export interface FileRoutesByTo {
   '/plano': typeof AuthenticatedPlanoRoute
   '/': typeof AuthenticatedIndexRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
+  '/ia/peca': typeof AuthenticatedIaPecaRoute
+  '/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/ia': typeof AuthenticatedIaIndexRoute
 }
 export interface FileRoutesById {
@@ -121,6 +137,8 @@ export interface FileRoutesById {
   '/_authenticated/plano': typeof AuthenticatedPlanoRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/ia/assistente': typeof AuthenticatedIaAssistenteRoute
+  '/_authenticated/ia/peca': typeof AuthenticatedIaPecaRoute
+  '/_authenticated/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
 }
 export interface FileRouteTypes {
@@ -136,6 +154,8 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/plano'
     | '/ia/assistente'
+    | '/ia/peca'
+    | '/ia/risco'
     | '/ia/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -148,6 +168,8 @@ export interface FileRouteTypes {
     | '/plano'
     | '/'
     | '/ia/assistente'
+    | '/ia/peca'
+    | '/ia/risco'
     | '/ia'
   id:
     | '__root__'
@@ -162,6 +184,8 @@ export interface FileRouteTypes {
     | '/_authenticated/plano'
     | '/_authenticated/'
     | '/_authenticated/ia/assistente'
+    | '/_authenticated/ia/peca'
+    | '/_authenticated/ia/risco'
     | '/_authenticated/ia/'
   fileRoutesById: FileRoutesById
 }
@@ -257,16 +281,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIaAssistenteRouteImport
       parentRoute: typeof AuthenticatedIaRoute
     }
+    '/_authenticated/ia/peca': {
+      id: '/_authenticated/ia/peca'
+      path: '/peca'
+      fullPath: '/ia/peca'
+      preLoaderRoute: typeof AuthenticatedIaPecaRouteImport
+      parentRoute: typeof AuthenticatedIaRoute
+    }
+    '/_authenticated/ia/risco': {
+      id: '/_authenticated/ia/risco'
+      path: '/risco'
+      fullPath: '/ia/risco'
+      preLoaderRoute: typeof AuthenticatedIaRiscoRouteImport
+      parentRoute: typeof AuthenticatedIaRoute
+    }
   }
 }
 
 interface AuthenticatedIaRouteChildren {
   AuthenticatedIaAssistenteRoute: typeof AuthenticatedIaAssistenteRoute
+  AuthenticatedIaPecaRoute: typeof AuthenticatedIaPecaRoute
+  AuthenticatedIaRiscoRoute: typeof AuthenticatedIaRiscoRoute
   AuthenticatedIaIndexRoute: typeof AuthenticatedIaIndexRoute
 }
 
 const AuthenticatedIaRouteChildren: AuthenticatedIaRouteChildren = {
   AuthenticatedIaAssistenteRoute: AuthenticatedIaAssistenteRoute,
+  AuthenticatedIaPecaRoute: AuthenticatedIaPecaRoute,
+  AuthenticatedIaRiscoRoute: AuthenticatedIaRiscoRoute,
   AuthenticatedIaIndexRoute: AuthenticatedIaIndexRoute,
 }
 
