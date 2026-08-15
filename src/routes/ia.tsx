@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Send, Scale, ShieldCheck, Gavel } from "lucide-react";
+import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 
 import {
   Conversation,
