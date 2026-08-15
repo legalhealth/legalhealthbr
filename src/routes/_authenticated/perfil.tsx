@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { User, Building2, Bell, FileText, Shield, Save } from "lucide-react";
+import { User, Building2, Bell, FileText, Shield, Save, LogOut } from "lucide-react";
 
+import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
