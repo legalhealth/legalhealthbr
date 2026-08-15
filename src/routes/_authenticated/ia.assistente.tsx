@@ -31,9 +31,8 @@ import {
 import { useSaveRecommendation } from "@/lib/ia-recommendations";
 
 export const Route = createFileRoute("/_authenticated/ia/assistente")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    q: typeof search['q'] === "string" ? (search['q'] as string) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { q?: string } =>
+    typeof search['q'] === "string" ? { q: search['q'] } : {},
   head: () => ({
     meta: [
       { title: "Assistente Jurídico | Legal Health" },
