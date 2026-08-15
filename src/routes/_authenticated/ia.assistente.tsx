@@ -388,9 +388,56 @@ function Page() {
             className="min-h-[84px] bg-transparent text-foreground placeholder:text-muted-foreground"
           />
           <PromptInputFooter className="items-center justify-between px-3 pb-3 pt-0">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <ShieldCheck className="size-3.5 text-gold" />
-              <span>As respostas são orientativas, não substituem a opinião de um advogado.</span>
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
+              {attachments.length > 0 ? (
+                <ul className="flex flex-wrap gap-2">
+                  {attachments.map((file, index) => (
+                    <li
+                      key={`${file.name}-${index}`}
+                      className="flex max-w-[220px] items-center gap-2 rounded-lg border border-gold/40 bg-gold/10 px-2.5 py-1.5 text-xs text-gold"
+                    >
+                      <Paperclip className="size-3 shrink-0" />
+                      <span className="truncate">{file.name}</span>
+                      <button
+                        type="button"
+                        aria-label={`Remover ${file.name}`}
+                        className="shrink-0 text-gold/70 transition-colors hover:text-danger"
+                        onClick={() =>
+                          setAttachments((prev) => prev.filter((_, i) => i !== index))
+                        }
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              <div className="flex items-center gap-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept={ATTACHMENT_ACCEPT}
+                  className="hidden"
+                  onChange={(event) => {
+                    void handleFiles(event.currentTarget.files);
+                    event.currentTarget.value = "";
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isBusy}
+                  className="inline-flex items-center gap-2 rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-gold/50 hover:text-gold disabled:opacity-50"
+                >
+                  <Paperclip className="size-3.5" />
+                  Anexar documento
+                </button>
+                <span className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
+                  <ShieldCheck className="size-3.5 text-gold" />
+                  As respostas são orientativas, não substituem a opinião de um advogado.
+                </span>
+              </div>
             </div>
             <PromptInputSubmit
               status={status}
