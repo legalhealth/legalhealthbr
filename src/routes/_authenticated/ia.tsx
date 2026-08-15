@@ -23,13 +23,15 @@ import {
 import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/_authenticated/ia")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    tab:
-      typeof search.tab === "string" &&
-      ["assistente", "peca", "risco", "documentos"].includes(search.tab)
-        ? (search.tab as "assistente" | "peca" | "risco" | "documentos")
-        : ("assistente" as const),
-  }),
+  validateSearch: (search: Record<string, unknown>) => {
+    const raw = search["tab"];
+    const allowed = ["assistente", "peca", "risco", "documentos"] as const;
+    const tab =
+      typeof raw === "string" && (allowed as readonly string[]).includes(raw)
+        ? (raw as (typeof allowed)[number])
+        : ("assistente" as const);
+    return { tab };
+  },
   head: () => ({
     meta: [
       { title: "IA Jurídica | Legal Health" },
