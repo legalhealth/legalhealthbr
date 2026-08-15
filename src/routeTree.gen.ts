@@ -13,6 +13,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedBemVindoRouteImport } from './routes/_authenticated/bem-vindo'
 import { Route as AuthenticatedBibliotecaRouteImport } from './routes/_authenticated/biblioteca'
 import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
 import { Route as AuthenticatedJuriscoreRouteImport } from './routes/_authenticated/juriscore'
@@ -36,6 +37,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBemVindoRoute = AuthenticatedBemVindoRouteImport.update({
+  id: '/bem-vindo',
+  path: '/bem-vindo',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedBibliotecaRoute = AuthenticatedBibliotecaRouteImport.update({
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/ia': typeof AuthenticatedIaRoute
   '/juriscore': typeof AuthenticatedJuriscoreRoute
@@ -77,6 +84,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/ia': typeof AuthenticatedIaRoute
   '/juriscore': typeof AuthenticatedJuriscoreRoute
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/_authenticated/ia': typeof AuthenticatedIaRoute
   '/_authenticated/juriscore': typeof AuthenticatedJuriscoreRoute
@@ -102,6 +111,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/bem-vindo'
     | '/biblioteca'
     | '/ia'
     | '/juriscore'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
   to:
     | '/auth'
     | '/reset-password'
+    | '/bem-vindo'
     | '/biblioteca'
     | '/ia'
     | '/juriscore'
@@ -122,6 +133,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/reset-password'
+    | '/_authenticated/bem-vindo'
     | '/_authenticated/biblioteca'
     | '/_authenticated/ia'
     | '/_authenticated/juriscore'
@@ -166,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/bem-vindo': {
+      id: '/_authenticated/bem-vindo'
+      path: '/bem-vindo'
+      fullPath: '/bem-vindo'
+      preLoaderRoute: typeof AuthenticatedBemVindoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/biblioteca': {
       id: '/_authenticated/biblioteca'
       path: '/biblioteca'
@@ -205,6 +224,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBemVindoRoute: typeof AuthenticatedBemVindoRoute
   AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRoute
   AuthenticatedJuriscoreRoute: typeof AuthenticatedJuriscoreRoute
@@ -214,6 +234,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBemVindoRoute: AuthenticatedBemVindoRoute,
   AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRoute,
   AuthenticatedIaRoute: AuthenticatedIaRoute,
   AuthenticatedJuriscoreRoute: AuthenticatedJuriscoreRoute,

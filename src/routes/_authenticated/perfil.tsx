@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { User, Building2, Bell, FileText, Shield, Save, LogOut } from "lucide-react";
+import { User, Building2, Bell, FileText, Shield, Save, LogOut, Upload, Trash2 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   head: () => ({
@@ -36,6 +37,48 @@ function Page() {
   const [email, setEmail] = useState("");
   const [crm, setCrm] = useState("");
   const [specialty, setSpecialty] = useState("");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarName, setAvatarName] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    };
+  }, [avatarPreview]);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Arquivo inválido", { description: "Envie uma imagem PNG, JPG ou WEBP." });
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      toast.error("Imagem muito grande", { description: "O limite é de 3 MB." });
+      return;
+    }
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    setAvatarPreview(URL.createObjectURL(file));
+    setAvatarName(file.name);
+  };
+
+  const removeAvatar = () => {
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    setAvatarPreview(null);
+    setAvatarName(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const initials =
+    name
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? "")
+      .join("") || "LH";
 
   const [preferences, setPreferences] = useState({
     emailAlerts: true,
@@ -78,6 +121,52 @@ function Page() {
               <CardDescription>Informações usadas para personalizar análises e alertas.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-6 sm:grid-cols-2">
+              <div className="sm:col-span-2 flex flex-col gap-4 rounded-xl border border-border bg-muted/20 p-4 sm:flex-row sm:items-center">
+                <Avatar className="h-16 w-16 border border-border">
+                  {avatarPreview ? <AvatarImage src={avatarPreview} alt="Pré-visualização do avatar" /> : null}
+                  <AvatarFallback className="bg-card text-sm font-medium text-gold">{initials}</AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1 space-y-1">
+                  <p className="text-sm font-medium text-foreground">Foto de perfil</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {avatarName
+                      ? `${avatarName} — pré-visualização. Clique em salvar para confirmar.`
+                      : "PNG, JPG ou WEBP de até 3 MB."}
+                  </p>
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <input
+                    ref={fileInputRef}
+                    id="avatar"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="hidden"
+                    onChange={handleAvatarChange}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="border-border hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <Upload className="h-4 w-4" />
+                    {avatarPreview ? "Trocar" : "Enviar foto"}
+                  </Button>
+                  {avatarPreview && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={removeAvatar}
+                      className="text-muted-foreground hover:text-danger"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="name">Nome completo</Label>
                 <Input
