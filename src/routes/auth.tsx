@@ -26,6 +26,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,7 +43,7 @@ function AuthPage() {
       if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        throw redirect({ to: "/" });
+        navigate({ to: "/", replace: true });
       } else {
         const { error } = await supabase.auth.signUp({
           email,
