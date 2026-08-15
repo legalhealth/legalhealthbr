@@ -231,6 +231,7 @@ function Page() {
                     <MessageResponse>{welcome.content}</MessageResponse>
                   </MessageContent>
                 </Message>
+                {pendingUser ? null : (
                 <ConversationEmptyState
                   title="Comece pela sua dúvida"
                   description="Descreva um caso, cole um documento ou escolha uma sugestão abaixo."
@@ -240,6 +241,7 @@ function Page() {
                     </div>
                   }
                 />
+                )}
               </>
             ) : (
               [welcome, ...messages].map((message) => (
@@ -275,11 +277,34 @@ function Page() {
                 </Message>
               ))
             )}
+
+            {pendingUser ? (
+              <Message from="user" className="max-w-[90%] md:max-w-[85%]">
+                <MessageContent className="rounded-2xl px-5 py-3.5 shadow-sm !bg-info !text-info-foreground">
+                  <MessageResponse>{pendingUser}</MessageResponse>
+                </MessageContent>
+              </Message>
+            ) : null}
+
+            {isBusy ? (
+              <Message from="assistant" className="max-w-[90%] md:max-w-[85%]">
+                <MessageContent className="text-foreground">
+                  {draft ? (
+                    <MessageResponse>{draft}</MessageResponse>
+                  ) : (
+                    <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="size-2 animate-pulse rounded-full bg-gold" />
+                      Legal Health AI analisando legislação e riscos...
+                    </span>
+                  )}
+                </MessageContent>
+              </Message>
+            ) : null}
           </ConversationContent>
           <ConversationScrollButton />
         </Conversation>
 
-        {messages.length === 0 && (
+        {messages.length === 0 && !isBusy && (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {suggestions.map((prompt) => (
               <button
