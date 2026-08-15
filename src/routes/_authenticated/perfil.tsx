@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { User, Building2, Bell, FileText, Shield, Save } from "lucide-react";
+import { User, Building2, Bell, FileText, Shield, Save, LogOut } from "lucide-react";
 
+import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 
-export const Route = createFileRoute("/perfil")({
+export const Route = createFileRoute("/_authenticated/perfil")({
   head: () => ({
     meta: [
       { title: "Perfil | Legal Health" },
@@ -26,6 +28,9 @@ export const Route = createFileRoute("/perfil")({
 });
 
 function Page() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const [name, setName] = useState("");
   const [clinic, setClinic] = useState("");
   const [email, setEmail] = useState("");
@@ -48,6 +53,13 @@ function Page() {
     toast.success("Alterações salvas localmente", {
       description: "Em breve sincronizaremos com sua conta.",
     });
+  };
+
+  const handleSignOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
   };
 
   return (
@@ -219,6 +231,16 @@ function Page() {
           >
             <Save className="h-4 w-4" />
             Salvar alterações
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleSignOut}
+            className="w-full border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground h-11 rounded-xl"
+          >
+            <LogOut className="h-4 w-4" />
+            Sair da conta
           </Button>
         </div>
       </form>
