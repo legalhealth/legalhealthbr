@@ -19,6 +19,7 @@ import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
 import { Route as AuthenticatedJuriscoreRouteImport } from './routes/_authenticated/juriscore'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedPlanoRouteImport } from './routes/_authenticated/plano'
+import { Route as ApiAiChatRouteImport } from './routes/api/ai-chat'
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia.index'
 import { Route as AuthenticatedIaAssistenteRouteImport } from './routes/_authenticated/ia.assistente'
 import { Route as AuthenticatedIaDocumentosRouteImport } from './routes/_authenticated/ia.documentos'
@@ -75,6 +76,11 @@ const AuthenticatedPlanoRoute = AuthenticatedPlanoRouteImport.update({
   path: '/plano',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiAiChatRoute = ApiAiChatRouteImport.update({
+  id: '/api/ai-chat',
+  path: '/api/ai-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedIaIndexRoute = AuthenticatedIaIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/juriscore': typeof AuthenticatedJuriscoreRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/plano': typeof AuthenticatedPlanoRoute
+  '/api/ai-chat': typeof ApiAiChatRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/ia/historico': typeof AuthenticatedIaHistoricoRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/juriscore': typeof AuthenticatedJuriscoreRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/plano': typeof AuthenticatedPlanoRoute
+  '/api/ai-chat': typeof ApiAiChatRoute
   '/': typeof AuthenticatedIndexRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   '/_authenticated/juriscore': typeof AuthenticatedJuriscoreRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/plano': typeof AuthenticatedPlanoRoute
+  '/api/ai-chat': typeof ApiAiChatRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/_authenticated/ia/documentos': typeof AuthenticatedIaDocumentosRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/juriscore'
     | '/perfil'
     | '/plano'
+    | '/api/ai-chat'
     | '/ia/assistente'
     | '/ia/documentos'
     | '/ia/historico'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/juriscore'
     | '/perfil'
     | '/plano'
+    | '/api/ai-chat'
     | '/'
     | '/ia/assistente'
     | '/ia/documentos'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/_authenticated/juriscore'
     | '/_authenticated/perfil'
     | '/_authenticated/plano'
+    | '/api/ai-chat'
     | '/_authenticated/'
     | '/_authenticated/ia/assistente'
     | '/_authenticated/ia/documentos'
@@ -219,6 +231,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiAiChatRoute: typeof ApiAiChatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/plano'
       preLoaderRoute: typeof AuthenticatedPlanoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/ai-chat': {
+      id: '/api/ai-chat'
+      path: '/api/ai-chat'
+      fullPath: '/api/ai-chat'
+      preLoaderRoute: typeof ApiAiChatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/ia/': {
       id: '/_authenticated/ia/'
@@ -387,6 +407,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiAiChatRoute: ApiAiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
