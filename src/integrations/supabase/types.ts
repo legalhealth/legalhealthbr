@@ -14,7 +14,198 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      action_items_done: {
+        Row: {
+          done: boolean
+          id: string
+          item_key: string
+          plan_id: string
+          updated_at: string
+        }
+        Insert: {
+          done?: boolean
+          id?: string
+          item_key: string
+          plan_id: string
+          updated_at?: string
+        }
+        Update: {
+          done?: boolean
+          id?: string
+          item_key?: string
+          plan_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      action_plans: {
+        Row: {
+          created_at: string
+          id: string
+          prioridades: Json | null
+          result_id: string
+          resumo: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          prioridades?: Json | null
+          result_id: string
+          resumo?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          prioridades?: Json | null
+          result_id?: string
+          resumo?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          role: string
+          thread_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          role: string
+          thread_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          role?: string
+          thread_id?: string
+        }
+        Relationships: []
+      }
+      chat_threads: {
+        Row: {
+          created_at: string
+          id: string
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      generated_docs: {
+        Row: {
+          conteudo: string | null
+          created_at: string
+          id: string
+          origem: string | null
+          tipo: string | null
+          user_id: string
+        }
+        Insert: {
+          conteudo?: string | null
+          created_at?: string
+          id?: string
+          origem?: string | null
+          tipo?: string | null
+          user_id: string
+        }
+        Update: {
+          conteudo?: string | null
+          created_at?: string
+          id?: string
+          origem?: string | null
+          tipo?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      juriscore_results: {
+        Row: {
+          answers: Json | null
+          by_pillar: Json | null
+          created_at: string
+          id: string
+          score: number
+          user_id: string
+        }
+        Insert: {
+          answers?: Json | null
+          by_pillar?: Json | null
+          created_at?: string
+          id?: string
+          score: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json | null
+          by_pillar?: Json | null
+          created_at?: string
+          id?: string
+          score?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          biometria: boolean
+          cidade: string | null
+          created_at: string
+          crm: string | null
+          especialidade: string | null
+          id: string
+          nome: string | null
+          offline: boolean
+          plano: string
+          push: boolean
+          user_id: string
+        }
+        Insert: {
+          biometria?: boolean
+          cidade?: string | null
+          created_at?: string
+          crm?: string | null
+          especialidade?: string | null
+          id?: string
+          nome?: string | null
+          offline?: boolean
+          plano?: string
+          push?: boolean
+          user_id: string
+        }
+        Update: {
+          biometria?: boolean
+          cidade?: string | null
+          created_at?: string
+          crm?: string | null
+          especialidade?: string | null
+          id?: string
+          nome?: string | null
+          offline?: boolean
+          plano?: string
+          push?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
