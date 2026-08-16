@@ -22,6 +22,7 @@ import {
   useUpdateHistoryStatus,
   type HistoryStatus,
 } from "@/lib/ia-history";
+import { AiDisclaimer } from "@/components/ia/ai-disclaimer";
 
 export const Route = createFileRoute("/_authenticated/ia/historico")({
   head: () => ({
@@ -236,6 +237,7 @@ function Page() {
           })}
         </ul>
       )}
+      <AiDisclaimer />
     </div>
   );
 }

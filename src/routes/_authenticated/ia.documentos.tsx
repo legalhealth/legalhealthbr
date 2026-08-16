@@ -25,6 +25,7 @@ import {
   useUploadDocuments,
   type DocTag,
 } from "@/lib/ia-documents";
+import { AiDisclaimer } from "@/components/ia/ai-disclaimer";
 
 export const Route = createFileRoute("/_authenticated/ia/documentos")({
   head: () => ({
@@ -247,6 +248,7 @@ function Page() {
           </ul>
         )}
       </section>
+      <AiDisclaimer />
     </div>
   );
 }

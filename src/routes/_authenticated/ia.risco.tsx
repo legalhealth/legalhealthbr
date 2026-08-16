@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
 import { saveHistoryItem } from "@/lib/ia-history";
 import { tagLabel, useDocuments } from "@/lib/ia-documents";
+import { AiDisclaimer } from "@/components/ia/ai-disclaimer";
 
 export const Route = createFileRoute("/_authenticated/ia/risco")({
   validateSearch: (search: Record<string, unknown>): { doc?: string } =>
@@ -260,6 +261,7 @@ function Page() {
           </div>
         </section>
       ) : null}
+      <AiDisclaimer />
     </div>
   );
 }

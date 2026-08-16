@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
 import { saveHistoryItem } from "@/lib/ia-history";
 import { useRecommendations } from "@/lib/ia-recommendations";
+import { AiDisclaimer } from "@/components/ia/ai-disclaimer";
 
 export const Route = createFileRoute("/_authenticated/ia/peca")({
   head: () => ({
@@ -250,6 +251,7 @@ function Page() {
           </Button>
         </section>
       ) : null}
+      <AiDisclaimer />
     </div>
   );
 }

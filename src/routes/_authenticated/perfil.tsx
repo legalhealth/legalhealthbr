@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
-import { User, Building2, Bell, FileText, Shield, Save, LogOut, Upload, Trash2, Loader2 } from "lucide-react";
+import { User, Bell, Check, Save, LogOut, Loader2, Settings2, Crown } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
@@ -13,21 +13,53 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   head: () => ({
     meta: [
       { title: "Perfil | Legal Health" },
-      { name: "description", content: "Dados profissionais, especialidade e configurações da sua conta." },
+      {
+        name: "description",
+        content: "Dados profissionais, assinatura e configurações da sua conta Legal Health.",
+      },
       { property: "og:title", content: "Perfil | Legal Health" },
-      { property: "og:description", content: "Dados profissionais, especialidade e configurações da sua conta." },
+      {
+        property: "og:description",
+        content: "Dados profissionais, assinatura e configurações da sua conta Legal Health.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Page,
 });
+
+const PLANS = [
+  {
+    id: "essential",
+    name: "Essential",
+    price: "R$ 197",
+    period: "/mês",
+    description: "Médicos individuais e consultórios de menor porte",
+    featured: false,
+  },
+  {
+    id: "professional",
+    name: "Professional",
+    price: "R$ 497",
+    period: "/mês",
+    description: "Gama completa para clínicas integradas e equipes",
+    featured: true,
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    price: "Sob consulta",
+    period: "",
+    description: "Grandes redes hospitalares e operadoras de saúde",
+    featured: false,
+  },
+] as const;
 
 const optionalText = (max: number, label: string) =>
   z
@@ -42,9 +74,10 @@ const profileSchema = z.object({
     .min(3, { message: "Informe seu nome completo (mínimo 3 caracteres)." })
     .max(120, { message: "Nome deve ter no máximo 120 caracteres." }),
   clinica: optionalText(150, "Clínica"),
-  crm: optionalText(20, "CRM").refine((v) => v === "" || /^[A-Za-z]{0,4}[\s/-]*[A-Za-z]{2}\s?\d{3,8}$/.test(v), {
-    message: "Formato esperado: CRM/SP 123456.",
-  }),
+  crm: optionalText(20, "CRM").refine(
+    (v) => v === "" || /^[A-Za-z]{0,4}[\s/-]*[A-Za-z]{2}\s?\d{3,8}$/.test(v),
+    { message: "Formato esperado: CRM/SP 123456." },
+  ),
   especialidade: optionalText(100, "Especialidade"),
   cidade: optionalText(100, "Cidade"),
 });
@@ -59,9 +92,13 @@ function Page() {
   const [crm, setCrm] = useState("");
   const [specialty, setSpecialty] = useState("");
   const [city, setCity] = useState("");
+  const [plan, setPlan] = useState<string>("essential");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [preferences, setPreferences] = useState({
+    push: true,
+    biometria: false,
+    offline: false,
     emailAlerts: true,
     weeklyDigest: false,
     newJurisprudence: true,
@@ -77,7 +114,7 @@ function Page() {
       const { data, error } = await supabase
         .from("profiles")
         .select(
-          "nome, clinica, crm, especialidade, cidade, plano, email_alerts, weekly_digest, new_jurisprudence, risk_notifications",
+          "nome, clinica, crm, especialidade, cidade, plano, push, biometria, offline, email_alerts, weekly_digest, new_jurisprudence, risk_notifications",
         )
         .eq("user_id", userId)
         .maybeSingle();
@@ -97,46 +134,17 @@ function Page() {
     setCrm(p.crm ?? "");
     setSpecialty(p.especialidade ?? "");
     setCity(p.cidade ?? "");
+    setPlan(p.plano ?? "essential");
     setPreferences({
+      push: p.push,
+      biometria: p.biometria,
+      offline: p.offline,
       emailAlerts: p.email_alerts,
       weeklyDigest: p.weekly_digest,
       newJurisprudence: p.new_jurisprudence,
       riskNotifications: p.risk_notifications,
     });
   }, [profileQuery.data]);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [avatarName, setAvatarName] = useState<string | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
-    };
-  }, [avatarPreview]);
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast.error("Arquivo inválido", { description: "Envie uma imagem PNG, JPG ou WEBP." });
-      return;
-    }
-    if (file.size > 3 * 1024 * 1024) {
-      toast.error("Imagem muito grande", { description: "O limite é de 3 MB." });
-      return;
-    }
-    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
-    setAvatarPreview(URL.createObjectURL(file));
-    setAvatarName(file.name);
-  };
-
-  const removeAvatar = () => {
-    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
-    setAvatarPreview(null);
-    setAvatarName(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
 
   const initials =
     name
@@ -155,23 +163,25 @@ function Page() {
     mutationFn: async (values: z.infer<typeof profileSchema>) => {
       const userId = profileQuery.data?.userId;
       if (!userId) throw new Error("Sessão expirada. Entre novamente.");
-      const { error } = await supabase
-        .from("profiles")
-        .upsert(
-          {
-            user_id: userId,
-            nome: values.nome || null,
-            clinica: values.clinica || null,
-            crm: values.crm || null,
-            especialidade: values.especialidade || null,
-            cidade: values.cidade || null,
-            email_alerts: preferences.emailAlerts,
-            weekly_digest: preferences.weeklyDigest,
-            new_jurisprudence: preferences.newJurisprudence,
-            risk_notifications: preferences.riskNotifications,
-          },
-          { onConflict: "user_id" },
-        );
+      const { error } = await supabase.from("profiles").upsert(
+        {
+          user_id: userId,
+          nome: values.nome || null,
+          clinica: values.clinica || null,
+          crm: values.crm || null,
+          especialidade: values.especialidade || null,
+          cidade: values.cidade || null,
+          plano: plan,
+          push: preferences.push,
+          biometria: preferences.biometria,
+          offline: preferences.offline,
+          email_alerts: preferences.emailAlerts,
+          weekly_digest: preferences.weeklyDigest,
+          new_jurisprudence: preferences.newJurisprudence,
+          risk_notifications: preferences.riskNotifications,
+        },
+        { onConflict: "user_id" },
+      );
       if (error) throw error;
     },
     onSuccess: async () => {
@@ -218,241 +228,248 @@ function Page() {
   return (
     <PageShell
       title="Perfil"
-      description="Dados profissionais, especialidade e configurações da sua conta."
+      description="Dados profissionais, assinatura e configurações da sua conta."
     >
-      <form onSubmit={handleSubmit} className="mt-10 grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="border border-border bg-card rounded-2xl shadow-none">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
-                <User className="h-5 w-5 text-gold" />
-                Dados profissionais
-              </CardTitle>
-              <CardDescription>Informações usadas para personalizar análises e alertas.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-6 sm:grid-cols-2">
-              <div className="sm:col-span-2 flex flex-col gap-4 rounded-xl border border-border bg-muted/20 p-4 sm:flex-row sm:items-center">
-                <Avatar className="h-16 w-16 border border-border">
-                  {avatarPreview ? <AvatarImage src={avatarPreview} alt="Pré-visualização do avatar" /> : null}
-                  <AvatarFallback className="bg-card text-sm font-medium text-gold">{initials}</AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1 space-y-1">
-                  <p className="text-sm font-medium text-foreground">Foto de perfil</p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {avatarName
-                      ? `${avatarName} — pré-visualização. Clique em salvar para confirmar.`
-                      : "PNG, JPG ou WEBP de até 3 MB."}
-                  </p>
-                </div>
-                <div className="flex shrink-0 gap-2">
-                  <input
-                    ref={fileInputRef}
-                    id="avatar"
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    className="hidden"
-                    onChange={handleAvatarChange}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="border-border hover:bg-accent hover:text-accent-foreground"
-                  >
-                    <Upload className="h-4 w-4" />
-                    {avatarPreview ? "Trocar" : "Enviar foto"}
-                  </Button>
-                  {avatarPreview && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={removeAvatar}
-                      className="text-muted-foreground hover:text-danger"
+      <form onSubmit={handleSubmit} className="mt-8 space-y-6 md:mt-10">
+        <Card className="rounded-2xl border border-border bg-card shadow-none">
+          <CardContent className="flex flex-col items-center gap-4 pt-6 text-center sm:flex-row sm:items-center sm:text-left">
+            <span className="grid h-20 w-20 shrink-0 place-items-center rounded-full border border-gold/40 bg-background text-2xl font-medium tracking-widest text-gold">
+              {initials}
+            </span>
+            <div className="min-w-0">
+              <p className="wordmark truncate text-xl text-foreground">
+                {name.trim() || "Seu nome"}
+              </p>
+              <p className="truncate text-sm text-muted-foreground">{email || "—"}</p>
+              <p className="mt-1 text-xs tracking-[0.18em] text-subtle uppercase">
+                {specialty.trim() || "Especialidade não informada"}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl border border-border bg-card shadow-none">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
+              <User className="h-5 w-5 text-gold" />
+              Dados profissionais
+            </CardTitle>
+            <CardDescription>Informações usadas para personalizar análises e alertas.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-5 sm:grid-cols-2">
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="name">Nome completo</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Dr. João Silva"
+                maxLength={120}
+                aria-invalid={Boolean(errors["nome"])}
+              />
+              {errors["nome"] && <p className="text-xs text-danger">{errors["nome"]}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="crm">CRM/UF</Label>
+              <Input
+                id="crm"
+                value={crm}
+                onChange={(e) => setCrm(e.target.value)}
+                placeholder="CRM/SP 123456"
+                maxLength={20}
+                aria-invalid={Boolean(errors["crm"])}
+              />
+              {errors["crm"] && <p className="text-xs text-danger">{errors["crm"]}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="specialty">Especialidade</Label>
+              <Input
+                id="specialty"
+                value={specialty}
+                onChange={(e) => setSpecialty(e.target.value)}
+                placeholder="Cirurgia plástica, cardiologia, ortopedia..."
+                maxLength={100}
+                aria-invalid={Boolean(errors["especialidade"])}
+              />
+              {errors["especialidade"] && (
+                <p className="text-xs text-danger">{errors["especialidade"]}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="city">Cidade/UF</Label>
+              <Input
+                id="city"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="São Paulo, SP"
+                maxLength={100}
+                aria-invalid={Boolean(errors["cidade"])}
+              />
+              {errors["cidade"] && <p className="text-xs text-danger">{errors["cidade"]}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="clinic">Clínica / Instituição</Label>
+              <Input
+                id="clinic"
+                value={clinic}
+                onChange={(e) => setClinic(e.target.value)}
+                placeholder="Clínica Médica Exemplo"
+                maxLength={150}
+                aria-invalid={Boolean(errors["clinica"])}
+              />
+              {errors["clinica"] && <p className="text-xs text-danger">{errors["clinica"]}</p>}
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="email">E-mail de acesso</Label>
+              <Input id="email" type="email" value={email} readOnly disabled />
+              <p className="text-xs text-subtle">O e-mail de acesso não pode ser alterado aqui.</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl border border-border bg-card shadow-none">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
+              <Crown className="h-5 w-5 text-gold" />
+              Assinatura
+            </CardTitle>
+            <CardDescription>Escolha o plano adequado ao porte da sua operação.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4 lg:grid-cols-3">
+            {PLANS.map((item) => {
+              const active = plan === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setPlan(item.id)}
+                  aria-pressed={active}
+                  className={`relative flex h-full flex-col items-start gap-3 rounded-2xl border p-5 text-left transition-colors ${
+                    active
+                      ? "border-gold bg-gold/5"
+                      : item.featured
+                        ? "border-gold/40 bg-background hover:border-gold"
+                        : "border-border bg-background hover:border-gold/40"
+                  }`}
+                >
+                  <div className="flex w-full flex-wrap items-center gap-2">
+                    <span
+                      className={`text-sm font-medium tracking-wide ${item.featured ? "text-gold" : "text-foreground"}`}
                     >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
+                      {item.name}
+                    </span>
+                    {item.featured && !active ? (
+                      <span className="rounded-full border border-gold/40 px-2 py-0.5 text-[0.6rem] tracking-[0.16em] text-gold uppercase">
+                        Recomendado
+                      </span>
+                    ) : null}
+                    {active ? (
+                      <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-[0.65rem] font-medium text-success">
+                        <Check className="h-3 w-3" />
+                        Ativo
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="text-2xl font-medium text-foreground">
+                    {item.price}
+                    <span className="text-sm font-normal text-muted-foreground">{item.period}</span>
+                  </p>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                </button>
+              );
+            })}
+          </CardContent>
+        </Card>
 
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome completo</Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Dr. João Silva"
-                  maxLength={120}
-                  aria-invalid={Boolean(errors["nome"])}
-                />
-                {errors["nome"] && <p className="text-xs text-danger">{errors["nome"]}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">E-mail</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  placeholder="joao.silva@clinica.com.br"
-                  readOnly
-                  disabled
-                />
-                <p className="text-xs text-subtle">O e-mail de acesso não pode ser alterado aqui.</p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="clinic">Clínica / Instituição</Label>
-                <Input
-                  id="clinic"
-                  value={clinic}
-                  onChange={(e) => setClinic(e.target.value)}
-                  placeholder="Clínica Médica Exemplo"
-                  maxLength={150}
-                  aria-invalid={Boolean(errors["clinica"])}
-                />
-                {errors["clinica"] && <p className="text-xs text-danger">{errors["clinica"]}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="crm">CRM</Label>
-                <Input
-                  id="crm"
-                  value={crm}
-                  onChange={(e) => setCrm(e.target.value)}
-                  placeholder="CRM/SP 123456"
-                  maxLength={20}
-                  aria-invalid={Boolean(errors["crm"])}
-                />
-                {errors["crm"] && <p className="text-xs text-danger">{errors["crm"]}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="specialty">Especialidade</Label>
-                <Input
-                  id="specialty"
-                  value={specialty}
-                  onChange={(e) => setSpecialty(e.target.value)}
-                  placeholder="Cirurgia plástica, cardiologia, ortopedia..."
-                  maxLength={100}
-                  aria-invalid={Boolean(errors["especialidade"])}
-                />
-                {errors["especialidade"] && <p className="text-xs text-danger">{errors["especialidade"]}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="city">Cidade</Label>
-                <Input
-                  id="city"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder="São Paulo, SP"
-                  maxLength={100}
-                  aria-invalid={Boolean(errors["cidade"])}
-                />
-                {errors["cidade"] && <p className="text-xs text-danger">{errors["cidade"]}</p>}
-              </div>
-            </CardContent>
-          </Card>
+        <Card className="rounded-2xl border border-border bg-card shadow-none">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
+              <Settings2 className="h-5 w-5 text-gold" />
+              Configurações
+            </CardTitle>
+            <CardDescription>Preferências do aplicativo neste dispositivo e na conta.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <PreferenceRow
+              id="push"
+              label="Notificações push"
+              description="Avisos de prazos e riscos direto no seu celular."
+              checked={preferences.push}
+              onCheckedChange={() => toggle("push")}
+            />
+            <Separator className="bg-border" />
+            <PreferenceRow
+              id="biometria"
+              label="Desbloqueio por biometria"
+              description="Exigir digital ou reconhecimento facial ao abrir o app."
+              checked={preferences.biometria}
+              onCheckedChange={() => toggle("biometria")}
+            />
+            <Separator className="bg-border" />
+            <PreferenceRow
+              id="offline"
+              label="Modo offline"
+              description="Manter diagnóstico e plano disponíveis sem conexão."
+              checked={preferences.offline}
+              onCheckedChange={() => toggle("offline")}
+            />
+          </CardContent>
+        </Card>
 
-          <Card className="border border-border bg-card rounded-2xl shadow-none">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
-                <Bell className="h-5 w-5 text-gold" />
-                Preferências de notificação
-              </CardTitle>
-              <CardDescription>Escolha quais alertas você deseja receber.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <PreferenceRow
-                id="emailAlerts"
-                label="Alertas por e-mail"
-                description="Notificações sobre riscos jurídicos identificados."
-                checked={preferences.emailAlerts}
-                onCheckedChange={() => toggle("emailAlerts")}
-              />
-              <Separator className="bg-border" />
-              <PreferenceRow
-                id="weeklyDigest"
-                label="Resumo semanal"
-                description="Relatório consolidado de novidades e riscos da semana."
-                checked={preferences.weeklyDigest}
-                onCheckedChange={() => toggle("weeklyDigest")}
-              />
-              <Separator className="bg-border" />
-              <PreferenceRow
-                id="newJurisprudence"
-                label="Novas jurisprudências"
-                description="Atualizações relevantes para sua especialidade."
-                checked={preferences.newJurisprudence}
-                onCheckedChange={() => toggle("newJurisprudence")}
-              />
-              <Separator className="bg-border" />
-              <PreferenceRow
-                id="riskNotifications"
-                label="Alertas de risco alto"
-                description="Avisos imediatos quando a pontuação de risco for crítica."
-                checked={preferences.riskNotifications}
-                onCheckedChange={() => toggle("riskNotifications")}
-              />
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="rounded-2xl border border-border bg-card shadow-none">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
+              <Bell className="h-5 w-5 text-gold" />
+              Notificações por e-mail
+            </CardTitle>
+            <CardDescription>Escolha quais alertas você deseja receber.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <PreferenceRow
+              id="emailAlerts"
+              label="Alertas por e-mail"
+              description="Notificações sobre riscos jurídicos identificados."
+              checked={preferences.emailAlerts}
+              onCheckedChange={() => toggle("emailAlerts")}
+            />
+            <Separator className="bg-border" />
+            <PreferenceRow
+              id="weeklyDigest"
+              label="Resumo semanal"
+              description="Relatório consolidado de novidades e riscos da semana."
+              checked={preferences.weeklyDigest}
+              onCheckedChange={() => toggle("weeklyDigest")}
+            />
+            <Separator className="bg-border" />
+            <PreferenceRow
+              id="newJurisprudence"
+              label="Novas jurisprudências"
+              description="Atualizações relevantes para sua especialidade."
+              checked={preferences.newJurisprudence}
+              onCheckedChange={() => toggle("newJurisprudence")}
+            />
+            <Separator className="bg-border" />
+            <PreferenceRow
+              id="riskNotifications"
+              label="Alertas de risco alto"
+              description="Avisos imediatos quando a pontuação de risco for crítica."
+              checked={preferences.riskNotifications}
+              onCheckedChange={() => toggle("riskNotifications")}
+            />
+          </CardContent>
+        </Card>
 
-        <div className="space-y-6">
-          <Card className="border border-border bg-card rounded-2xl shadow-none">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
-                <Building2 className="h-5 w-5 text-gold" />
-                Plano atual
-              </CardTitle>
-              <CardDescription>Visão geral da sua assinatura.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Plano</span>
-                <span className="text-sm font-medium text-foreground capitalize">
-                  {profileQuery.data?.profile?.plano ?? "essential"}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Status</span>
-                <span className="inline-flex items-center rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success">
-                  Ativo
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Renovação</span>
-                <span className="text-sm text-foreground">15/09/2026</span>
-              </div>
-              <Button variant="outline" className="w-full border-border hover:bg-accent hover:text-accent-foreground">
-                Gerenciar plano
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-border bg-card rounded-2xl shadow-none">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
-                <Shield className="h-5 w-5 text-gold" />
-                Segurança
-              </CardTitle>
-              <CardDescription>Gerencie o acesso à sua conta.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full border-border hover:bg-accent hover:text-accent-foreground">
-                Alterar senha
-              </Button>
-              <Button variant="outline" className="w-full border-border hover:bg-accent hover:text-accent-foreground">
-                <FileText className="h-4 w-4" />
-                Exportar meus dados
-              </Button>
-            </CardContent>
-          </Card>
-
+        <div className="flex flex-col gap-3 sm:flex-row">
           <Button
             type="submit"
             disabled={saveMutation.isPending || profileQuery.isLoading}
-            className="w-full bg-gold text-primary-foreground hover:bg-gold/90 h-11 rounded-xl font-medium"
+            className="h-11 flex-1 rounded-xl bg-gold font-medium text-primary-foreground hover:bg-gold/90"
           >
-            {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            {saveMutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
             {saveMutation.isPending ? "Salvando..." : "Salvar alterações"}
           </Button>
 
@@ -460,7 +477,7 @@ function Page() {
             type="button"
             variant="outline"
             onClick={handleSignOut}
-            className="w-full border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground h-11 rounded-xl"
+            className="h-11 rounded-xl border-danger/60 bg-transparent text-danger hover:bg-danger/10 hover:text-danger sm:w-56"
           >
             <LogOut className="h-4 w-4" />
             Sair da conta
