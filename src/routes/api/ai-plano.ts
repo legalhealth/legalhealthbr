@@ -201,9 +201,11 @@ ${pillarLines}
 
 Gere um Plano de Ação preventivo priorizando os pilares com menor conformidade. Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois, no formato:
 
-{"resumo": "diagnóstico executivo em 2 frases", "prioridades": [{"titulo": "...", "pilar": "Documental|Regulatório|Operacional|Histórico|Contextual", "risco": "alto|medio|baixo", "prazo": "ex: 15 dias", "acoes": ["ação prática 1", "ação prática 2", "ação prática 3"]}]}
+{"resumo": "diagnóstico executivo em 2 frases", "prioridades": [{"titulo": "...", "pilar": "Documental|Regulatório|Operacional|Histórico|Contextual", "risco": "alto|medio|baixo", "prazo": "ex: 15 dias", "prazo_dias": 15, "acoes": ["ação prática 1", "ação prática 2", "ação prática 3"], "fontes": [{"norma": "ex: Resolução CFM nº 2.217/2018 (Código de Ética Médica)", "dispositivo": "ex: art. 87", "descricao": "em 1 frase, por que essa norma sustenta esta prioridade e suas ações"}]}]}
 
-Inclua de 4 a 6 prioridades, das mais urgentes às de manutenção. Ações devem ser concretas e executáveis por um gestor de clínica.`;
+Inclua de 4 a 6 prioridades, das mais urgentes às de manutenção. Ações devem ser concretas e executáveis por um gestor de clínica.
+Em "prazo_dias" devolva o prazo em número de dias corridos (1 a 365).
+Em "fontes" cite de 2 a 4 bases normativas REAIS do Direito brasileiro que justificam a prioridade e suas ações — Código de Ética Médica, resoluções do CFM, LGPD (Lei 13.709/2018), Código de Defesa do Consumidor, Código Civil, normas da ANVISA/RDC, portarias do Ministério da Saúde ou súmulas/jurisprudência do STJ. Nunca invente número de norma: se não tiver certeza do dispositivo, deixe "dispositivo" como string vazia.`;
 
         await supabase.from("ai_usage").insert({ user_id: userId, endpoint: "ai-plano" });
 
