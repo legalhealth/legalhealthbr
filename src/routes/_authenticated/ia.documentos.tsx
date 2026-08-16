@@ -1,6 +1,15 @@
 import { useRef, useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Download, FileText, ScanLine, ScrollText, Trash2, Upload } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+  Camera,
+  Download,
+  FileText,
+  ScanLine,
+  ScrollText,
+  Sparkles,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { DiagnosticContextCard } from "@/components/ia/diagnostic-context-card";
@@ -16,16 +25,125 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useDiagnosticContext } from "@/lib/diagnostic-context";
 import {
   DOC_TAGS,
+  DOC_MAX_BYTES,
   documentSignedUrl,
   formatSize,
   tagLabel,
+  useAnalyzeDocument,
   useDeleteDocument,
   useDocuments,
   useUpdateDocumentTag,
   useUploadDocuments,
+  type DocumentRow,
   type DocTag,
 } from "@/lib/ia-documents";
 import { AiDisclaimer } from "@/components/ia/ai-disclaimer";
+
+const RISCO_CLASS: Record<string, string> = {
+  alto: "border-danger/40 bg-danger/10 text-danger",
+  medio: "border-warn/40 bg-warn/10 text-warn",
+  baixo: "border-success/40 bg-success/10 text-success",
+};
+
+const URGENCIA_CLASS: Record<string, string> = {
+  alta: "border-danger/40 bg-danger/10 text-danger",
+  media: "border-warn/40 bg-warn/10 text-warn",
+  baixa: "border-info/40 bg-info/10 text-info",
+};
+
+function AnalysisPanel({ doc }: { doc: DocumentRow }) {
+  const a = doc.analise;
+  if (!a) return null;
+  return (
+    <div className="mt-4 space-y-4 rounded-xl border border-border bg-card/60 p-4 text-sm">
+      <div>
+        <p className="text-xs uppercase tracking-wide text-subtle">Tipo de documento</p>
+        <p className="mt-1 text-foreground">{a.tipo_documento}</p>
+      </div>
+
+      {a.partes_envolvidas.length > 0 ? (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-subtle">Partes envolvidas</p>
+          <ul className="mt-1 list-inside list-disc text-muted-foreground">
+            {a.partes_envolvidas.map((p, i) => (
+              <li key={i}>{p}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {a.transcricao_essencial.length > 0 ? (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-subtle">Trechos essenciais</p>
+          <ul className="mt-1 space-y-2">
+            {a.transcricao_essencial.map((t, i) => (
+              <li
+                key={i}
+                className="border-l-2 border-gold/40 pl-3 italic leading-relaxed text-muted-foreground"
+              >
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {a.pontos_criticos.length > 0 ? (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-subtle">Pontos críticos e riscos</p>
+          <ul className="mt-2 space-y-2">
+            {a.pontos_criticos.map((p, i) => (
+              <li key={i} className="rounded-lg border border-border bg-muted/30 p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-foreground">{p.titulo}</span>
+                  <span
+                    className={`rounded-full border px-2 py-0.5 text-xs ${
+                      RISCO_CLASS[p.risco] ?? RISCO_CLASS["medio"]
+                    }`}
+                  >
+                    risco {p.risco}
+                  </span>
+                </div>
+                <p className="mt-1 text-muted-foreground">{p.descricao}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {a.prazos.length > 0 ? (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-subtle">Prazos identificados</p>
+          <ul className="mt-2 space-y-2">
+            {a.prazos.map((p, i) => (
+              <li key={i} className="flex flex-wrap items-center gap-2">
+                <span
+                  className={`rounded-full border px-2 py-0.5 text-xs ${
+                    URGENCIA_CLASS[p.urgencia] ?? URGENCIA_CLASS["media"]
+                  }`}
+                >
+                  {p.data_ou_contagem}
+                </span>
+                <span className="text-muted-foreground">{p.descricao}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      <div className="rounded-xl border border-gold/40 bg-gold/10 p-3">
+        <p className="text-xs uppercase tracking-wide text-gold">Próximo passo</p>
+        <p className="mt-1 text-foreground">{a.proximo_passo}</p>
+      </div>
+
+      {doc.analisado_em ? (
+        <p className="text-xs text-subtle">
+          Leitura feita em {new Date(doc.analisado_em).toLocaleString("pt-BR")}
+        </p>
+      ) : null}
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/_authenticated/ia/documentos")({
   head: () => ({
@@ -53,11 +171,30 @@ function Page() {
   const { data: ctx } = useDiagnosticContext();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const [tag, setTag] = useState<DocTag>("prontuario");
+  const [openAnalysis, setOpenAnalysis] = useState<string | null>(null);
   const { data: documents, isLoading } = useDocuments();
   const upload = useUploadDocuments();
   const updateTag = useUpdateDocumentTag();
   const removeDoc = useDeleteDocument();
+  const analyze = useAnalyzeDocument();
+
+  const handleFiles = (selected: File[]) => {
+    if (selected.length === 0) return;
+    const tooBig = selected.find((f) => f.size > DOC_MAX_BYTES);
+    if (tooBig) {
+      toast.error(`"${tooBig.name}" excede 15 MB.`);
+      return;
+    }
+    upload.mutate(
+      { files: selected, tag },
+      {
+        onSuccess: () => toast.success(`${selected.length} documento(s) enviado(s).`),
+        onError: () => toast.error("Falha no envio do documento."),
+      },
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -103,8 +240,19 @@ function Page() {
           <span className="text-sm text-foreground">
             {upload.isPending ? "Enviando..." : "Selecionar arquivos"}
           </span>
-          <span className="text-xs text-subtle">PDF, JPG ou PNG · até 10 MB por arquivo</span>
+          <span className="text-xs text-subtle">PDF, JPG ou PNG · até 15 MB por arquivo</span>
         </button>
+
+        <Button
+          variant="outline"
+          className="mt-3 w-full border-gold/40 bg-transparent text-gold hover:bg-gold/10 md:hidden"
+          disabled={upload.isPending}
+          onClick={() => cameraRef.current?.click()}
+        >
+          <Camera className="mr-2 h-4 w-4" />
+          Fotografar documento
+        </Button>
+
         <input
           ref={inputRef}
           type="file"
@@ -114,28 +262,25 @@ function Page() {
           onChange={(e) => {
             const selected = Array.from(e.target.files ?? []);
             e.target.value = "";
-            if (selected.length === 0) return;
-            const tooBig = selected.find((f) => f.size > 10 * 1024 * 1024);
-            if (tooBig) {
-              toast.error(`"${tooBig.name}" excede 10 MB.`);
-              return;
-            }
-            upload.mutate(
-              { files: selected, tag },
-              {
-                onSuccess: () => toast.success(`${selected.length} documento(s) enviado(s).`),
-                onError: () => toast.error("Falha no envio do documento."),
-              },
-            );
+            handleFiles(selected);
+          }}
+        />
+        <input
+          ref={cameraRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={(e) => {
+            const selected = Array.from(e.target.files ?? []);
+            e.target.value = "";
+            handleFiles(selected);
           }}
         />
 
         <p className="mt-5 text-xs leading-relaxed text-subtle">
-          A extração automática de texto será ativada em breve. Enquanto isso, cole o conteúdo em{" "}
-          <Link to="/ia/risco" className="text-gold hover:text-gold-light">
-            Análise de risco
-          </Link>{" "}
-          para avaliação imediata.
+          Após o envio, use “Ler com IA” para obter tipo de documento, partes, transcrição dos
+          trechos essenciais, pontos críticos, prazos e o próximo passo recomendado.
         </p>
       </section>
 
@@ -243,6 +388,44 @@ function Page() {
                   <ScrollText className="mr-2 h-4 w-4" />
                   Usar na Análise de risco
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={analyze.isPending}
+                  className="ml-0 mt-3 border-border bg-transparent text-foreground hover:bg-muted sm:ml-3"
+                  onClick={() =>
+                    analyze.mutate(doc, {
+                      onSuccess: () => {
+                        setOpenAnalysis(doc.id);
+                        toast.success("Leitura concluída.");
+                      },
+                      onError: (error) =>
+                        toast.error(
+                          error instanceof Error ? error.message : "Falha na leitura do documento.",
+                        ),
+                    })
+                  }
+                >
+                  <Sparkles className="mr-2 h-4 w-4 text-gold" />
+                  {analyze.isPending && analyze.variables?.id === doc.id
+                    ? "Lendo..."
+                    : doc.analise
+                      ? "Reler com IA"
+                      : "Ler com IA"}
+                </Button>
+
+                {doc.analise ? (
+                  <div className="mt-4 border-t border-border pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setOpenAnalysis(openAnalysis === doc.id ? null : doc.id)}
+                      className="text-xs text-gold hover:text-gold-light"
+                    >
+                      {openAnalysis === doc.id ? "Ocultar leitura da IA" : "Ver leitura da IA"}
+                    </button>
+                    {openAnalysis === doc.id ? <AnalysisPanel doc={doc} /> : null}
+                  </div>
+                ) : null}
               </li>
             ))}
           </ul>

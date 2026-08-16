@@ -180,6 +180,8 @@ export type Database = {
       }
       documents: {
         Row: {
+          analisado_em: string | null
+          analise: Json | null
           created_at: string
           id: string
           mime: string | null
@@ -192,6 +194,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          analisado_em?: string | null
+          analise?: Json | null
           created_at?: string
           id?: string
           mime?: string | null
@@ -204,6 +208,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          analisado_em?: string | null
+          analise?: Json | null
           created_at?: string
           id?: string
           mime?: string | null

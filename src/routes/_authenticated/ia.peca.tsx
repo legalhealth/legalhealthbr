@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { FileSignature, Sparkles } from "lucide-react";
@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
 import { saveHistoryItem } from "@/lib/ia-history";
 import { useRecommendations } from "@/lib/ia-recommendations";
+import { streamPeca, TIPOS_PECA, tipoPecaLabel } from "@/lib/ia-peca";
 import { AiDisclaimer } from "@/components/ia/ai-disclaimer";
 
 export const Route = createFileRoute("/_authenticated/ia/peca")({
@@ -43,92 +44,68 @@ export const Route = createFileRoute("/_authenticated/ia/peca")({
   component: Page,
 });
 
-const TIPOS = [
-  { value: "defesa-conselho", label: "Defesa em processo ético (conselho)" },
-  { value: "defesa-consumidor", label: "Defesa em reclamação de consumidor" },
-  { value: "contestacao", label: "Contestação em ação de indenização" },
-  { value: "notificacao", label: "Notificação extrajudicial a paciente" },
-  { value: "resposta", label: "Resposta formal a paciente ou familiar" },
-];
-
 function Page() {
   const { data: ctx } = useDiagnosticContext();
   const queryClient = useQueryClient();
   const { data: recommendations } = useRecommendations();
   const [selectedRecs, setSelectedRecs] = useState<string[]>([]);
-  const [tipo, setTipo] = useState("defesa-conselho");
-  const [destinatario, setDestinatario] = useState("");
+  const [tipo, setTipo] = useState<string>("defesa-sindicancia");
+  const [cliente, setCliente] = useState("");
+  const [contraria, setContraria] = useState("");
+  const [orgao, setOrgao] = useState("");
   const [fatos, setFatos] = useState("");
+  const [objetivo, setObjetivo] = useState("");
+  const [provas, setProvas] = useState("");
   const [draft, setDraft] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const draftRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (ctx?.hasDiagnostic && !fatos) {
-      setFatos(
-        `Contexto automático — pilares frágeis: ${ctx.weakest
-          .map((p) => `${p.name} (${p.percent}%)`)
-          .join(", ")}. Descreva aqui os fatos: procedimento realizado, datas, documentos existentes e o que o paciente alega.`,
-      );
-    }
-  }, [ctx]);
-
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (fatos.trim().length < 20) {
-      toast.error("Descreva os fatos com mais detalhes para gerar a peça.");
+      toast.error("Descreva os fatos do caso com mais detalhes para gerar a peça.");
       return;
     }
-    setGenerating(true);
-    setTimeout(() => {
-      const tipoLabel = TIPOS.find((t) => t.value === tipo)?.label ?? "Peça";
-      const recTexts = (recommendations ?? [])
-        .filter((r) => selectedRecs.includes(r.id))
-        .map((r) => r.content);
-      const text = [
-          `${tipoLabel.toUpperCase()}`,
-          destinatario ? `Ao(À) ${destinatario}` : "",
-          "",
-          contextSummary(ctx),
-          "",
-          "I — DOS FATOS",
-          fatos.trim(),
-          "",
-          "II — DA DEFESA TÉCNICA",
-          ctx?.hasDiagnostic
-            ? `A conduta observou os deveres de informação e documentação. Ressalta-se que o programa de conformidade em curso identificou os pilares ${ctx.weakest
-                .map((p) => p.name)
-                .join(" e ")} como frentes de reforço, com medidas já em implementação.`
-            : "A conduta observou os deveres de informação, documentação e diligência exigidos da atividade médica.",
-          ...(recTexts.length > 0
-            ? [
-                "",
-                "II.a — MEDIDAS RECOMENDADAS EM ANDAMENTO",
-                ...recTexts.map((r, i) => `${i + 1}. ${r}`),
-              ]
-            : []),
-          "",
-          "III — DOS PEDIDOS",
-          "Requer-se o acolhimento integral desta manifestação, com o arquivamento do feito.",
-          "",
-          "(Rascunho gerado pela IA Jurídica — revise com seu advogado antes do protocolo.)",
-        ]
-          .filter((line) => line !== undefined)
-        .join("\n");
-      setDraft(text);
-      setGenerating(false);
+    const tipoLabel = tipoPecaLabel(tipo);
+    const recTexts = (recommendations ?? [])
+      .filter((r) => selectedRecs.includes(r.id))
+      .map((r, i) => `${i + 1}. ${r.content}`);
+    const contexto = [
+      contextSummary(ctx),
+      ctx?.hasDiagnostic
+        ? `Pilares frágeis: ${ctx.weakest.map((p) => `${p.name} (${p.percent}%)`).join(", ")}.`
+        : "",
+      recTexts.length > 0 ? `Medidas de conformidade em andamento:\n${recTexts.join("\n")}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
 
-      void saveHistoryItem({
-        origem: "peca",
-        tipo: tipoLabel,
-        titulo: destinatario ? `${tipoLabel} — ${destinatario}` : tipoLabel,
-        conteudo: text,
-        contexto: { score: ctx?.score ?? null, level: ctx?.level?.name ?? null },
-      })
-        .then(() => {
-          void queryClient.invalidateQueries({ queryKey: ["ia-history"] });
-          toast.success("Rascunho salvo no histórico.");
-        })
-        .catch(() => toast.error("Rascunho gerado, mas não foi salvo no histórico."));
-    }, 900);
+    setGenerating(true);
+    setDraft("");
+    try {
+      const text = await streamPeca(
+        { tipo, cliente, contraria, orgao, fatos, objetivo, provas, contexto },
+        (chunk) => setDraft((prev) => (prev ?? "") + chunk),
+      );
+      try {
+        await saveHistoryItem({
+          origem: "peca",
+          tipo: tipoLabel,
+          titulo: cliente ? `${tipoLabel} — ${cliente}` : tipoLabel,
+          conteudo: text,
+          contexto: { score: ctx?.score ?? null, level: ctx?.level?.name ?? null },
+        });
+        void queryClient.invalidateQueries({ queryKey: ["ia-history"] });
+        toast.success("Peça gerada e salva no histórico.");
+      } catch {
+        toast.error("Peça gerada, mas não foi salva no histórico.");
+      }
+    } catch (error) {
+      setDraft(null);
+      toast.error(error instanceof Error ? error.message : "Não foi possível gerar a peça.");
+    } finally {
+      setGenerating(false);
+      draftRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   };
 
   return (
@@ -157,7 +134,7 @@ function Page() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {TIPOS.map((t) => (
+                {TIPOS_PECA.map((t) => (
                   <SelectItem key={t.value} value={t.value}>
                     {t.label}
                   </SelectItem>
@@ -166,24 +143,66 @@ function Page() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="destinatario">Destinatário</Label>
+            <Label htmlFor="orgao">Órgão de destino</Label>
             <Input
-              id="destinatario"
-              value={destinatario}
-              onChange={(e) => setDestinatario(e.target.value)}
+              id="orgao"
+              value={orgao}
+              onChange={(e) => setOrgao(e.target.value)}
               placeholder="Ex.: Conselho Regional de Medicina do Ceará"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cliente">Cliente representado</Label>
+            <Input
+              id="cliente"
+              value={cliente}
+              onChange={(e) => setCliente(e.target.value)}
+              placeholder="Ex.: Dr. João Silva, CRM/CE 12345"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="contraria">Parte contrária</Label>
+            <Input
+              id="contraria"
+              value={contraria}
+              onChange={(e) => setContraria(e.target.value)}
+              placeholder="Ex.: paciente, operadora ou denunciante"
             />
           </div>
         </div>
 
         <div className="mt-5 space-y-2">
-          <Label htmlFor="fatos">Fatos e documentos</Label>
+          <Label htmlFor="fatos">Fatos do caso</Label>
           <Textarea
             id="fatos"
             value={fatos}
             onChange={(e) => setFatos(e.target.value)}
+            placeholder="Procedimento realizado, datas, evolução clínica, documentos existentes e o que se alega."
             className="min-h-[160px]"
           />
+        </div>
+
+        <div className="mt-5 grid gap-5 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="objetivo">Objetivo e pedidos</Label>
+            <Textarea
+              id="objetivo"
+              value={objetivo}
+              onChange={(e) => setObjetivo(e.target.value)}
+              placeholder="Ex.: arquivamento da sindicância; improcedência dos pedidos; pagamento dos honorários."
+              className="min-h-[120px]"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="provas">Provas disponíveis</Label>
+            <Textarea
+              id="provas"
+              value={provas}
+              onChange={(e) => setProvas(e.target.value)}
+              placeholder="Ex.: prontuário, termo de consentimento, exames, laudos, testemunhas, contrato."
+              className="min-h-[120px]"
+            />
+          </div>
         </div>
 
         {(recommendations ?? []).length > 0 ? (
@@ -223,24 +242,27 @@ function Page() {
         ) : null}
 
         <Button
-          onClick={handleGenerate}
+          onClick={() => void handleGenerate()}
           disabled={generating}
           className="mt-6 bg-gold text-background hover:bg-gold-light"
         >
           <Sparkles className="mr-2 h-4 w-4" />
-          {generating ? "Gerando rascunho..." : "Gerar rascunho"}
+          {generating ? "Redigindo peça..." : "Redigir peça"}
         </Button>
       </section>
 
-      {draft ? (
-        <section className="rounded-2xl border border-border bg-card p-6">
-          <h3 className="font-serif text-lg text-foreground">Rascunho</h3>
+      {draft !== null ? (
+        <section ref={draftRef} className="rounded-2xl border border-border bg-card p-6">
+          <h3 className="font-serif text-lg text-foreground">
+            {generating ? "Redigindo…" : "Peça redigida"}
+          </h3>
           <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-muted-foreground">
-            {draft}
+            {draft || "Aguardando a IA…"}
           </pre>
           <Button
             variant="outline"
             size="sm"
+            disabled={generating || !draft}
             className="mt-5 border-gold/40 bg-transparent text-gold hover:bg-gold/10"
             onClick={() => {
               void navigator.clipboard.writeText(draft);
