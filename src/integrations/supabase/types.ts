@@ -408,6 +408,97 @@ export type Database = {
         }
         Relationships: []
       }
+      revisao_comentarios: {
+        Row: {
+          autor: string
+          conteudo: string
+          created_at: string
+          id: string
+          papel: string
+          revisao_id: string
+        }
+        Insert: {
+          autor: string
+          conteudo: string
+          created_at?: string
+          id?: string
+          papel?: string
+          revisao_id: string
+        }
+        Update: {
+          autor?: string
+          conteudo?: string
+          created_at?: string
+          id?: string
+          papel?: string
+          revisao_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revisao_comentarios_revisao_id_fkey"
+            columns: ["revisao_id"]
+            isOneToOne: false
+            referencedRelation: "revisoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      revisoes: {
+        Row: {
+          advogado_email: string
+          advogado_nome: string
+          advogado_oab: string | null
+          concluido_em: string | null
+          created_at: string
+          doc_id: string
+          document_ids: string[]
+          enviado_em: string
+          id: string
+          mensagem: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          advogado_email: string
+          advogado_nome: string
+          advogado_oab?: string | null
+          concluido_em?: string | null
+          created_at?: string
+          doc_id: string
+          document_ids?: string[]
+          enviado_em?: string
+          id?: string
+          mensagem?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          advogado_email?: string
+          advogado_nome?: string
+          advogado_oab?: string | null
+          concluido_em?: string | null
+          created_at?: string
+          doc_id?: string
+          document_ids?: string[]
+          enviado_em?: string
+          id?: string
+          mensagem?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revisoes_doc_id_fkey"
+            columns: ["doc_id"]
+            isOneToOne: false
+            referencedRelation: "generated_docs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

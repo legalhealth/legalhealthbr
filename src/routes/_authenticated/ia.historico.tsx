@@ -23,6 +23,8 @@ import {
   type HistoryStatus,
 } from "@/lib/ia-history";
 import { AiDisclaimer } from "@/components/ia/ai-disclaimer";
+import { EnviarRevisaoDialog } from "@/components/ia/enviar-revisao-dialog";
+import { revisaoStatusMeta, useRevisoes } from "@/lib/ia-revisoes";
 
 export const Route = createFileRoute("/_authenticated/ia/historico")({
   head: () => ({
@@ -54,6 +56,7 @@ const FILTERS = [
 
 function Page() {
   const { data, isLoading } = useIaHistory();
+  const { data: revisoes } = useRevisoes();
   const updateStatus = useUpdateHistoryStatus();
   const removeItem = useDeleteHistoryItem();
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["value"]>("todos");
@@ -62,6 +65,8 @@ function Page() {
   const items = (data ?? []).filter((item) =>
     filter === "todos" ? true : item.origem === filter,
   );
+
+  const revisaoDoDoc = (docId: string) => (revisoes ?? []).find((r) => r.doc_id === docId);
 
   return (
     <div className="space-y-6">
@@ -137,6 +142,8 @@ function Page() {
           {items.map((item) => {
             const meta = statusMeta(item.status);
             const isOpen = openId === item.id;
+            const revisao = revisaoDoDoc(item.id);
+            const revMeta = revisao ? revisaoStatusMeta(revisao.status) : null;
             return (
               <li key={item.id} className="rounded-2xl border border-border bg-card p-5">
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -150,6 +157,14 @@ function Page() {
                       >
                         {meta.label}
                       </span>
+                      {revisao && revMeta ? (
+                        <span
+                          className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-0.5 text-[0.7rem] ${revMeta.className}`}
+                        >
+                          <span className={`h-1.5 w-1.5 rounded-full ${revMeta.dot}`} />
+                          {revMeta.label}
+                        </span>
+                      ) : null}
                     </div>
                     <h3 className="mt-2 font-serif text-lg leading-snug text-foreground">
                       {item.titulo ?? "Documento sem título"}
@@ -160,6 +175,12 @@ function Page() {
                         ? ` · atualizado em ${formatDateTime(item.updated_at)}`
                         : ""}
                     </p>
+                    {revisao ? (
+                      <p className="mt-1 text-xs text-subtle">
+                        Revisão com {revisao.advogado_nome} · enviada em{" "}
+                        {formatDateTime(revisao.enviado_em)}
+                      </p>
+                    ) : null}
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -223,6 +244,23 @@ function Page() {
                       }}
                     >
                       Copiar
+                    </Button>
+                  ) : null}
+                  {item.conteudo ? (
+                    <EnviarRevisaoDialog
+                      docId={item.id}
+                      titulo={item.titulo ?? "Documento sem título"}
+                      conteudo={item.conteudo}
+                    />
+                  ) : null}
+                  {revisao ? (
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="border-border bg-transparent text-muted-foreground hover:text-foreground"
+                    >
+                      <Link to="/ia/revisoes">Ver revisão</Link>
                     </Button>
                   ) : null}
                 </div>

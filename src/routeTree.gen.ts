@@ -28,6 +28,7 @@ import { Route as AuthenticatedIaAssistenteRouteImport } from './routes/_authent
 import { Route as AuthenticatedIaDocumentosRouteImport } from './routes/_authenticated/ia.documentos'
 import { Route as AuthenticatedIaHistoricoRouteImport } from './routes/_authenticated/ia.historico'
 import { Route as AuthenticatedIaPecaRouteImport } from './routes/_authenticated/ia.peca'
+import { Route as AuthenticatedIaRevisoesRouteImport } from './routes/_authenticated/ia.revisoes'
 import { Route as AuthenticatedIaRiscoRouteImport } from './routes/_authenticated/ia.risco'
 import { Route as ApiPublicHooksPlanRemindersRouteImport } from './routes/api/public/hooks/plan-reminders'
 
@@ -128,6 +129,11 @@ const AuthenticatedIaPecaRoute = AuthenticatedIaPecaRouteImport.update({
   path: '/peca',
   getParentRoute: () => AuthenticatedIaRoute,
 } as any)
+const AuthenticatedIaRevisoesRoute = AuthenticatedIaRevisoesRouteImport.update({
+  id: '/revisoes',
+  path: '/revisoes',
+  getParentRoute: () => AuthenticatedIaRoute,
+} as any)
 const AuthenticatedIaRiscoRoute = AuthenticatedIaRiscoRouteImport.update({
   id: '/risco',
   path: '/risco',
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/ia/historico': typeof AuthenticatedIaHistoricoRoute
   '/ia/peca': typeof AuthenticatedIaPecaRoute
+  '/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -179,6 +186,7 @@ export interface FileRoutesByTo {
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/ia/historico': typeof AuthenticatedIaHistoricoRoute
   '/ia/peca': typeof AuthenticatedIaPecaRoute
+  '/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/ia': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -203,6 +211,7 @@ export interface FileRoutesById {
   '/_authenticated/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/_authenticated/ia/historico': typeof AuthenticatedIaHistoricoRoute
   '/_authenticated/ia/peca': typeof AuthenticatedIaPecaRoute
+  '/_authenticated/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/_authenticated/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -227,6 +236,7 @@ export interface FileRouteTypes {
     | '/ia/documentos'
     | '/ia/historico'
     | '/ia/peca'
+    | '/ia/revisoes'
     | '/ia/risco'
     | '/ia/'
     | '/api/public/hooks/plan-reminders'
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/ia/documentos'
     | '/ia/historico'
     | '/ia/peca'
+    | '/ia/revisoes'
     | '/ia/risco'
     | '/ia'
     | '/api/public/hooks/plan-reminders'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ia/documentos'
     | '/_authenticated/ia/historico'
     | '/_authenticated/ia/peca'
+    | '/_authenticated/ia/revisoes'
     | '/_authenticated/ia/risco'
     | '/_authenticated/ia/'
     | '/api/public/hooks/plan-reminders'
@@ -422,6 +434,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIaPecaRouteImport
       parentRoute: typeof AuthenticatedIaRoute
     }
+    '/_authenticated/ia/revisoes': {
+      id: '/_authenticated/ia/revisoes'
+      path: '/revisoes'
+      fullPath: '/ia/revisoes'
+      preLoaderRoute: typeof AuthenticatedIaRevisoesRouteImport
+      parentRoute: typeof AuthenticatedIaRoute
+    }
     '/_authenticated/ia/risco': {
       id: '/_authenticated/ia/risco'
       path: '/risco'
@@ -444,6 +463,7 @@ interface AuthenticatedIaRouteChildren {
   AuthenticatedIaDocumentosRoute: typeof AuthenticatedIaDocumentosRoute
   AuthenticatedIaHistoricoRoute: typeof AuthenticatedIaHistoricoRoute
   AuthenticatedIaPecaRoute: typeof AuthenticatedIaPecaRoute
+  AuthenticatedIaRevisoesRoute: typeof AuthenticatedIaRevisoesRoute
   AuthenticatedIaRiscoRoute: typeof AuthenticatedIaRiscoRoute
   AuthenticatedIaIndexRoute: typeof AuthenticatedIaIndexRoute
 }
@@ -453,6 +473,7 @@ const AuthenticatedIaRouteChildren: AuthenticatedIaRouteChildren = {
   AuthenticatedIaDocumentosRoute: AuthenticatedIaDocumentosRoute,
   AuthenticatedIaHistoricoRoute: AuthenticatedIaHistoricoRoute,
   AuthenticatedIaPecaRoute: AuthenticatedIaPecaRoute,
+  AuthenticatedIaRevisoesRoute: AuthenticatedIaRevisoesRoute,
   AuthenticatedIaRiscoRoute: AuthenticatedIaRiscoRoute,
   AuthenticatedIaIndexRoute: AuthenticatedIaIndexRoute,
 }

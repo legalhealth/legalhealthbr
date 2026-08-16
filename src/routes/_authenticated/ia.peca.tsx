@@ -21,6 +21,7 @@ import { saveHistoryItem } from "@/lib/ia-history";
 import { useRecommendations } from "@/lib/ia-recommendations";
 import { streamPeca, TIPOS_PECA, tipoPecaLabel } from "@/lib/ia-peca";
 import { AiDisclaimer } from "@/components/ia/ai-disclaimer";
+import { EnviarRevisaoDialog } from "@/components/ia/enviar-revisao-dialog";
 
 export const Route = createFileRoute("/_authenticated/ia/peca")({
   head: () => ({
@@ -57,6 +58,8 @@ function Page() {
   const [objetivo, setObjetivo] = useState("");
   const [provas, setProvas] = useState("");
   const [draft, setDraft] = useState<string | null>(null);
+  const [docId, setDocId] = useState<string | null>(null);
+  const [docTitulo, setDocTitulo] = useState<string>("");
   const [generating, setGenerating] = useState(false);
   const draftRef = useRef<HTMLDivElement>(null);
 
@@ -81,19 +84,23 @@ function Page() {
 
     setGenerating(true);
     setDraft("");
+    setDocId(null);
     try {
       const text = await streamPeca(
         { tipo, cliente, contraria, orgao, fatos, objetivo, provas, contexto },
         (chunk) => setDraft((prev) => (prev ?? "") + chunk),
       );
       try {
-        await saveHistoryItem({
+        const titulo = cliente ? `${tipoLabel} — ${cliente}` : tipoLabel;
+        const savedId = await saveHistoryItem({
           origem: "peca",
           tipo: tipoLabel,
-          titulo: cliente ? `${tipoLabel} — ${cliente}` : tipoLabel,
+          titulo,
           conteudo: text,
           contexto: { score: ctx?.score ?? null, level: ctx?.level?.name ?? null },
         });
+        setDocId(savedId);
+        setDocTitulo(titulo);
         void queryClient.invalidateQueries({ queryKey: ["ia-history"] });
         toast.success("Peça gerada e salva no histórico.");
       } catch {
@@ -259,18 +266,23 @@ function Page() {
           <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-muted-foreground">
             {draft || "Aguardando a IA…"}
           </pre>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={generating || !draft}
-            className="mt-5 border-gold/40 bg-transparent text-gold hover:bg-gold/10"
-            onClick={() => {
-              void navigator.clipboard.writeText(draft);
-              toast.success("Rascunho copiado.");
-            }}
-          >
-            Copiar texto
-          </Button>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={generating || !draft}
+              className="border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+              onClick={() => {
+                void navigator.clipboard.writeText(draft);
+                toast.success("Rascunho copiado.");
+              }}
+            >
+              Copiar texto
+            </Button>
+            {!generating && draft && docId ? (
+              <EnviarRevisaoDialog docId={docId} titulo={docTitulo} conteudo={draft} />
+            ) : null}
+          </div>
         </section>
       ) : null}
       <AiDisclaimer />
