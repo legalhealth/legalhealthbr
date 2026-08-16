@@ -287,6 +287,8 @@ export function useToggleActionItem() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["action-plan"] });
       void queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      void queryClient.invalidateQueries({ queryKey: ["action-plan-versions"] });
+      void queryClient.invalidateQueries({ queryKey: ["plan-reminders"] });
     },
   });
 }
