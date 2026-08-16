@@ -60,12 +60,6 @@ function Page() {
   const [generating, setGenerating] = useState(false);
   const draftRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (ctx?.hasDiagnostic && !objetivo) {
-      setObjetivo("");
-    }
-  }, [ctx, objetivo]);
-
   const handleGenerate = async () => {
     if (fatos.trim().length < 20) {
       toast.error("Descreva os fatos do caso com mais detalhes para gerar a peça.");
