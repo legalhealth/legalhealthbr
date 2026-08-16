@@ -266,18 +266,23 @@ function Page() {
           <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-muted-foreground">
             {draft || "Aguardando a IA…"}
           </pre>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={generating || !draft}
-            className="mt-5 border-gold/40 bg-transparent text-gold hover:bg-gold/10"
-            onClick={() => {
-              void navigator.clipboard.writeText(draft);
-              toast.success("Rascunho copiado.");
-            }}
-          >
-            Copiar texto
-          </Button>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={generating || !draft}
+              className="border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+              onClick={() => {
+                void navigator.clipboard.writeText(draft);
+                toast.success("Rascunho copiado.");
+              }}
+            >
+              Copiar texto
+            </Button>
+            {!generating && draft && docId ? (
+              <EnviarRevisaoDialog docId={docId} titulo={docTitulo} conteudo={draft} />
+            ) : null}
+          </div>
         </section>
       ) : null}
       <AiDisclaimer />
