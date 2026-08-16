@@ -256,15 +256,19 @@ Em "fontes" cite de 2 a 4 bases normativas REAIS do Direito brasileiro que justi
           return jsonError("A IA devolveu um plano inválido. Tente gerar novamente.", 502);
         }
 
-        // Regenerar substitui o plano anterior e zera as marcações de conclusão.
+        // Regenerar arquiva a versão anterior (histórico) e inicia uma nova versão limpa.
         const { data: oldPlans } = await supabase
           .from("action_plans")
-          .select("id")
+          .select("id, versao, status")
           .eq("user_id", userId);
-        const oldIds = (oldPlans ?? []).map((p) => p.id);
-        if (oldIds.length > 0) {
-          await supabase.from("action_items_done").delete().in("plan_id", oldIds);
-          await supabase.from("action_plans").delete().in("id", oldIds);
+        const nextVersion =
+          (oldPlans ?? []).reduce((max, p) => Math.max(max, p.versao ?? 1), 0) + 1;
+        const activeIds = (oldPlans ?? []).filter((p) => p.status === "ativo").map((p) => p.id);
+        if (activeIds.length > 0) {
+          await supabase
+            .from("action_plans")
+            .update({ status: "arquivado" })
+            .in("id", activeIds);
         }
 
         const { data: inserted, error: insertError } = await supabase
@@ -274,6 +278,8 @@ Em "fontes" cite de 2 a 4 bases normativas REAIS do Direito brasileiro que justi
             result_id: result.id,
             resumo: plan.resumo,
             prioridades: plan.prioridades,
+            versao: nextVersion,
+            status: "ativo",
           })
           .select("id")
           .single();
@@ -282,7 +288,34 @@ Em "fontes" cite de 2 a 4 bases normativas REAIS do Direito brasileiro que justi
           return jsonError("Plano gerado, mas não foi possível salvar. Tente novamente.", 500);
         }
 
-        return jsonResponse({ id: inserted.id, ...plan }, 200);
+        // Lembretes automáticos: 7 dias e 1 dia antes do prazo de cada prioridade.
+        const today = new Date().toISOString().slice(0, 10);
+        const reminders = plan.prioridades.flatMap((prioridade, index) =>
+          [7, 1]
+            .filter((offset) => {
+              const trigger = new Date(
+                new Date(`${prioridade.due_date}T00:00:00Z`).getTime() - offset * 86_400_000,
+              )
+                .toISOString()
+                .slice(0, 10);
+              return trigger >= today || prioridade.due_date >= today;
+            })
+            .map((offset) => ({
+              user_id: userId,
+              plan_id: inserted.id,
+              priority_index: index,
+              titulo: prioridade.titulo,
+              pilar: prioridade.pilar,
+              risco: prioridade.risco,
+              due_date: prioridade.due_date,
+              offset_days: offset,
+            })),
+        );
+        if (reminders.length > 0) {
+          await supabase.from("plan_reminders").insert(reminders);
+        }
+
+        return jsonResponse({ id: inserted.id, versao: nextVersion, ...plan }, 200);
       },
     },
   },
