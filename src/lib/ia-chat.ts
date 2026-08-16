@@ -65,14 +65,27 @@ export async function streamAiChat(
   onDelta: (chunk: string) => void,
   attachments?: ChatAttachment[],
 ): Promise<string> {
+  return streamAiEndpoint(
+    "/api/ai-chat",
+    { messages, task, attachments: attachments ?? [] },
+    onDelta,
+  );
+}
+
+/** Chama qualquer rota protegida de IA que devolva SSE e entrega o texto em pedaços. */
+export async function streamAiEndpoint(
+  url: string,
+  body: unknown,
+  onDelta: (chunk: string) => void,
+): Promise<string> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   if (!token) throw new Error("Sessão expirada. Faça login novamente.");
 
-  const response = await fetch("/api/ai-chat", {
+  const response = await fetch(url, {
     method: "POST",
     headers: { "content-type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ messages, task, attachments: attachments ?? [] }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok || !response.body) {
@@ -118,7 +131,7 @@ export async function streamAiChat(
   }
 
   if (!full.trim()) {
-    throw new Error("A IA não retornou conteúdo. Tente reformular sua pergunta.");
+    throw new Error("A IA não retornou conteúdo. Tente novamente.");
   }
   return full;
 }

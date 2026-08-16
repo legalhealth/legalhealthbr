@@ -20,6 +20,7 @@ import { Route as AuthenticatedJuriscoreRouteImport } from './routes/_authentica
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedPlanoRouteImport } from './routes/_authenticated/plano'
 import { Route as ApiAiChatRouteImport } from './routes/api/ai-chat'
+import { Route as ApiAiDocumentoLeituraRouteImport } from './routes/api/ai-documento-leitura'
 import { Route as ApiAiPecaRouteImport } from './routes/api/ai-peca'
 import { Route as ApiAiPlanoRouteImport } from './routes/api/ai-plano'
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia.index'
@@ -84,6 +85,11 @@ const ApiAiChatRoute = ApiAiChatRouteImport.update({
   path: '/api/ai-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiDocumentoLeituraRoute = ApiAiDocumentoLeituraRouteImport.update({
+  id: '/api/ai-documento-leitura',
+  path: '/api/ai-documento-leitura',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAiPecaRoute = ApiAiPecaRouteImport.update({
   id: '/api/ai-peca',
   path: '/api/ai-peca',
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/plano': typeof AuthenticatedPlanoRoute
   '/api/ai-chat': typeof ApiAiChatRoute
+  '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
@@ -164,6 +171,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/plano': typeof AuthenticatedPlanoRoute
   '/api/ai-chat': typeof ApiAiChatRoute
+  '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
   '/': typeof AuthenticatedIndexRoute
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/plano': typeof AuthenticatedPlanoRoute
   '/api/ai-chat': typeof ApiAiChatRoute
+  '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -211,6 +220,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/plano'
     | '/api/ai-chat'
+    | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
     | '/ia/assistente'
@@ -230,6 +240,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/plano'
     | '/api/ai-chat'
+    | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
     | '/'
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/plano'
     | '/api/ai-chat'
+    | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
     | '/_authenticated/'
@@ -269,6 +281,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiAiChatRoute: typeof ApiAiChatRoute
+  ApiAiDocumentoLeituraRoute: typeof ApiAiDocumentoLeituraRoute
   ApiAiPecaRoute: typeof ApiAiPecaRoute
   ApiAiPlanoRoute: typeof ApiAiPlanoRoute
   ApiPublicHooksPlanRemindersRoute: typeof ApiPublicHooksPlanRemindersRoute
@@ -351,6 +364,13 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-chat'
       fullPath: '/api/ai-chat'
       preLoaderRoute: typeof ApiAiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-documento-leitura': {
+      id: '/api/ai-documento-leitura'
+      path: '/api/ai-documento-leitura'
+      fullPath: '/api/ai-documento-leitura'
+      preLoaderRoute: typeof ApiAiDocumentoLeituraRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ai-peca': {
@@ -469,6 +489,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiAiChatRoute: ApiAiChatRoute,
+  ApiAiDocumentoLeituraRoute: ApiAiDocumentoLeituraRoute,
   ApiAiPecaRoute: ApiAiPecaRoute,
   ApiAiPlanoRoute: ApiAiPlanoRoute,
   ApiPublicHooksPlanRemindersRoute: ApiPublicHooksPlanRemindersRoute,
