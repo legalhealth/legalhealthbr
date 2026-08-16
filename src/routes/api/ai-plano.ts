@@ -19,8 +19,27 @@ type Prioridade = {
   pilar: string;
   risco: string;
   prazo: string;
+  prazo_dias: number;
+  due_date: string;
   acoes: string[];
+  fontes: { norma: string; dispositivo: string; descricao: string }[];
 };
+
+function parsePrazoDias(prazo: string, raw: unknown): number {
+  const explicit = Number(raw);
+  if (Number.isFinite(explicit) && explicit > 0 && explicit <= 365) return Math.round(explicit);
+  const match = /(\d{1,3})/.exec(prazo);
+  const parsed = match ? Number(match[1]) : NaN;
+  if (Number.isFinite(parsed) && parsed > 0 && parsed <= 365) {
+    return /m[êe]s/i.test(prazo) ? Math.min(parsed * 30, 365) : parsed;
+  }
+  return 30;
+}
+
+function addDays(days: number): string {
+  const date = new Date(Date.now() + days * 86_400_000);
+  return date.toISOString().slice(0, 10);
+}
 
 function jsonResponse(payload: unknown, status: number) {
   return new Response(JSON.stringify(payload), {
@@ -85,12 +104,28 @@ function validatePlan(raw: string): { resumo: string; prioridades: Prioridade[] 
     if (!titulo || acoes.length === 0) continue;
     const pilar = typeof item["pilar"] === "string" ? item["pilar"].trim() : "";
     const risco = typeof item["risco"] === "string" ? item["risco"].trim().toLowerCase() : "";
+    const prazo =
+      typeof item["prazo"] === "string" && item["prazo"].trim() ? item["prazo"].trim() : "30 dias";
+    const prazoDias = parsePrazoDias(prazo, item["prazo_dias"]);
+    const fontes = (Array.isArray(item["fontes"]) ? item["fontes"] : [])
+      .filter((f): f is Record<string, unknown> => Boolean(f) && typeof f === "object")
+      .map((f) => ({
+        norma: typeof f["norma"] === "string" ? f["norma"].trim().slice(0, 160) : "",
+        dispositivo:
+          typeof f["dispositivo"] === "string" ? f["dispositivo"].trim().slice(0, 160) : "",
+        descricao: typeof f["descricao"] === "string" ? f["descricao"].trim().slice(0, 400) : "",
+      }))
+      .filter((f) => f.norma.length > 0)
+      .slice(0, 4);
     prioridades.push({
       titulo: titulo.slice(0, 160),
       pilar: PILAR_NAMES.includes(pilar) ? pilar : "Documental",
       risco: RISCOS.includes(risco) ? risco : "medio",
-      prazo: typeof item["prazo"] === "string" && item["prazo"].trim() ? item["prazo"].trim() : "30 dias",
+      prazo,
+      prazo_dias: prazoDias,
+      due_date: addDays(prazoDias),
       acoes: acoes.slice(0, 6).map((a) => a.trim().slice(0, 400)),
+      fontes,
     });
   }
 
