@@ -45,7 +45,9 @@ export type Database = {
           prioridades: Json | null
           result_id: string
           resumo: string | null
+          status: string
           user_id: string
+          versao: number
         }
         Insert: {
           created_at?: string
@@ -53,7 +55,9 @@ export type Database = {
           prioridades?: Json | null
           result_id: string
           resumo?: string | null
+          status?: string
           user_id: string
+          versao?: number
         }
         Update: {
           created_at?: string
@@ -61,7 +65,9 @@ export type Database = {
           prioridades?: Json | null
           result_id?: string
           resumo?: string | null
+          status?: string
           user_id?: string
+          versao?: number
         }
         Relationships: []
       }
@@ -276,6 +282,65 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      plan_reminders: {
+        Row: {
+          channel: string
+          created_at: string
+          due_date: string
+          id: string
+          offset_days: number
+          pilar: string | null
+          plan_id: string
+          priority_index: number
+          read_at: string | null
+          risco: string
+          sent_at: string | null
+          titulo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          due_date: string
+          id?: string
+          offset_days: number
+          pilar?: string | null
+          plan_id: string
+          priority_index: number
+          read_at?: string | null
+          risco?: string
+          sent_at?: string | null
+          titulo: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          due_date?: string
+          id?: string
+          offset_days?: number
+          pilar?: string | null
+          plan_id?: string
+          priority_index?: number
+          read_at?: string | null
+          risco?: string
+          sent_at?: string | null
+          titulo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_reminders_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "action_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

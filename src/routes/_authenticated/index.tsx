@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   AlertTriangle,
   ArrowRight,
+  BellRing,
   CheckCircle2,
   FileSignature,
   Info,
@@ -22,6 +23,14 @@ import {
   pillarTextClass,
   type PillarScore,
 } from "@/lib/juriscore";
+import {
+  daysUntil,
+  pillarProgress,
+  riscoMeta,
+  usePlanReminders,
+  type PillarProgress,
+  type Prioridade,
+} from "@/lib/plano";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
@@ -52,6 +61,7 @@ type DashboardData = {
   hasPlan: boolean;
   itemsDone: number;
   itemsTotal: number;
+  planPillars: PillarProgress[];
 };
 
 function toPillarScores(byPillar: unknown): PillarScore[] {
@@ -73,7 +83,15 @@ async function fetchDashboard(): Promise<DashboardData> {
   const { data: auth } = await supabase.auth.getUser();
   const userId = auth.user?.id;
   if (!userId) {
-    return { nome: null, score: null, pillars: [], hasPlan: false, itemsDone: 0, itemsTotal: 0 };
+    return {
+      nome: null,
+      score: null,
+      pillars: [],
+      hasPlan: false,
+      itemsDone: 0,
+      itemsTotal: 0,
+      planPillars: [],
+    };
   }
 
   const [profileRes, scoreRes] = await Promise.all([
@@ -91,26 +109,40 @@ async function fetchDashboard(): Promise<DashboardData> {
     .from("action_plans")
     .select("id, prioridades")
     .eq("user_id", userId)
+    .eq("status", "ativo")
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
   let itemsDone = 0;
   let itemsTotal = 0;
+  const prioridades: Prioridade[] = [];
   if (Array.isArray(plan?.prioridades)) {
     for (const entry of plan.prioridades) {
       if (!entry || typeof entry !== "object") continue;
-      const acoes = (entry as Record<string, unknown>)['acoes'];
-      itemsTotal += Array.isArray(acoes) ? acoes.length : 0;
+      const item = entry as Record<string, unknown>;
+      const acoes = Array.isArray(item['acoes']) ? item['acoes'].map((a) => String(a)) : [];
+      itemsTotal += acoes.length;
+      prioridades.push({
+        titulo: String(item['titulo'] ?? "Ação preventiva"),
+        pilar: String(item['pilar'] ?? "Documental"),
+        risco: (["alto", "medio", "baixo"].includes(String(item['risco']))
+          ? String(item['risco'])
+          : "medio") as Prioridade["risco"],
+        prazo: String(item['prazo'] ?? "30 dias"),
+        acoes,
+      });
     }
   }
 
+  let doneKeys: string[] = [];
   if (plan?.id) {
     const { data: items } = await supabase
       .from("action_items_done")
       .select("item_key, done")
       .eq("plan_id", plan.id);
-    itemsDone = (items ?? []).filter((item) => item.done).length;
+    doneKeys = (items ?? []).filter((item) => item.done).map((item) => item.item_key);
+    itemsDone = doneKeys.length;
     if (itemsTotal === 0) itemsTotal = (items ?? []).length;
   }
 
@@ -121,6 +153,7 @@ async function fetchDashboard(): Promise<DashboardData> {
     hasPlan: Boolean(plan?.id),
     itemsDone,
     itemsTotal,
+    planPillars: pillarProgress(prioridades, doneKeys),
   };
 }
 
@@ -289,12 +322,15 @@ function Metric({ label, value, valueClass }: { label: string; value: string; va
 
 function Page() {
   const { data, isLoading } = useQuery({ queryKey: ["dashboard"], queryFn: fetchDashboard });
+  const { data: reminders } = usePlanReminders();
 
   const firstName = data?.nome?.trim().split(/\s+/)[0] ?? null;
   const score = data?.score ?? null;
   const level = score === null ? null : getLevel(score);
   const pillarsInAlert = (data?.pillars ?? []).filter((p) => p.percent < 50).length;
   const alerts = data ? buildAlerts(data) : [];
+  const upcoming = (reminders ?? []).filter((r) => daysUntil(r.due_date) <= 7).slice(0, 4);
+  const planPillars = data?.planPillars ?? [];
 
   return (
     <PageShell title={firstName ? `Bem-vindo(a) de volta, ${firstName}` : "Bem-vindo(a) de volta"}>
@@ -399,6 +435,40 @@ function Page() {
               Gerada automaticamente a partir do seu diagnóstico e do seu plano de ação.
             </p>
 
+            {upcoming.length > 0 ? (
+              <div className="mt-5 rounded-2xl border border-warn/40 bg-warn/10 p-5">
+                <p className="flex items-center gap-2 text-sm font-medium text-warn">
+                  <BellRing className="h-4 w-4" />
+                  Prazos vencendo
+                </p>
+                <ul className="mt-3 space-y-2">
+                  {upcoming.map((reminder) => {
+                    const left = daysUntil(reminder.due_date);
+                    return (
+                      <li
+                        key={reminder.id}
+                        className="flex flex-wrap items-center justify-between gap-2 text-sm"
+                      >
+                        <span className="min-w-0 flex-1 truncate text-foreground">
+                          {reminder.titulo}
+                        </span>
+                        <span className={left <= 1 ? "text-xs text-danger" : "text-xs text-warn"}>
+                          {left <= 0 ? "vence hoje" : left === 1 ? "vence amanhã" : `em ${left} dias`}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <Link
+                  to="/plano"
+                  className="mt-4 inline-flex items-center gap-2 text-xs text-gold transition-colors hover:text-gold-light"
+                >
+                  Ver prioridades
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            ) : null}
+
             <div className="mt-5 space-y-3">
               {alerts.length === 0 ? (
                 <div className="flex items-center gap-3 rounded-2xl border border-success/40 bg-success/10 p-5">
@@ -439,6 +509,47 @@ function Page() {
               )}
             </div>
           </section>
+
+          {/* Andamento do plano por pilar */}
+          {data?.hasPlan && planPillars.length > 0 ? (
+            <section>
+              <h2 className="font-serif text-xl text-foreground">Andamento do plano por pilar</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {data.itemsDone} de {data.itemsTotal} ações concluídas ·{" "}
+                {data.itemsTotal - data.itemsDone} pendentes.
+              </p>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                {planPillars.map((pillar) => {
+                  const meta = riscoMeta(pillar.risco);
+                  return (
+                    <div
+                      key={pillar.pilar}
+                      className="rounded-2xl border border-border bg-card p-5"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm text-foreground">Pilar {pillar.pilar}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {pillar.done} concluídas · {pillar.pending} pendentes
+                          </p>
+                        </div>
+                        <span className={`rounded-full border px-2.5 py-0.5 text-[0.65rem] ${meta.className}`}>
+                          {meta.label}
+                        </span>
+                      </div>
+                      <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${pillar.percent === 100 ? "bg-success" : "bg-gold"}`}
+                          style={{ width: `${pillar.percent}%` }}
+                        />
+                      </div>
+                      <p className="mt-2 text-right text-xs text-subtle">{pillar.percent}%</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          ) : null}
 
           {/* Ações rápidas */}
           <section>

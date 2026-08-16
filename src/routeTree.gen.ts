@@ -27,6 +27,7 @@ import { Route as AuthenticatedIaDocumentosRouteImport } from './routes/_authent
 import { Route as AuthenticatedIaHistoricoRouteImport } from './routes/_authenticated/ia.historico'
 import { Route as AuthenticatedIaPecaRouteImport } from './routes/_authenticated/ia.peca'
 import { Route as AuthenticatedIaRiscoRouteImport } from './routes/_authenticated/ia.risco'
+import { Route as ApiPublicHooksPlanRemindersRouteImport } from './routes/api/public/hooks/plan-reminders'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -120,6 +121,12 @@ const AuthenticatedIaRiscoRoute = AuthenticatedIaRiscoRouteImport.update({
   path: '/risco',
   getParentRoute: () => AuthenticatedIaRoute,
 } as any)
+const ApiPublicHooksPlanRemindersRoute =
+  ApiPublicHooksPlanRemindersRouteImport.update({
+    id: '/api/public/hooks/plan-reminders',
+    path: '/api/public/hooks/plan-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/ia/peca': typeof AuthenticatedIaPecaRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
+  '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -157,6 +165,7 @@ export interface FileRoutesByTo {
   '/ia/peca': typeof AuthenticatedIaPecaRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/ia': typeof AuthenticatedIaIndexRoute
+  '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -178,6 +187,7 @@ export interface FileRoutesById {
   '/_authenticated/ia/peca': typeof AuthenticatedIaPecaRoute
   '/_authenticated/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
+  '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/ia/peca'
     | '/ia/risco'
     | '/ia/'
+    | '/api/public/hooks/plan-reminders'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/ia/peca'
     | '/ia/risco'
     | '/ia'
+    | '/api/public/hooks/plan-reminders'
   id:
     | '__root__'
     | '/_authenticated'
@@ -237,6 +249,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ia/peca'
     | '/_authenticated/ia/risco'
     | '/_authenticated/ia/'
+    | '/api/public/hooks/plan-reminders'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -245,6 +258,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiAiChatRoute: typeof ApiAiChatRoute
   ApiAiPlanoRoute: typeof ApiAiPlanoRoute
+  ApiPublicHooksPlanRemindersRoute: typeof ApiPublicHooksPlanRemindersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -375,6 +389,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIaRiscoRouteImport
       parentRoute: typeof AuthenticatedIaRoute
     }
+    '/api/public/hooks/plan-reminders': {
+      id: '/api/public/hooks/plan-reminders'
+      path: '/api/public/hooks/plan-reminders'
+      fullPath: '/api/public/hooks/plan-reminders'
+      preLoaderRoute: typeof ApiPublicHooksPlanRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -429,6 +450,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ApiAiChatRoute: ApiAiChatRoute,
   ApiAiPlanoRoute: ApiAiPlanoRoute,
+  ApiPublicHooksPlanRemindersRoute: ApiPublicHooksPlanRemindersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

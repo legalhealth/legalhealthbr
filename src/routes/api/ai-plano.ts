@@ -19,8 +19,27 @@ type Prioridade = {
   pilar: string;
   risco: string;
   prazo: string;
+  prazo_dias: number;
+  due_date: string;
   acoes: string[];
+  fontes: { norma: string; dispositivo: string; descricao: string }[];
 };
+
+function parsePrazoDias(prazo: string, raw: unknown): number {
+  const explicit = Number(raw);
+  if (Number.isFinite(explicit) && explicit > 0 && explicit <= 365) return Math.round(explicit);
+  const match = /(\d{1,3})/.exec(prazo);
+  const parsed = match ? Number(match[1]) : NaN;
+  if (Number.isFinite(parsed) && parsed > 0 && parsed <= 365) {
+    return /m[êe]s/i.test(prazo) ? Math.min(parsed * 30, 365) : parsed;
+  }
+  return 30;
+}
+
+function addDays(days: number): string {
+  const date = new Date(Date.now() + days * 86_400_000);
+  return date.toISOString().slice(0, 10);
+}
 
 function jsonResponse(payload: unknown, status: number) {
   return new Response(JSON.stringify(payload), {
@@ -85,12 +104,28 @@ function validatePlan(raw: string): { resumo: string; prioridades: Prioridade[] 
     if (!titulo || acoes.length === 0) continue;
     const pilar = typeof item["pilar"] === "string" ? item["pilar"].trim() : "";
     const risco = typeof item["risco"] === "string" ? item["risco"].trim().toLowerCase() : "";
+    const prazo =
+      typeof item["prazo"] === "string" && item["prazo"].trim() ? item["prazo"].trim() : "30 dias";
+    const prazoDias = parsePrazoDias(prazo, item["prazo_dias"]);
+    const fontes = (Array.isArray(item["fontes"]) ? item["fontes"] : [])
+      .filter((f): f is Record<string, unknown> => Boolean(f) && typeof f === "object")
+      .map((f) => ({
+        norma: typeof f["norma"] === "string" ? f["norma"].trim().slice(0, 160) : "",
+        dispositivo:
+          typeof f["dispositivo"] === "string" ? f["dispositivo"].trim().slice(0, 160) : "",
+        descricao: typeof f["descricao"] === "string" ? f["descricao"].trim().slice(0, 400) : "",
+      }))
+      .filter((f) => f.norma.length > 0)
+      .slice(0, 4);
     prioridades.push({
       titulo: titulo.slice(0, 160),
       pilar: PILAR_NAMES.includes(pilar) ? pilar : "Documental",
       risco: RISCOS.includes(risco) ? risco : "medio",
-      prazo: typeof item["prazo"] === "string" && item["prazo"].trim() ? item["prazo"].trim() : "30 dias",
+      prazo,
+      prazo_dias: prazoDias,
+      due_date: addDays(prazoDias),
       acoes: acoes.slice(0, 6).map((a) => a.trim().slice(0, 400)),
+      fontes,
     });
   }
 
@@ -166,9 +201,11 @@ ${pillarLines}
 
 Gere um Plano de Ação preventivo priorizando os pilares com menor conformidade. Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois, no formato:
 
-{"resumo": "diagnóstico executivo em 2 frases", "prioridades": [{"titulo": "...", "pilar": "Documental|Regulatório|Operacional|Histórico|Contextual", "risco": "alto|medio|baixo", "prazo": "ex: 15 dias", "acoes": ["ação prática 1", "ação prática 2", "ação prática 3"]}]}
+{"resumo": "diagnóstico executivo em 2 frases", "prioridades": [{"titulo": "...", "pilar": "Documental|Regulatório|Operacional|Histórico|Contextual", "risco": "alto|medio|baixo", "prazo": "ex: 15 dias", "prazo_dias": 15, "acoes": ["ação prática 1", "ação prática 2", "ação prática 3"], "fontes": [{"norma": "ex: Resolução CFM nº 2.217/2018 (Código de Ética Médica)", "dispositivo": "ex: art. 87", "descricao": "em 1 frase, por que essa norma sustenta esta prioridade e suas ações"}]}]}
 
-Inclua de 4 a 6 prioridades, das mais urgentes às de manutenção. Ações devem ser concretas e executáveis por um gestor de clínica.`;
+Inclua de 4 a 6 prioridades, das mais urgentes às de manutenção. Ações devem ser concretas e executáveis por um gestor de clínica.
+Em "prazo_dias" devolva o prazo em número de dias corridos (1 a 365).
+Em "fontes" cite de 2 a 4 bases normativas REAIS do Direito brasileiro que justificam a prioridade e suas ações — Código de Ética Médica, resoluções do CFM, LGPD (Lei 13.709/2018), Código de Defesa do Consumidor, Código Civil, normas da ANVISA/RDC, portarias do Ministério da Saúde ou súmulas/jurisprudência do STJ. Nunca invente número de norma: se não tiver certeza do dispositivo, deixe "dispositivo" como string vazia.`;
 
         await supabase.from("ai_usage").insert({ user_id: userId, endpoint: "ai-plano" });
 
@@ -219,15 +256,19 @@ Inclua de 4 a 6 prioridades, das mais urgentes às de manutenção. Ações deve
           return jsonError("A IA devolveu um plano inválido. Tente gerar novamente.", 502);
         }
 
-        // Regenerar substitui o plano anterior e zera as marcações de conclusão.
+        // Regenerar arquiva a versão anterior (histórico) e inicia uma nova versão limpa.
         const { data: oldPlans } = await supabase
           .from("action_plans")
-          .select("id")
+          .select("id, versao, status")
           .eq("user_id", userId);
-        const oldIds = (oldPlans ?? []).map((p) => p.id);
-        if (oldIds.length > 0) {
-          await supabase.from("action_items_done").delete().in("plan_id", oldIds);
-          await supabase.from("action_plans").delete().in("id", oldIds);
+        const nextVersion =
+          (oldPlans ?? []).reduce((max, p) => Math.max(max, p.versao ?? 1), 0) + 1;
+        const activeIds = (oldPlans ?? []).filter((p) => p.status === "ativo").map((p) => p.id);
+        if (activeIds.length > 0) {
+          await supabase
+            .from("action_plans")
+            .update({ status: "arquivado" })
+            .in("id", activeIds);
         }
 
         const { data: inserted, error: insertError } = await supabase
@@ -237,6 +278,8 @@ Inclua de 4 a 6 prioridades, das mais urgentes às de manutenção. Ações deve
             result_id: result.id,
             resumo: plan.resumo,
             prioridades: plan.prioridades,
+            versao: nextVersion,
+            status: "ativo",
           })
           .select("id")
           .single();
@@ -245,7 +288,34 @@ Inclua de 4 a 6 prioridades, das mais urgentes às de manutenção. Ações deve
           return jsonError("Plano gerado, mas não foi possível salvar. Tente novamente.", 500);
         }
 
-        return jsonResponse({ id: inserted.id, ...plan }, 200);
+        // Lembretes automáticos: 7 dias e 1 dia antes do prazo de cada prioridade.
+        const today = new Date().toISOString().slice(0, 10);
+        const reminders = plan.prioridades.flatMap((prioridade, index) =>
+          [7, 1]
+            .filter((offset) => {
+              const trigger = new Date(
+                new Date(`${prioridade.due_date}T00:00:00Z`).getTime() - offset * 86_400_000,
+              )
+                .toISOString()
+                .slice(0, 10);
+              return trigger >= today || prioridade.due_date >= today;
+            })
+            .map((offset) => ({
+              user_id: userId,
+              plan_id: inserted.id,
+              priority_index: index,
+              titulo: prioridade.titulo,
+              pilar: prioridade.pilar,
+              risco: prioridade.risco,
+              due_date: prioridade.due_date,
+              offset_days: offset,
+            })),
+        );
+        if (reminders.length > 0) {
+          await supabase.from("plan_reminders").insert(reminders);
+        }
+
+        return jsonResponse({ id: inserted.id, versao: nextVersion, ...plan }, 200);
       },
     },
   },
