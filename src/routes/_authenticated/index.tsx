@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   AlertTriangle,
   ArrowRight,
+  BellRing,
   CheckCircle2,
   FileSignature,
   Info,
@@ -22,6 +23,14 @@ import {
   pillarTextClass,
   type PillarScore,
 } from "@/lib/juriscore";
+import {
+  daysUntil,
+  pillarProgress,
+  riscoMeta,
+  usePlanReminders,
+  type PillarProgress,
+  type Prioridade,
+} from "@/lib/plano";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
@@ -52,6 +61,7 @@ type DashboardData = {
   hasPlan: boolean;
   itemsDone: number;
   itemsTotal: number;
+  planPillars: PillarProgress[];
 };
 
 function toPillarScores(byPillar: unknown): PillarScore[] {
@@ -73,7 +83,15 @@ async function fetchDashboard(): Promise<DashboardData> {
   const { data: auth } = await supabase.auth.getUser();
   const userId = auth.user?.id;
   if (!userId) {
-    return { nome: null, score: null, pillars: [], hasPlan: false, itemsDone: 0, itemsTotal: 0 };
+    return {
+      nome: null,
+      score: null,
+      pillars: [],
+      hasPlan: false,
+      itemsDone: 0,
+      itemsTotal: 0,
+      planPillars: [],
+    };
   }
 
   const [profileRes, scoreRes] = await Promise.all([
@@ -91,26 +109,40 @@ async function fetchDashboard(): Promise<DashboardData> {
     .from("action_plans")
     .select("id, prioridades")
     .eq("user_id", userId)
+    .eq("status", "ativo")
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
   let itemsDone = 0;
   let itemsTotal = 0;
+  const prioridades: Prioridade[] = [];
   if (Array.isArray(plan?.prioridades)) {
     for (const entry of plan.prioridades) {
       if (!entry || typeof entry !== "object") continue;
-      const acoes = (entry as Record<string, unknown>)['acoes'];
-      itemsTotal += Array.isArray(acoes) ? acoes.length : 0;
+      const item = entry as Record<string, unknown>;
+      const acoes = Array.isArray(item['acoes']) ? item['acoes'].map((a) => String(a)) : [];
+      itemsTotal += acoes.length;
+      prioridades.push({
+        titulo: String(item['titulo'] ?? "Ação preventiva"),
+        pilar: String(item['pilar'] ?? "Documental"),
+        risco: (["alto", "medio", "baixo"].includes(String(item['risco']))
+          ? String(item['risco'])
+          : "medio") as Prioridade["risco"],
+        prazo: String(item['prazo'] ?? "30 dias"),
+        acoes,
+      });
     }
   }
 
+  let doneKeys: string[] = [];
   if (plan?.id) {
     const { data: items } = await supabase
       .from("action_items_done")
       .select("item_key, done")
       .eq("plan_id", plan.id);
-    itemsDone = (items ?? []).filter((item) => item.done).length;
+    doneKeys = (items ?? []).filter((item) => item.done).map((item) => item.item_key);
+    itemsDone = doneKeys.length;
     if (itemsTotal === 0) itemsTotal = (items ?? []).length;
   }
 
@@ -121,6 +153,7 @@ async function fetchDashboard(): Promise<DashboardData> {
     hasPlan: Boolean(plan?.id),
     itemsDone,
     itemsTotal,
+    planPillars: pillarProgress(prioridades, doneKeys),
   };
 }
 
