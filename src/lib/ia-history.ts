@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
 
-export type HistoryOrigem = "risco" | "peca";
+export type HistoryOrigem = "risco" | "peca" | "biblioteca";
 
 export type HistoryStatus = "rascunho" | "revisao" | "concluido" | "arquivado";
 
@@ -43,6 +43,7 @@ export const STATUS_META: Record<
 export const ORIGEM_META: Record<HistoryOrigem, string> = {
   risco: "Análise de risco",
   peca: "Peça gerada",
+  biblioteca: "Biblioteca",
 };
 
 export function statusMeta(status: string) {
