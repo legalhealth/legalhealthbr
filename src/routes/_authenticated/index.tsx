@@ -322,12 +322,15 @@ function Metric({ label, value, valueClass }: { label: string; value: string; va
 
 function Page() {
   const { data, isLoading } = useQuery({ queryKey: ["dashboard"], queryFn: fetchDashboard });
+  const { data: reminders } = usePlanReminders();
 
   const firstName = data?.nome?.trim().split(/\s+/)[0] ?? null;
   const score = data?.score ?? null;
   const level = score === null ? null : getLevel(score);
   const pillarsInAlert = (data?.pillars ?? []).filter((p) => p.percent < 50).length;
   const alerts = data ? buildAlerts(data) : [];
+  const upcoming = (reminders ?? []).filter((r) => daysUntil(r.due_date) <= 7).slice(0, 4);
+  const planPillars = data?.planPillars ?? [];
 
   return (
     <PageShell title={firstName ? `Bem-vindo(a) de volta, ${firstName}` : "Bem-vindo(a) de volta"}>
@@ -432,6 +435,40 @@ function Page() {
               Gerada automaticamente a partir do seu diagnóstico e do seu plano de ação.
             </p>
 
+            {upcoming.length > 0 ? (
+              <div className="mt-5 rounded-2xl border border-warn/40 bg-warn/10 p-5">
+                <p className="flex items-center gap-2 text-sm font-medium text-warn">
+                  <BellRing className="h-4 w-4" />
+                  Prazos vencendo
+                </p>
+                <ul className="mt-3 space-y-2">
+                  {upcoming.map((reminder) => {
+                    const left = daysUntil(reminder.due_date);
+                    return (
+                      <li
+                        key={reminder.id}
+                        className="flex flex-wrap items-center justify-between gap-2 text-sm"
+                      >
+                        <span className="min-w-0 flex-1 truncate text-foreground">
+                          {reminder.titulo}
+                        </span>
+                        <span className={left <= 1 ? "text-xs text-danger" : "text-xs text-warn"}>
+                          {left <= 0 ? "vence hoje" : left === 1 ? "vence amanhã" : `em ${left} dias`}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <Link
+                  to="/plano"
+                  className="mt-4 inline-flex items-center gap-2 text-xs text-gold transition-colors hover:text-gold-light"
+                >
+                  Ver prioridades
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            ) : null}
+
             <div className="mt-5 space-y-3">
               {alerts.length === 0 ? (
                 <div className="flex items-center gap-3 rounded-2xl border border-success/40 bg-success/10 p-5">
@@ -472,6 +509,47 @@ function Page() {
               )}
             </div>
           </section>
+
+          {/* Andamento do plano por pilar */}
+          {data?.hasPlan && planPillars.length > 0 ? (
+            <section>
+              <h2 className="font-serif text-xl text-foreground">Andamento do plano por pilar</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {data.itemsDone} de {data.itemsTotal} ações concluídas ·{" "}
+                {data.itemsTotal - data.itemsDone} pendentes.
+              </p>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                {planPillars.map((pillar) => {
+                  const meta = riscoMeta(pillar.risco);
+                  return (
+                    <div
+                      key={pillar.pilar}
+                      className="rounded-2xl border border-border bg-card p-5"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm text-foreground">Pilar {pillar.pilar}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {pillar.done} concluídas · {pillar.pending} pendentes
+                          </p>
+                        </div>
+                        <span className={`rounded-full border px-2.5 py-0.5 text-[0.65rem] ${meta.className}`}>
+                          {meta.label}
+                        </span>
+                      </div>
+                      <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${pillar.percent === 100 ? "bg-success" : "bg-gold"}`}
+                          style={{ width: `${pillar.percent}%` }}
+                        />
+                      </div>
+                      <p className="mt-2 text-right text-xs text-subtle">{pillar.percent}%</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          ) : null}
 
           {/* Ações rápidas */}
           <section>
