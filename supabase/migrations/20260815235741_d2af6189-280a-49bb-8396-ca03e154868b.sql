@@ -1,0 +1,2 @@
+DELETE FROM public.action_items_done a USING public.action_items_done b WHERE a.plan_id = b.plan_id AND a.item_key = b.item_key AND a.id > b.id;
+CREATE UNIQUE INDEX IF NOT EXISTS action_items_done_plan_item_key ON public.action_items_done (plan_id, item_key);

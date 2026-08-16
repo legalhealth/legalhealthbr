@@ -96,7 +96,14 @@ async function fetchDashboard(): Promise<DashboardData> {
     .maybeSingle();
 
   let itemsDone = 0;
-  let itemsTotal = Array.isArray(plan?.prioridades) ? plan.prioridades.length : 0;
+  let itemsTotal = 0;
+  if (Array.isArray(plan?.prioridades)) {
+    for (const entry of plan.prioridades) {
+      if (!entry || typeof entry !== "object") continue;
+      const acoes = (entry as Record<string, unknown>)['acoes'];
+      itemsTotal += Array.isArray(acoes) ? acoes.length : 0;
+    }
+  }
 
   if (plan?.id) {
     const { data: items } = await supabase
