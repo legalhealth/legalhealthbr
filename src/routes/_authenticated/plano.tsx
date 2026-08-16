@@ -1,16 +1,38 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, ClipboardList, Clock, RefreshCw, Sparkles } from "lucide-react";
+import {
+  BellRing,
+  Check,
+  ClipboardList,
+  Clock,
+  GitCompareArrows,
+  History,
+  RefreshCw,
+  Scale,
+  Sparkles,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  daysUntil,
+  diffPlans,
   itemKey,
   riscoMeta,
   useGeneratePlan,
+  usePlanReminders,
   usePlanState,
+  usePlanVersions,
   useToggleActionItem,
+  type ActionPlan,
 } from "@/lib/plano";
 
 export const Route = createFileRoute("/_authenticated/plano")({
@@ -37,8 +59,11 @@ export const Route = createFileRoute("/_authenticated/plano")({
 
 function Page() {
   const { data, isLoading } = usePlanState();
+  const { data: versions } = usePlanVersions();
+  const { data: reminders } = usePlanReminders();
   const generate = useGeneratePlan();
   const toggleItem = useToggleActionItem();
+  const [compareWith, setCompareWith] = useState<ActionPlan | null>(null);
 
   const doneSet = useMemo(() => new Set(data?.doneKeys ?? []), [data?.doneKeys]);
   const plan = data?.plan ?? null;
