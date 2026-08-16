@@ -370,9 +370,9 @@ function Page() {
                       </span>
                     ) : null}
                   </div>
-                  <p className="wordmark text-2xl text-foreground">
+                  <p className="text-2xl font-medium text-foreground">
                     {item.price}
-                    <span className="text-sm text-muted-foreground">{item.period}</span>
+                    <span className="text-sm font-normal text-muted-foreground">{item.period}</span>
                   </p>
                   <p className="text-sm leading-relaxed text-muted-foreground">{item.description}</p>
                 </button>
