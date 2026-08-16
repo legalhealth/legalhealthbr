@@ -1,8 +1,21 @@
-import { FileSignature, History, MessageSquare, ScanLine, ScrollText } from "lucide-react";
+import {
+  FileSignature,
+  History,
+  MessageSquare,
+  ScanLine,
+  ScrollText,
+  ShieldCheck,
+} from "lucide-react";
 import type { ComponentType } from "react";
 
 export type IaTool = {
-  to: "/ia/peca" | "/ia/risco" | "/ia/documentos" | "/ia/assistente" | "/ia/historico";
+  to:
+    | "/ia/peca"
+    | "/ia/risco"
+    | "/ia/documentos"
+    | "/ia/assistente"
+    | "/ia/revisoes"
+    | "/ia/historico";
   label: string;
   description: string;
   icon: ComponentType<{ className?: string }>;
@@ -32,6 +45,12 @@ export const IA_TOOLS: IaTool[] = [
     label: "Assistente",
     description: "Dúvidas do dia a dia clínico",
     icon: MessageSquare,
+  },
+  {
+    to: "/ia/revisoes",
+    label: "Revisões",
+    description: "Envio ao advogado, status e comentários",
+    icon: ShieldCheck,
   },
   {
     to: "/ia/historico",
