@@ -260,14 +260,175 @@ function Page() {
                       );
                     })}
                   </ul>
+
+                  {prioridade.fontes && prioridade.fontes.length > 0 ? (
+                    <div className="mt-4 rounded-xl border border-border bg-muted/20 p-4">
+                      <p className="flex items-center gap-2 text-[0.7rem] tracking-[0.18em] text-gold uppercase">
+                        <Scale className="h-3.5 w-3.5" />
+                        Fundamentação normativa
+                      </p>
+                      <ul className="mt-3 space-y-2.5">
+                        {prioridade.fontes.map((fonte, fIndex) => (
+                          <li key={`${fonte.norma}-${fIndex}`} className="text-xs leading-relaxed">
+                            <span className="text-foreground">{fonte.norma}</span>
+                            {fonte.dispositivo ? (
+                              <span className="text-gold"> — {fonte.dispositivo}</span>
+                            ) : null}
+                            {fonte.descricao ? (
+                              <span className="block text-muted-foreground">{fonte.descricao}</span>
+                            ) : null}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
                 </li>
               );
             })}
           </ul>
 
+          {/* Lembretes de prazo */}
+          {(reminders ?? []).length > 0 ? (
+            <section className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
+              <h2 className="flex items-center gap-2 font-serif text-lg text-foreground">
+                <BellRing className="h-4 w-4 text-gold" />
+                Lembretes de prazo
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Avisos automáticos 7 dias e 1 dia antes do vencimento de cada prioridade.
+              </p>
+              <ul className="mt-4 space-y-2">
+                {(reminders ?? []).slice(0, 8).map((reminder) => {
+                  const left = daysUntil(reminder.due_date);
+                  return (
+                    <li
+                      key={reminder.id}
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-muted/20 px-4 py-3 text-sm"
+                    >
+                      <span className="min-w-0 flex-1 truncate text-foreground">
+                        {reminder.titulo}
+                      </span>
+                      <span
+                        className={`text-xs ${left <= 1 ? "text-danger" : left <= 7 ? "text-warn" : "text-muted-foreground"}`}
+                      >
+                        {left === 0
+                          ? "vence hoje"
+                          : left === 1
+                            ? "vence amanhã"
+                            : `vence em ${left} dias`}{" "}
+                        · {new Date(`${reminder.due_date}T00:00:00`).toLocaleDateString("pt-BR")}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ) : null}
+
+          {/* Histórico de versões */}
+          {(versions ?? []).length > 1 ? (
+            <section className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
+              <h2 className="flex items-center gap-2 font-serif text-lg text-foreground">
+                <History className="h-4 w-4 text-gold" />
+                Histórico de versões
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Cada regeneração cria uma nova versão. Compare para ver o que mudou.
+              </p>
+              <ul className="mt-4 space-y-2">
+                {(versions ?? []).map((version) => (
+                  <li
+                    key={version.id}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-muted/20 px-4 py-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm text-foreground">
+                        Versão {version.versao}
+                        {version.status === "ativo" ? (
+                          <span className="ml-2 rounded-full border border-success/40 bg-success/10 px-2 py-0.5 text-[0.65rem] text-success">
+                            atual
+                          </span>
+                        ) : null}
+                      </p>
+                      <p className="mt-0.5 text-xs text-subtle">
+                        {new Date(version.created_at).toLocaleString("pt-BR")} ·{" "}
+                        {version.prioridades.length} prioridades
+                      </p>
+                    </div>
+                    {version.status === "ativo" ? null : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+                        onClick={() => setCompareWith(version)}
+                      >
+                        <GitCompareArrows className="mr-2 h-3.5 w-3.5" />
+                        Comparar
+                      </Button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          <Dialog open={Boolean(compareWith)} onOpenChange={(open) => !open && setCompareWith(null)}>
+            <DialogContent className="max-h-[85vh] overflow-y-auto border-border bg-card sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle className="font-serif text-foreground">
+                  Versão {compareWith?.versao} vs. versão {plan.versao} (atual)
+                </DialogTitle>
+                <DialogDescription>
+                  Comparação das prioridades entre a versão arquivada e o plano vigente.
+                </DialogDescription>
+              </DialogHeader>
+              {compareWith ? (
+                (() => {
+                  const diff = diffPlans(compareWith, plan);
+                  const blocks = [
+                    { label: "Novas prioridades", items: diff.novas, tone: "text-success" },
+                    { label: "Prioridades removidas", items: diff.removidas, tone: "text-danger" },
+                    { label: "Prioridades mantidas", items: diff.mantidas, tone: "text-muted-foreground" },
+                  ];
+                  return (
+                    <div className="space-y-5">
+                      {blocks.map((block) => (
+                        <div key={block.label}>
+                          <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">
+                            {block.label} ({block.items.length})
+                          </p>
+                          {block.items.length === 0 ? (
+                            <p className="mt-2 text-sm text-subtle">Nenhuma.</p>
+                          ) : (
+                            <ul className="mt-2 space-y-1.5">
+                              {block.items.map((title) => (
+                                <li key={title} className={`text-sm leading-relaxed ${block.tone}`}>
+                                  {title}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      ))}
+                      <div className="rounded-xl border border-border bg-muted/20 p-4">
+                        <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">
+                          Diagnóstico executivo da versão {compareWith.versao}
+                        </p>
+                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                          {compareWith.resumo}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()
+              ) : null}
+            </DialogContent>
+          </Dialog>
+
           <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
             <p className="text-xs text-subtle">
-              Ao regenerar, o plano é substituído e as marcações são zeradas.
+              Ao regenerar, a versão atual é arquivada no histórico e um novo plano começa sem
+              marcações.
             </p>
             <Button
               variant="outline"
