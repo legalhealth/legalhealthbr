@@ -69,12 +69,14 @@ export async function saveHistoryItem(input: {
   titulo: string;
   conteudo: string;
   contexto?: Json;
-}): Promise<void> {
+}): Promise<string | null> {
   const { data: auth } = await supabase.auth.getUser();
   const userId = auth.user?.id;
-  if (!userId) return;
+  if (!userId) return null;
 
-  const { error } = await supabase.from("generated_docs").insert({
+  const { data, error } = await supabase
+    .from("generated_docs")
+    .insert({
     user_id: userId,
     origem: input.origem,
     tipo: input.tipo,
@@ -82,8 +84,11 @@ export async function saveHistoryItem(input: {
     conteudo: input.conteudo,
     status: "rascunho",
     ...(input.contexto ? { contexto: input.contexto } : {}),
-  });
+    })
+    .select("id")
+    .single();
   if (error) throw error;
+  return data?.id ?? null;
 }
 
 export function useIaHistory() {
