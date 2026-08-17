@@ -137,11 +137,6 @@
   --ease-lux: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-@theme inline {
-  --font-display: var(--font-display);
-  --font-wordmark: var(--font-wordmark);
-}
-
 @layer base {
   * {
     border-color: var(--color-border);
