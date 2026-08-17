@@ -20,6 +20,8 @@
 
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Karla", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", "Cormorant Garamond", Georgia, serif;
+  --font-wordmark: "Cormorant Garamond", Georgia, serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -68,7 +70,7 @@
 }
 
 :root {
-  --radius: 1rem;
+  --radius: 1.25rem;
 
   /* chrome fixo: altura do header e da barra inferior (mobile) */
   --header-h: 4rem;
@@ -124,6 +126,20 @@
   --sidebar-accent-foreground: oklch(0.961 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.732 0.075 82);
+
+  /* dourado com profundidade */
+  --gradient-gold: linear-gradient(135deg, #d4b87a 0%, #c8a96a 50%, #b8975a 100%);
+  --gold-soft: color-mix(in oklab, var(--gold) 15%, transparent);
+  --shadow-gold: 0 10px 30px -12px color-mix(in oklab, var(--gold) 45%, transparent);
+  --shadow-gold-lg: 0 18px 44px -14px color-mix(in oklab, var(--gold) 55%, transparent);
+  --shadow-warm: 0 12px 40px -18px color-mix(in oklab, #3a2c14 70%, transparent);
+  --glass-surface: color-mix(in oklab, var(--card) 72%, transparent);
+  --ease-lux: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@theme inline {
+  --font-display: var(--font-display);
+  --font-wordmark: var(--font-wordmark);
 }
 
 @layer base {
@@ -145,12 +161,76 @@
   h1,
   h2,
   h3 {
-    font-family: var(--font-serif);
+    font-family: var(--font-display);
+    letter-spacing: 0.005em;
+    font-weight: 500;
+  }
+
+  /* ícones de traço fino para um registro mais sofisticado */
+  svg.lucide {
+    stroke-width: 1.25;
+  }
+
+  a,
+  button {
+    transition-timing-function: var(--ease-lux);
+    transition-duration: 280ms;
   }
 }
 
 @utility wordmark {
-  font-family: var(--font-serif);
+  font-family: var(--font-wordmark);
   letter-spacing: 0.32em;
   text-transform: uppercase;
+}
+
+@utility glass-card {
+  background-color: var(--glass-surface);
+  backdrop-filter: blur(14px) saturate(1.1);
+  border: 1px solid color-mix(in oklab, var(--gold) 15%, transparent);
+  box-shadow: var(--shadow-warm);
+}
+
+@utility gold-gradient {
+  background-image: var(--gradient-gold);
+}
+
+@utility gold-text-gradient {
+  background-image: var(--gradient-gold);
+  background-clip: text;
+  color: transparent;
+}
+
+@utility gold-rule {
+  display: block;
+  height: 2px;
+  width: 52px;
+  border-radius: 999px;
+  background-image: var(--gradient-gold);
+  box-shadow: var(--shadow-gold);
+}
+
+@utility shimmer-gold {
+  position: relative;
+  overflow: hidden;
+  background-color: color-mix(in oklab, var(--gold) 6%, transparent);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      100deg,
+      transparent 20%,
+      color-mix(in oklab, var(--gold) 22%, transparent) 50%,
+      transparent 80%
+    );
+    transform: translateX(-100%);
+    animation: shimmer-gold-sweep 1.8s var(--ease-lux) infinite;
+  }
+}
+
+@keyframes shimmer-gold-sweep {
+  to {
+    transform: translateX(100%);
+  }
 }
