@@ -184,7 +184,7 @@ function Page() {
               </div>
               <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full rounded-full bg-gold transition-all duration-500"
+                  className="h-full rounded-full gold-gradient transition-all duration-500"
                   style={{ width: `${totals.percent}%` }}
                 />
               </div>

@@ -545,7 +545,7 @@ function Page() {
                       </div>
                       <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                         <div
-                          className={`h-full rounded-full transition-all duration-500 ${pillar.percent === 100 ? "bg-success" : "bg-gold"}`}
+                          className={`h-full rounded-full transition-all duration-500 ${pillar.percent === 100 ? "bg-success" : "gold-gradient"}`}
                           style={{ width: `${pillar.percent}%` }}
                         />
                       </div>
