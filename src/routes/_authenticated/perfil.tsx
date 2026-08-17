@@ -463,7 +463,7 @@ function Page() {
           <Button
             type="submit"
             disabled={saveMutation.isPending || profileQuery.isLoading}
-            className="h-11 flex-1 rounded-xl bg-gold font-medium text-primary-foreground hover:bg-gold/90"
+            className="h-11 flex-1 rounded-xl gold-gradient font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
           >
             {saveMutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />

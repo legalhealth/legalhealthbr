@@ -129,7 +129,7 @@ function ResetPasswordPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gold text-primary-foreground hover:bg-gold/90 h-11 rounded-xl font-medium"
+                className="w-full gold-gradient text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105 h-11 rounded-xl font-medium"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 Salvar nova senha

@@ -366,7 +366,7 @@ function Page() {
                       Responda 15 perguntas nos 5 pilares e receba o diagnóstico completo da sua
                       exposição jurídica.
                     </p>
-                    <Button asChild className="mt-6 bg-gold text-background hover:bg-gold-light">
+                    <Button asChild className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105">
                       <Link to="/juriscore">
                         <Sparkles className="h-4 w-4" />
                         Descobrir meu Juriscore®

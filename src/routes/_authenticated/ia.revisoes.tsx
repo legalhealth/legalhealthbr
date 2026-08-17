@@ -273,7 +273,7 @@ function Comentarios({ revisao }: { revisao: Revisao }) {
           size="sm"
           onClick={submit}
           disabled={addComment.isPending}
-          className="bg-gold text-background hover:bg-gold-light"
+          className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
         >
           {addComment.isPending ? "Salvando..." : "Registrar comentário"}
         </Button>

@@ -203,7 +203,7 @@ function Page() {
         <Button
           onClick={handleAnalyze}
           disabled={loading}
-          className="mt-6 bg-gold text-background hover:bg-gold-light"
+          className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
         >
           <Sparkles className="mr-2 h-4 w-4" />
           {loading ? "Analisando..." : "Analisar risco"}

@@ -123,7 +123,7 @@ function Page() {
             de conformidade que definem quais riscos precisam de atenção primeiro. Sem o
             diagnóstico, não há como priorizar.
           </p>
-          <Button asChild className="mt-6 bg-gold text-background hover:bg-gold-light">
+          <Button asChild className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105">
             <Link to="/juriscore">Descobrir meu Juriscore®</Link>
           </Button>
         </section>
@@ -150,7 +150,7 @@ function Page() {
             montar de 4 a 6 frentes de ação com prazos.
           </p>
           <Button
-            className="mt-6 bg-gold text-background hover:bg-gold-light"
+            className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
             disabled={isGenerating || !data.resultId}
             onClick={() =>
               data.resultId &&

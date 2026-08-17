@@ -84,7 +84,7 @@ function Page() {
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
         <Button
           onClick={() => finish("/juriscore")}
-          className="h-11 rounded-xl bg-gold px-6 font-medium text-primary-foreground hover:bg-gold/90"
+          className="h-11 rounded-xl gold-gradient px-6 font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
         >
           Começar pelo Juriscore®
           <ArrowRight className="h-4 w-4" />

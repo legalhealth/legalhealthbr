@@ -178,7 +178,7 @@ function Page() {
           </Button>
           <Button
             onClick={() => navigate({ to: "/plano" })}
-            className="h-11 flex-1 rounded-xl bg-gold font-medium text-primary-foreground hover:bg-gold/90"
+            className="h-11 flex-1 rounded-xl gold-gradient font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
           >
             <Sparkles className="h-4 w-4" />
             Gerar Plano de Ação a partir deste Juriscore®
@@ -281,7 +281,7 @@ function Page() {
             <Button
               disabled={!pillarComplete || save.isPending}
               onClick={() => save.mutate()}
-              className="h-11 rounded-xl bg-gold font-medium text-primary-foreground hover:bg-gold/90"
+              className="h-11 rounded-xl gold-gradient font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
             >
               {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               Calcular meu Juriscore®
@@ -290,7 +290,7 @@ function Page() {
             <Button
               disabled={!pillarComplete}
               onClick={() => setStep((s) => Math.min(PILLARS.length - 1, s + 1))}
-              className="h-11 rounded-xl bg-gold font-medium text-primary-foreground hover:bg-gold/90"
+              className="h-11 rounded-xl gold-gradient font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
             >
               Próximo pilar
               <ArrowRight className="h-4 w-4" />

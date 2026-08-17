@@ -442,7 +442,7 @@ function Page() {
             <PromptInputSubmit
               status={status}
               disabled={!input.trim() || status !== "ready"}
-              className="bg-gold text-background hover:bg-gold-light disabled:opacity-50"
+              className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105 disabled:opacity-50"
             >
               <Send className="size-4" />
             </PromptInputSubmit>
