@@ -99,7 +99,7 @@ export function EnviarRevisaoDialog({ docId, titulo, conteudo, trigger }: Props)
       </DialogTrigger>
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-serif text-xl">Enviar para revisão</DialogTitle>
+          <DialogTitle className="font-display text-xl">Enviar para revisão</DialogTitle>
           <DialogDescription>
             A peça e os documentos selecionados vão para o advogado responsável. O status e os
             comentários ficam registrados no histórico.

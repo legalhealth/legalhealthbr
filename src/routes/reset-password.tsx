@@ -78,7 +78,7 @@ function ResetPasswordPage() {
           />
         </div>
 
-        <Card className="border border-border bg-card rounded-2xl shadow-none">
+        <Card className="glass-card rounded-2xl shadow-none">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
               <ShieldCheck className="h-5 w-5 text-gold" />

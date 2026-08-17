@@ -231,7 +231,7 @@ function Page() {
       description="Dados profissionais, assinatura e configurações da sua conta."
     >
       <form onSubmit={handleSubmit} className="mt-8 space-y-6 md:mt-10">
-        <Card className="rounded-2xl border border-border bg-card shadow-none">
+        <Card className="rounded-2xl glass-card shadow-none">
           <CardContent className="flex flex-col items-center gap-4 pt-6 text-center sm:flex-row sm:items-center sm:text-left">
             <span className="grid h-20 w-20 shrink-0 place-items-center rounded-full border border-gold/40 bg-background text-2xl font-medium tracking-widest text-gold">
               {initials}
@@ -248,7 +248,7 @@ function Page() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border border-border bg-card shadow-none">
+        <Card className="rounded-2xl glass-card shadow-none">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
               <User className="h-5 w-5 text-gold" />
@@ -327,7 +327,7 @@ function Page() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border border-border bg-card shadow-none">
+        <Card className="rounded-2xl glass-card shadow-none">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
               <Crown className="h-5 w-5 text-gold" />
@@ -381,7 +381,7 @@ function Page() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border border-border bg-card shadow-none">
+        <Card className="rounded-2xl glass-card shadow-none">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
               <Settings2 className="h-5 w-5 text-gold" />
@@ -416,7 +416,7 @@ function Page() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border border-border bg-card shadow-none">
+        <Card className="rounded-2xl glass-card shadow-none">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
               <Bell className="h-5 w-5 text-gold" />

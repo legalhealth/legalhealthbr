@@ -55,7 +55,7 @@ function Page() {
     <div className="mx-auto max-w-3xl px-5 py-12 md:px-8 md:py-16">
       <div className="text-center">
         <img src={monograma.url} alt="Legal Health" className="mx-auto h-14 w-auto" />
-        <h1 className="mt-6 font-serif text-3xl font-light text-foreground md:text-4xl">
+        <h1 className="mt-6 font-display text-3xl font-light text-foreground md:text-4xl">
           Bem-vindo ao Legal Health
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
@@ -66,7 +66,7 @@ function Page() {
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2">
         {steps.map(({ icon: Icon, title, description }, index) => (
-          <Card key={title} className="border border-border bg-card rounded-2xl shadow-none">
+          <Card key={title} className="glass-card rounded-2xl shadow-none">
             <CardContent className="space-y-3 p-6">
               <div className="flex items-center justify-between">
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted/30">

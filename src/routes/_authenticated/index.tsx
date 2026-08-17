@@ -352,14 +352,14 @@ function Page() {
       ) : (
         <div className="mt-8 space-y-8">
           {/* Cartão principal */}
-          <section className="rounded-2xl border border-border bg-card p-6 md:p-8">
+          <section className="rounded-2xl glass-card p-6 md:p-8">
             <div className="flex flex-col items-center gap-7 text-center md:flex-row md:items-center md:gap-10 md:text-left">
               <ScoreRing score={score} />
               <div className="flex-1">
                 <p className="text-[0.7rem] tracking-[0.22em] text-subtle uppercase">Juriscore®</p>
                 {score === null ? (
                   <>
-                    <h2 className="mt-3 font-serif text-2xl text-foreground md:text-3xl">
+                    <h2 className="mt-3 font-display text-2xl text-foreground md:text-3xl">
                       Seu raio-x jurídico ainda não foi calculado
                     </h2>
                     <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
@@ -417,10 +417,10 @@ function Page() {
                     : "text-warn"
               }
             />
-            <div className="rounded-2xl border border-border bg-card p-5">
+            <div className="rounded-2xl glass-card p-5">
               <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">Pendências</p>
               <p
-                className={`mt-3 font-serif text-3xl leading-none ${data?.hasPlan ? "text-foreground" : "text-subtle"}`}
+                className={`mt-3 font-display text-3xl leading-none ${data?.hasPlan ? "text-foreground" : "text-subtle"}`}
               >
                 {data?.hasPlan ? `${data.itemsDone}/${data.itemsTotal}` : "—"}
               </p>
@@ -436,7 +436,7 @@ function Page() {
 
           {/* Central de alertas */}
           <section>
-            <h2 className="font-serif text-xl text-foreground">Central de alertas</h2>
+            <h2 className="font-display text-xl text-foreground">Central de alertas</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Gerada automaticamente a partir do seu diagnóstico e do seu plano de ação.
             </p>
@@ -519,7 +519,7 @@ function Page() {
           {/* Andamento do plano por pilar */}
           {data?.hasPlan && planPillars.length > 0 ? (
             <section>
-              <h2 className="font-serif text-xl text-foreground">Andamento do plano por pilar</h2>
+              <h2 className="font-display text-xl text-foreground">Andamento do plano por pilar</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {data.itemsDone} de {data.itemsTotal} ações concluídas ·{" "}
                 {data.itemsTotal - data.itemsDone} pendentes.
@@ -530,7 +530,7 @@ function Page() {
                   return (
                     <div
                       key={pillar.pilar}
-                      className="rounded-2xl border border-border bg-card p-5"
+                      className="rounded-2xl glass-card p-5"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -559,13 +559,13 @@ function Page() {
 
           {/* Ações rápidas */}
           <section>
-            <h2 className="font-serif text-xl text-foreground">Ações rápidas</h2>
+            <h2 className="font-display text-xl text-foreground">Ações rápidas</h2>
             <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {QUICK_ACTIONS.map((action) => (
                 <Link
                   key={action.title}
                   to={action.to}
-                  className="group rounded-2xl border border-border bg-card p-5 transition-colors hover:border-gold/50"
+                  className="group rounded-2xl glass-card p-5 transition-colors hover:border-gold/50"
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
                     <action.icon className="h-5 w-5 text-gold" />
@@ -580,8 +580,8 @@ function Page() {
           </section>
 
           {/* Frase institucional */}
-          <section className="rounded-2xl border border-border bg-card px-6 py-10 text-center md:py-14">
-            <p className="mx-auto max-w-2xl font-serif text-xl leading-relaxed text-foreground md:text-2xl">
+          <section className="rounded-2xl glass-card px-6 py-10 text-center md:py-14">
+            <p className="mx-auto max-w-2xl font-display text-xl leading-relaxed text-foreground md:text-2xl">
               Não somos um escritório.{" "}
               <span className="text-gold">
                 Somos a estrutura que antecipa, previne e protege.

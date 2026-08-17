@@ -38,11 +38,11 @@ export function DiagnosticContextCard({
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="rounded-2xl glass-card p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="text-center">
-            <p className="font-serif text-3xl leading-none" style={{ color: ctx.level?.color }}>
+            <p className="font-display text-3xl leading-none" style={{ color: ctx.level?.color }}>
               {ctx.score}
             </p>
             <p className="mt-1 text-[0.6rem] tracking-[0.2em] text-subtle">DE 100</p>

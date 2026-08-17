@@ -98,7 +98,7 @@ function Page() {
     return (
       <PageShell title="Seu Juriscore®" description={`Diagnóstico concluído com ${TOTAL_QUESTIONS} respostas nos 5 pilares.`}>
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
-          <Card className="border border-border bg-card rounded-2xl shadow-none lg:col-span-1">
+          <Card className="glass-card rounded-2xl shadow-none lg:col-span-1">
             <CardContent className="flex flex-col items-center gap-6 pt-6">
               <ScoreRing score={score} color={level.color} />
               <div className="text-center">
@@ -117,7 +117,7 @@ function Page() {
             </CardContent>
           </Card>
 
-          <Card className="border border-border bg-card rounded-2xl shadow-none lg:col-span-2">
+          <Card className="glass-card rounded-2xl shadow-none lg:col-span-2">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-medium text-foreground">Equilíbrio entre os pilares</CardTitle>
               <CardDescription>Quanto mais preenchido o pentágono, maior a blindagem jurídica.</CardDescription>
@@ -143,7 +143,7 @@ function Page() {
             </CardContent>
           </Card>
 
-          <Card className="border border-border bg-card rounded-2xl shadow-none lg:col-span-3">
+          <Card className="glass-card rounded-2xl shadow-none lg:col-span-3">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg font-medium text-foreground">Conformidade por pilar</CardTitle>
               <CardDescription>Verde acima de 67%, âmbar entre 34% e 66%, vermelho abaixo de 34%.</CardDescription>
@@ -226,7 +226,7 @@ function Page() {
           </div>
         </div>
 
-        <Card className="border border-border bg-card rounded-2xl shadow-none">
+        <Card className="glass-card rounded-2xl shadow-none">
           <CardHeader className="pb-2">
             <span className="text-xs uppercase tracking-[0.18em] text-gold">Pilar {step + 1}</span>
             <CardTitle className="text-xl font-medium text-foreground">{pillar.name}</CardTitle>

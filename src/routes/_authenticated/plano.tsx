@@ -84,7 +84,7 @@ function Page() {
   const header = (
     <header className="space-y-3">
       <p className="text-[0.7rem] tracking-[0.22em] text-subtle uppercase">Plano de Proteção</p>
-      <h1 className="font-serif text-3xl tracking-tight text-foreground md:text-4xl">
+      <h1 className="font-display text-3xl tracking-tight text-foreground md:text-4xl">
         Plano de ação
       </h1>
       <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
@@ -111,11 +111,11 @@ function Page() {
     return (
       <div className="mx-auto max-w-4xl px-5 py-10 md:px-8 md:py-14">
         {header}
-        <section className="mt-8 rounded-2xl border border-border bg-card p-8 text-center">
+        <section className="mt-8 rounded-2xl glass-card p-8 text-center">
           <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-gold/40 bg-gold/10">
             <ClipboardList className="h-5 w-5 text-gold" />
           </span>
-          <h2 className="mt-5 font-serif text-xl text-foreground">
+          <h2 className="mt-5 font-display text-xl text-foreground">
             Seu Plano de Ação vem do Juriscore®
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
@@ -142,7 +142,7 @@ function Page() {
           <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-gold/40 bg-gold/10">
             <Sparkles className="h-5 w-5 text-gold" />
           </span>
-          <h2 className="mt-5 font-serif text-xl text-foreground">
+          <h2 className="mt-5 font-display text-xl text-foreground">
             Gerar seu plano preventivo
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
@@ -198,14 +198,14 @@ function Page() {
               return (
                 <li
                   key={`${prioridade.titulo}-${pIndex}`}
-                  className="rounded-2xl border border-border bg-card p-5 md:p-6"
+                  className="rounded-2xl glass-card p-5 md:p-6"
                 >
                   <div className="flex items-start gap-4">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold/10 font-serif text-sm text-gold">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold/10 font-display text-sm text-gold">
                       {pIndex + 1}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-serif text-lg leading-snug text-foreground">
+                      <h3 className="font-display text-lg leading-snug text-foreground">
                         {prioridade.titulo}
                       </h3>
                       <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
@@ -289,8 +289,8 @@ function Page() {
 
           {/* Lembretes de prazo */}
           {(reminders ?? []).length > 0 ? (
-            <section className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
-              <h2 className="flex items-center gap-2 font-serif text-lg text-foreground">
+            <section className="mt-6 rounded-2xl glass-card p-5 md:p-6">
+              <h2 className="flex items-center gap-2 font-display text-lg text-foreground">
                 <BellRing className="h-4 w-4 text-gold" />
                 Lembretes de prazo
               </h2>
@@ -327,8 +327,8 @@ function Page() {
 
           {/* Histórico de versões */}
           {(versions ?? []).length > 1 ? (
-            <section className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
-              <h2 className="flex items-center gap-2 font-serif text-lg text-foreground">
+            <section className="mt-6 rounded-2xl glass-card p-5 md:p-6">
+              <h2 className="flex items-center gap-2 font-display text-lg text-foreground">
                 <History className="h-4 w-4 text-gold" />
                 Histórico de versões
               </h2>
@@ -373,9 +373,9 @@ function Page() {
           ) : null}
 
           <Dialog open={Boolean(compareWith)} onOpenChange={(open) => !open && setCompareWith(null)}>
-            <DialogContent className="max-h-[85vh] overflow-y-auto border-border bg-card sm:max-w-lg">
+            <DialogContent className="max-h-[85vh] overflow-y-auto glass-card sm:max-w-lg">
               <DialogHeader>
-                <DialogTitle className="font-serif text-foreground">
+                <DialogTitle className="font-display text-foreground">
                   Versão {compareWith?.versao} vs. versão {plan.versao} (atual)
                 </DialogTitle>
                 <DialogDescription>

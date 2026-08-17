@@ -209,9 +209,9 @@ function Page() {
         note="O assistente recebe esse resumo em cada resposta, priorizando seus pilares mais frágeis."
       />
 
-      <section className="rounded-2xl border border-border bg-card p-5">
+      <section className="rounded-2xl glass-card p-5">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="font-serif text-lg text-foreground">Conversas salvas</h2>
+          <h2 className="font-display text-lg text-foreground">Conversas salvas</h2>
           <Button
             variant="outline"
             size="sm"
@@ -271,7 +271,7 @@ function Page() {
       </section>
 
       <div className="flex flex-col gap-4">
-        <Conversation className="min-h-[380px] rounded-2xl border border-border bg-card/30">
+        <Conversation className="min-h-[380px] rounded-2xl glass-card/30">
           <ConversationContent className="gap-6 px-4 py-6 md:px-6">
             {messages.length === 0 ? (
               <>
@@ -363,7 +363,7 @@ function Page() {
                   setInput(prompt);
                   textareaRef.current?.focus();
                 }}
-                className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-left text-sm text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground"
+                className="flex items-center gap-3 rounded-xl glass-card p-3 text-left text-sm text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground"
               >
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-gold/10 text-gold">
                   <Scale className="size-4" />

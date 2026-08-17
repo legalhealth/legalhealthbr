@@ -129,7 +129,7 @@ function AuthPage() {
           />
         </div>
 
-        <Card className="border border-border bg-card rounded-2xl shadow-none">
+        <Card className="glass-card rounded-2xl shadow-none">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg font-medium text-foreground">
               {mode === "login" ? "Bem-vindo de volta" : mode === "signup" ? "Criar conta" : "Recuperar acesso"}
