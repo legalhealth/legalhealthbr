@@ -129,7 +129,7 @@ function AuthPage() {
           />
         </div>
 
-        <Card className="border border-border bg-card rounded-2xl shadow-none">
+        <Card className="glass-card rounded-2xl shadow-none">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg font-medium text-foreground">
               {mode === "login" ? "Bem-vindo de volta" : mode === "signup" ? "Criar conta" : "Recuperar acesso"}
@@ -251,7 +251,7 @@ function AuthPage() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gold text-primary-foreground hover:bg-gold/90 h-11 rounded-xl font-medium"
+                  className="w-full gold-gradient text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105 h-11 rounded-xl font-medium"
                 >
                   {loading ? (
                     <>

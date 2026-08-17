@@ -55,7 +55,7 @@ function AnalysisPanel({ doc }: { doc: DocumentRow }) {
   const a = doc.analise;
   if (!a) return null;
   return (
-    <div className="mt-4 space-y-4 rounded-xl border border-border bg-card/60 p-4 text-sm">
+    <div className="mt-4 space-y-4 rounded-xl glass-card/60 p-4 text-sm">
       <div>
         <p className="text-xs uppercase tracking-wide text-subtle">Tipo de documento</p>
         <p className="mt-1 text-foreground">{a.tipo_documento}</p>
@@ -203,13 +203,13 @@ function Page() {
         note="A leitura dos documentos destaca lacunas relacionadas aos seus pilares mais frágeis."
       />
 
-      <section className="rounded-2xl border border-border bg-card p-6">
+      <section className="rounded-2xl glass-card p-6">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
             <ScanLine className="h-5 w-5 text-gold" />
           </span>
           <div>
-            <h2 className="font-serif text-xl text-foreground">Escanear documento</h2>
+            <h2 className="font-display text-xl text-foreground">Escanear documento</h2>
             <p className="text-sm text-muted-foreground">Upload e leitura assistida (OCR).</p>
           </div>
         </div>
@@ -284,8 +284,8 @@ function Page() {
         </p>
       </section>
 
-      <section className="rounded-2xl border border-border bg-card p-6">
-        <h3 className="font-serif text-lg text-foreground">Meus documentos</h3>
+      <section className="rounded-2xl glass-card p-6">
+        <h3 className="font-display text-lg text-foreground">Meus documentos</h3>
         <p className="mt-1 text-sm text-muted-foreground">
           Etiquetas, datas de envio e uso direto na Análise de risco.
         </p>

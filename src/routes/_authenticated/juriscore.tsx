@@ -98,7 +98,7 @@ function Page() {
     return (
       <PageShell title="Seu Juriscore®" description={`Diagnóstico concluído com ${TOTAL_QUESTIONS} respostas nos 5 pilares.`}>
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
-          <Card className="border border-border bg-card rounded-2xl shadow-none lg:col-span-1">
+          <Card className="glass-card rounded-2xl shadow-none lg:col-span-1">
             <CardContent className="flex flex-col items-center gap-6 pt-6">
               <ScoreRing score={score} color={level.color} />
               <div className="text-center">
@@ -117,7 +117,7 @@ function Page() {
             </CardContent>
           </Card>
 
-          <Card className="border border-border bg-card rounded-2xl shadow-none lg:col-span-2">
+          <Card className="glass-card rounded-2xl shadow-none lg:col-span-2">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-medium text-foreground">Equilíbrio entre os pilares</CardTitle>
               <CardDescription>Quanto mais preenchido o pentágono, maior a blindagem jurídica.</CardDescription>
@@ -143,7 +143,7 @@ function Page() {
             </CardContent>
           </Card>
 
-          <Card className="border border-border bg-card rounded-2xl shadow-none lg:col-span-3">
+          <Card className="glass-card rounded-2xl shadow-none lg:col-span-3">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg font-medium text-foreground">Conformidade por pilar</CardTitle>
               <CardDescription>Verde acima de 67%, âmbar entre 34% e 66%, vermelho abaixo de 34%.</CardDescription>
@@ -178,7 +178,7 @@ function Page() {
           </Button>
           <Button
             onClick={() => navigate({ to: "/plano" })}
-            className="h-11 flex-1 rounded-xl bg-gold font-medium text-primary-foreground hover:bg-gold/90"
+            className="h-11 flex-1 rounded-xl gold-gradient font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
           >
             <Sparkles className="h-4 w-4" />
             Gerar Plano de Ação a partir deste Juriscore®
@@ -226,7 +226,7 @@ function Page() {
           </div>
         </div>
 
-        <Card className="border border-border bg-card rounded-2xl shadow-none">
+        <Card className="glass-card rounded-2xl shadow-none">
           <CardHeader className="pb-2">
             <span className="text-xs uppercase tracking-[0.18em] text-gold">Pilar {step + 1}</span>
             <CardTitle className="text-xl font-medium text-foreground">{pillar.name}</CardTitle>
@@ -281,7 +281,7 @@ function Page() {
             <Button
               disabled={!pillarComplete || save.isPending}
               onClick={() => save.mutate()}
-              className="h-11 rounded-xl bg-gold font-medium text-primary-foreground hover:bg-gold/90"
+              className="h-11 rounded-xl gold-gradient font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
             >
               {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               Calcular meu Juriscore®
@@ -290,7 +290,7 @@ function Page() {
             <Button
               disabled={!pillarComplete}
               onClick={() => setStep((s) => Math.min(PILLARS.length - 1, s + 1))}
-              className="h-11 rounded-xl bg-gold font-medium text-primary-foreground hover:bg-gold/90"
+              className="h-11 rounded-xl gold-gradient font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
             >
               Próximo pilar
               <ArrowRight className="h-4 w-4" />
@@ -314,25 +314,31 @@ function ScoreRing({ score, color }: { score: number; color: string }) {
   return (
     <div className="relative h-[220px] w-[220px]">
       <svg viewBox="0 0 200 200" className="h-full w-full -rotate-90">
+        <defs>
+          <linearGradient id="jsRingGradientLg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#D4B87A" />
+            <stop offset="100%" stopColor="#B8975A" />
+          </linearGradient>
+        </defs>
         <circle cx="100" cy="100" r={radius} fill="none" stroke="var(--color-border)" strokeWidth="10" />
         <circle
           cx="100"
           cy="100"
           r={radius}
           fill="none"
-          stroke={color}
+          stroke="url(#jsRingGradientLg)"
           strokeWidth="10"
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className="transition-all duration-1000 ease-out"
+          className="transition-all duration-1000 ease-[cubic-bezier(0.22,0.61,0.36,1)] [filter:drop-shadow(0_0_10px_rgba(200,169,106,0.35))]"
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-5xl font-light tabular-nums" style={{ color }}>
+        <span className="font-display text-6xl font-normal tabular-nums" style={{ color }}>
           {score}
         </span>
-        <span className="mt-1 text-xs uppercase tracking-[0.2em] text-subtle">de 100</span>
+        <span className="mt-2 text-[0.68rem] uppercase tracking-[0.3em] text-subtle">de 100</span>
       </div>
     </div>
   );

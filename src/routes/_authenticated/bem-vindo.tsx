@@ -55,7 +55,7 @@ function Page() {
     <div className="mx-auto max-w-3xl px-5 py-12 md:px-8 md:py-16">
       <div className="text-center">
         <img src={monograma.url} alt="Legal Health" className="mx-auto h-14 w-auto" />
-        <h1 className="mt-6 font-serif text-3xl font-light text-foreground md:text-4xl">
+        <h1 className="mt-6 font-display text-3xl font-light text-foreground md:text-4xl">
           Bem-vindo ao Legal Health
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
@@ -66,7 +66,7 @@ function Page() {
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2">
         {steps.map(({ icon: Icon, title, description }, index) => (
-          <Card key={title} className="border border-border bg-card rounded-2xl shadow-none">
+          <Card key={title} className="glass-card rounded-2xl shadow-none">
             <CardContent className="space-y-3 p-6">
               <div className="flex items-center justify-between">
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted/30">
@@ -84,7 +84,7 @@ function Page() {
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
         <Button
           onClick={() => finish("/juriscore")}
-          className="h-11 rounded-xl bg-gold px-6 font-medium text-primary-foreground hover:bg-gold/90"
+          className="h-11 rounded-xl gold-gradient px-6 font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
         >
           Começar pelo Juriscore®
           <ArrowRight className="h-4 w-4" />

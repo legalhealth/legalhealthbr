@@ -78,7 +78,7 @@ function ResetPasswordPage() {
           />
         </div>
 
-        <Card className="border border-border bg-card rounded-2xl shadow-none">
+        <Card className="glass-card rounded-2xl shadow-none">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
               <ShieldCheck className="h-5 w-5 text-gold" />
@@ -129,7 +129,7 @@ function ResetPasswordPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gold text-primary-foreground hover:bg-gold/90 h-11 rounded-xl font-medium"
+                className="w-full gold-gradient text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105 h-11 rounded-xl font-medium"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 Salvar nova senha

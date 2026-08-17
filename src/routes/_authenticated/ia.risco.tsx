@@ -167,13 +167,13 @@ function Page() {
         </div>
       ) : null}
 
-      <section className="rounded-2xl border border-border bg-card p-6">
+      <section className="rounded-2xl glass-card p-6">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
             <ScrollText className="h-5 w-5 text-gold" />
           </span>
           <div>
-            <h2 className="font-serif text-xl text-foreground">Análise de risco</h2>
+            <h2 className="font-display text-xl text-foreground">Análise de risco</h2>
             <p className="text-sm text-muted-foreground">Riscos, prazos e estratégia.</p>
           </div>
         </div>
@@ -203,7 +203,7 @@ function Page() {
         <Button
           onClick={handleAnalyze}
           disabled={loading}
-          className="mt-6 bg-gold text-background hover:bg-gold-light"
+          className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
         >
           <Sparkles className="mr-2 h-4 w-4" />
           {loading ? "Analisando..." : "Analisar risco"}
@@ -213,22 +213,22 @@ function Page() {
       {analysis ? (
         <section className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-border bg-card p-5">
+            <div className="rounded-2xl glass-card p-5">
               <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">Nível de risco</p>
-              <p className="mt-3 font-serif text-3xl leading-none" style={{ color: analysis.nivel === "Indeterminado" ? undefined : analysis.cor }}>
+              <p className="mt-3 font-display text-3xl leading-none" style={{ color: analysis.nivel === "Indeterminado" ? undefined : analysis.cor }}>
                 {analysis.nivel}
               </p>
             </div>
-            <div className="rounded-2xl border border-border bg-card p-5">
+            <div className="rounded-2xl glass-card p-5">
               <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">Prazo</p>
               <p className="mt-3 text-sm text-foreground">{analysis.prazo}</p>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="rounded-2xl glass-card p-6">
             <p className="text-xs leading-relaxed text-subtle">{analysis.contexto}</p>
 
-            <h3 className="mt-5 font-serif text-lg text-foreground">Riscos identificados</h3>
+            <h3 className="mt-5 font-display text-lg text-foreground">Riscos identificados</h3>
             <ul className="mt-3 space-y-3">
               {analysis.riscos.map((risco) => (
                 <li key={risco} className="flex gap-3 text-sm leading-relaxed text-muted-foreground">
@@ -238,7 +238,7 @@ function Page() {
               ))}
             </ul>
 
-            <h3 className="mt-6 font-serif text-lg text-foreground">Estratégia sugerida</h3>
+            <h3 className="mt-6 font-display text-lg text-foreground">Estratégia sugerida</h3>
             <ol className="mt-3 space-y-3">
               {analysis.estrategia.map((passo, i) => (
                 <li key={passo} className="flex gap-3 text-sm leading-relaxed text-muted-foreground">

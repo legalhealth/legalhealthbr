@@ -61,13 +61,13 @@ function Page() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-6">
+      <section className="rounded-2xl glass-card p-6">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
             <ShieldCheck className="h-5 w-5 text-gold" />
           </span>
           <div>
-            <h2 className="font-serif text-xl text-foreground">Revisão do advogado</h2>
+            <h2 className="font-display text-xl text-foreground">Revisão do advogado</h2>
             <p className="text-sm text-muted-foreground">
               Peças enviadas para revisão jurídica, com status, comentários e anexos.
             </p>
@@ -81,7 +81,7 @@ function Page() {
           <Skeleton className="h-28 w-full rounded-2xl" />
         </div>
       ) : (revisoes ?? []).length === 0 ? (
-        <section className="rounded-2xl border border-border bg-card p-8 text-center">
+        <section className="rounded-2xl glass-card p-8 text-center">
           <p className="text-sm text-muted-foreground">
             Nenhuma peça enviada para revisão. Gere uma peça e use “Enviar ao advogado” para iniciar
             o fluxo de revisão.
@@ -104,7 +104,7 @@ function Page() {
             const meta = revisaoStatusMeta(revisao.status);
             const anexos = (documents ?? []).filter((d) => revisao.document_ids.includes(d.id));
             return (
-              <li key={revisao.id} className="rounded-2xl border border-border bg-card p-5">
+              <li key={revisao.id} className="rounded-2xl glass-card p-5">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
                     <span
@@ -113,7 +113,7 @@ function Page() {
                       <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
                       {meta.label}
                     </span>
-                    <h3 className="mt-2 font-serif text-lg leading-snug text-foreground">
+                    <h3 className="mt-2 font-display text-lg leading-snug text-foreground">
                       {docTitle(revisao.doc_id)}
                     </h3>
                     <p className="mt-1 text-sm text-muted-foreground">
@@ -226,7 +226,7 @@ function Comentarios({ revisao }: { revisao: Revisao }) {
       ) : (
         <ul className="space-y-3">
           {(comentarios ?? []).map((c) => (
-            <li key={c.id} className="rounded-xl border border-border bg-card px-4 py-3">
+            <li key={c.id} className="rounded-xl glass-card px-4 py-3">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm text-foreground">{c.autor}</span>
                 <span
@@ -273,7 +273,7 @@ function Comentarios({ revisao }: { revisao: Revisao }) {
           size="sm"
           onClick={submit}
           disabled={addComment.isPending}
-          className="bg-gold text-background hover:bg-gold-light"
+          className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
         >
           {addComment.isPending ? "Salvando..." : "Registrar comentário"}
         </Button>

@@ -70,13 +70,13 @@ function Page() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-6">
+      <section className="rounded-2xl glass-card p-6">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
             <History className="h-5 w-5 text-gold" />
           </span>
           <div>
-            <h2 className="font-serif text-xl text-foreground">Histórico</h2>
+            <h2 className="font-display text-xl text-foreground">Histórico</h2>
             <p className="text-sm text-muted-foreground">
               Análises de risco e peças geradas, com data e status.
             </p>
@@ -107,7 +107,7 @@ function Page() {
           <Skeleton className="h-24 w-full rounded-2xl" />
         </div>
       ) : items.length === 0 ? (
-        <section className="rounded-2xl border border-border bg-card p-8 text-center">
+        <section className="rounded-2xl glass-card p-8 text-center">
           <p className="text-sm text-muted-foreground">
             Nenhum item registrado ainda. Gere uma peça ou faça uma análise de risco para
             começar seu histórico.
@@ -145,7 +145,7 @@ function Page() {
             const revisao = revisaoDoDoc(item.id);
             const revMeta = revisao ? revisaoStatusMeta(revisao.status) : null;
             return (
-              <li key={item.id} className="rounded-2xl border border-border bg-card p-5">
+              <li key={item.id} className="rounded-2xl glass-card p-5">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -166,7 +166,7 @@ function Page() {
                         </span>
                       ) : null}
                     </div>
-                    <h3 className="mt-2 font-serif text-lg leading-snug text-foreground">
+                    <h3 className="mt-2 font-display text-lg leading-snug text-foreground">
                       {item.titulo ?? "Documento sem título"}
                     </h3>
                     <p className="mt-1 text-xs text-subtle">

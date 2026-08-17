@@ -122,13 +122,13 @@ function Page() {
         note="A peça é redigida citando o nível de conformidade e os pilares frágeis do seu diagnóstico."
       />
 
-      <section className="rounded-2xl border border-border bg-card p-6">
+      <section className="rounded-2xl glass-card p-6">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
             <FileSignature className="h-5 w-5 text-gold" />
           </span>
           <div>
-            <h2 className="font-serif text-xl text-foreground">Redigir peça</h2>
+            <h2 className="font-display text-xl text-foreground">Redigir peça</h2>
             <p className="text-sm text-muted-foreground">Defesa, petição ou notificação.</p>
           </div>
         </div>
@@ -251,7 +251,7 @@ function Page() {
         <Button
           onClick={() => void handleGenerate()}
           disabled={generating}
-          className="mt-6 bg-gold text-background hover:bg-gold-light"
+          className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
         >
           <Sparkles className="mr-2 h-4 w-4" />
           {generating ? "Redigindo peça..." : "Redigir peça"}
@@ -259,8 +259,8 @@ function Page() {
       </section>
 
       {draft !== null ? (
-        <section ref={draftRef} className="rounded-2xl border border-border bg-card p-6">
-          <h3 className="font-serif text-lg text-foreground">
+        <section ref={draftRef} className="rounded-2xl glass-card p-6">
+          <h3 className="font-display text-lg text-foreground">
             {generating ? "Redigindo…" : "Peça redigida"}
           </h3>
           <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-muted-foreground">

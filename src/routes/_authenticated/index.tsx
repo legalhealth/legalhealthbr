@@ -278,6 +278,12 @@ function ScoreRing({ score }: { score: number | null }) {
   return (
     <div className="relative h-40 w-40 shrink-0">
       <svg viewBox="0 0 160 160" className="h-full w-full -rotate-90">
+        <defs>
+          <linearGradient id="dashRingGradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#D4B87A" />
+            <stop offset="100%" stopColor="#B8975A" />
+          </linearGradient>
+        </defs>
         <circle cx="80" cy="80" r={radius} fill="none" stroke="var(--color-border)" strokeWidth="10" />
         {score !== null ? (
           <circle
@@ -285,23 +291,23 @@ function ScoreRing({ score }: { score: number | null }) {
             cy="80"
             r={radius}
             fill="none"
-            stroke={level!.color}
+            stroke="url(#dashRingGradient)"
             strokeWidth="10"
             strokeLinecap="round"
             strokeDasharray={`${progress} ${circumference}`}
-            className="transition-all duration-1000 ease-out"
+            className="transition-all duration-1000 ease-[cubic-bezier(0.22,0.61,0.36,1)] [filter:drop-shadow(0_0_8px_rgba(200,169,106,0.35))]"
           />
         ) : null}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         {score === null ? (
-          <span className="font-serif text-4xl text-subtle">—</span>
+          <span className="font-display text-4xl text-subtle">—</span>
         ) : (
           <>
-            <span className="font-serif text-4xl leading-none" style={{ color: level!.color }}>
+            <span className="font-display text-5xl leading-none" style={{ color: level!.color }}>
               {score}
             </span>
-            <span className="mt-1 text-[0.65rem] tracking-[0.25em] text-subtle">DE 100</span>
+            <span className="mt-2 text-[0.62rem] tracking-[0.3em] text-subtle">DE 100</span>
           </>
         )}
       </div>
@@ -311,9 +317,9 @@ function ScoreRing({ score }: { score: number | null }) {
 
 function Metric({ label, value, valueClass }: { label: string; value: string; valueClass?: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="glass-card rounded-2xl p-6 transition-all duration-300 hover:border-gold/30 md:p-7">
       <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">{label}</p>
-      <p className={`mt-3 font-serif text-3xl leading-none ${valueClass ?? "text-foreground"}`}>
+      <p className={`mt-4 font-display text-3xl leading-none ${valueClass ?? "text-foreground"}`}>
         {value}
       </p>
     </div>
@@ -346,21 +352,21 @@ function Page() {
       ) : (
         <div className="mt-8 space-y-8">
           {/* Cartão principal */}
-          <section className="rounded-2xl border border-border bg-card p-6 md:p-8">
+          <section className="rounded-2xl glass-card p-6 md:p-8">
             <div className="flex flex-col items-center gap-7 text-center md:flex-row md:items-center md:gap-10 md:text-left">
               <ScoreRing score={score} />
               <div className="flex-1">
                 <p className="text-[0.7rem] tracking-[0.22em] text-subtle uppercase">Juriscore®</p>
                 {score === null ? (
                   <>
-                    <h2 className="mt-3 font-serif text-2xl text-foreground md:text-3xl">
+                    <h2 className="mt-3 font-display text-2xl text-foreground md:text-3xl">
                       Seu raio-x jurídico ainda não foi calculado
                     </h2>
                     <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
                       Responda 15 perguntas nos 5 pilares e receba o diagnóstico completo da sua
                       exposição jurídica.
                     </p>
-                    <Button asChild className="mt-6 bg-gold text-background hover:bg-gold-light">
+                    <Button asChild className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105">
                       <Link to="/juriscore">
                         <Sparkles className="h-4 w-4" />
                         Descobrir meu Juriscore®
@@ -411,10 +417,10 @@ function Page() {
                     : "text-warn"
               }
             />
-            <div className="rounded-2xl border border-border bg-card p-5">
+            <div className="rounded-2xl glass-card p-5">
               <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">Pendências</p>
               <p
-                className={`mt-3 font-serif text-3xl leading-none ${data?.hasPlan ? "text-foreground" : "text-subtle"}`}
+                className={`mt-3 font-display text-3xl leading-none ${data?.hasPlan ? "text-foreground" : "text-subtle"}`}
               >
                 {data?.hasPlan ? `${data.itemsDone}/${data.itemsTotal}` : "—"}
               </p>
@@ -430,7 +436,7 @@ function Page() {
 
           {/* Central de alertas */}
           <section>
-            <h2 className="font-serif text-xl text-foreground">Central de alertas</h2>
+            <h2 className="font-display text-xl text-foreground">Central de alertas</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Gerada automaticamente a partir do seu diagnóstico e do seu plano de ação.
             </p>
@@ -513,7 +519,7 @@ function Page() {
           {/* Andamento do plano por pilar */}
           {data?.hasPlan && planPillars.length > 0 ? (
             <section>
-              <h2 className="font-serif text-xl text-foreground">Andamento do plano por pilar</h2>
+              <h2 className="font-display text-xl text-foreground">Andamento do plano por pilar</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {data.itemsDone} de {data.itemsTotal} ações concluídas ·{" "}
                 {data.itemsTotal - data.itemsDone} pendentes.
@@ -524,7 +530,7 @@ function Page() {
                   return (
                     <div
                       key={pillar.pilar}
-                      className="rounded-2xl border border-border bg-card p-5"
+                      className="rounded-2xl glass-card p-5"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -539,7 +545,7 @@ function Page() {
                       </div>
                       <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                         <div
-                          className={`h-full rounded-full transition-all duration-500 ${pillar.percent === 100 ? "bg-success" : "bg-gold"}`}
+                          className={`h-full rounded-full transition-all duration-500 ${pillar.percent === 100 ? "bg-success" : "gold-gradient"}`}
                           style={{ width: `${pillar.percent}%` }}
                         />
                       </div>
@@ -553,13 +559,13 @@ function Page() {
 
           {/* Ações rápidas */}
           <section>
-            <h2 className="font-serif text-xl text-foreground">Ações rápidas</h2>
+            <h2 className="font-display text-xl text-foreground">Ações rápidas</h2>
             <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {QUICK_ACTIONS.map((action) => (
                 <Link
                   key={action.title}
                   to={action.to}
-                  className="group rounded-2xl border border-border bg-card p-5 transition-colors hover:border-gold/50"
+                  className="group rounded-2xl glass-card p-5 transition-colors hover:border-gold/50"
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
                     <action.icon className="h-5 w-5 text-gold" />
@@ -574,8 +580,8 @@ function Page() {
           </section>
 
           {/* Frase institucional */}
-          <section className="rounded-2xl border border-border bg-card px-6 py-10 text-center md:py-14">
-            <p className="mx-auto max-w-2xl font-serif text-xl leading-relaxed text-foreground md:text-2xl">
+          <section className="rounded-2xl glass-card px-6 py-10 text-center md:py-14">
+            <p className="mx-auto max-w-2xl font-display text-xl leading-relaxed text-foreground md:text-2xl">
               Não somos um escritório.{" "}
               <span className="text-gold">
                 Somos a estrutura que antecipa, previne e protege.

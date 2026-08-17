@@ -156,7 +156,7 @@ function Page() {
         </div>
 
         {/* Painel de geração */}
-        <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
+        <section className="rounded-2xl glass-card p-5 md:p-6">
           <div className="flex flex-wrap gap-3">
             {docs.map((d) => (
               <Button
@@ -240,7 +240,7 @@ function Page() {
           <Button
             onClick={() => void handleGenerate()}
             disabled={generating}
-            className="mt-6 bg-gold text-background hover:bg-gold-light"
+            className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
           >
             {generating ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -254,8 +254,8 @@ function Page() {
         </section>
 
         {draft !== null ? (
-          <section ref={draftRef} className="rounded-2xl border border-border bg-card p-6">
-            <h2 className="font-serif text-lg text-foreground">
+          <section ref={draftRef} className="rounded-2xl glass-card p-6">
+            <h2 className="font-display text-lg text-foreground">
               {generating ? "Gerando…" : docAtual.label}
             </h2>
             <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-muted-foreground">

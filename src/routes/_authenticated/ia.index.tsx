@@ -42,7 +42,7 @@ function Page() {
           <Link
             key={tool.to}
             to={tool.to}
-            className="group rounded-2xl border border-border bg-card p-6 transition-colors hover:border-gold/50"
+            className="group rounded-2xl glass-card p-6 transition-colors hover:border-gold/50"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
               <tool.icon className="h-5 w-5 text-gold" />
