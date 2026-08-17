@@ -278,6 +278,12 @@ function ScoreRing({ score }: { score: number | null }) {
   return (
     <div className="relative h-40 w-40 shrink-0">
       <svg viewBox="0 0 160 160" className="h-full w-full -rotate-90">
+        <defs>
+          <linearGradient id="dashRingGradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#D4B87A" />
+            <stop offset="100%" stopColor="#B8975A" />
+          </linearGradient>
+        </defs>
         <circle cx="80" cy="80" r={radius} fill="none" stroke="var(--color-border)" strokeWidth="10" />
         {score !== null ? (
           <circle
@@ -285,23 +291,23 @@ function ScoreRing({ score }: { score: number | null }) {
             cy="80"
             r={radius}
             fill="none"
-            stroke={level!.color}
+            stroke="url(#dashRingGradient)"
             strokeWidth="10"
             strokeLinecap="round"
             strokeDasharray={`${progress} ${circumference}`}
-            className="transition-all duration-1000 ease-out"
+            className="transition-all duration-1000 ease-[cubic-bezier(0.22,0.61,0.36,1)] [filter:drop-shadow(0_0_8px_rgba(200,169,106,0.35))]"
           />
         ) : null}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         {score === null ? (
-          <span className="font-serif text-4xl text-subtle">—</span>
+          <span className="font-display text-4xl text-subtle">—</span>
         ) : (
           <>
-            <span className="font-serif text-4xl leading-none" style={{ color: level!.color }}>
+            <span className="font-display text-5xl leading-none" style={{ color: level!.color }}>
               {score}
             </span>
-            <span className="mt-1 text-[0.65rem] tracking-[0.25em] text-subtle">DE 100</span>
+            <span className="mt-2 text-[0.62rem] tracking-[0.3em] text-subtle">DE 100</span>
           </>
         )}
       </div>
@@ -311,9 +317,9 @@ function ScoreRing({ score }: { score: number | null }) {
 
 function Metric({ label, value, valueClass }: { label: string; value: string; valueClass?: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="glass-card rounded-2xl p-6 transition-all duration-300 hover:border-gold/30 md:p-7">
       <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">{label}</p>
-      <p className={`mt-3 font-serif text-3xl leading-none ${valueClass ?? "text-foreground"}`}>
+      <p className={`mt-4 font-display text-3xl leading-none ${valueClass ?? "text-foreground"}`}>
         {value}
       </p>
     </div>
