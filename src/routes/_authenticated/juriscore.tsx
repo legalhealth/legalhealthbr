@@ -314,25 +314,31 @@ function ScoreRing({ score, color }: { score: number; color: string }) {
   return (
     <div className="relative h-[220px] w-[220px]">
       <svg viewBox="0 0 200 200" className="h-full w-full -rotate-90">
+        <defs>
+          <linearGradient id="jsRingGradientLg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#D4B87A" />
+            <stop offset="100%" stopColor="#B8975A" />
+          </linearGradient>
+        </defs>
         <circle cx="100" cy="100" r={radius} fill="none" stroke="var(--color-border)" strokeWidth="10" />
         <circle
           cx="100"
           cy="100"
           r={radius}
           fill="none"
-          stroke={color}
+          stroke="url(#jsRingGradientLg)"
           strokeWidth="10"
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className="transition-all duration-1000 ease-out"
+          className="transition-all duration-1000 ease-[cubic-bezier(0.22,0.61,0.36,1)] [filter:drop-shadow(0_0_10px_rgba(200,169,106,0.35))]"
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-5xl font-light tabular-nums" style={{ color }}>
+        <span className="font-display text-6xl font-normal tabular-nums" style={{ color }}>
           {score}
         </span>
-        <span className="mt-1 text-xs uppercase tracking-[0.2em] text-subtle">de 100</span>
+        <span className="mt-2 text-[0.68rem] uppercase tracking-[0.3em] text-subtle">de 100</span>
       </div>
     </div>
   );
