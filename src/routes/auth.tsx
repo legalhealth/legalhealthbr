@@ -28,8 +28,21 @@ export const Route = createFileRoute("/auth")({
 
 type Mode = "login" | "signup" | "forgot";
 
+/** Caminho relativo same-origin para retorno após o login (ex.: consentimento OAuth). */
+function safeNextPath(): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  const raw = new URLSearchParams(window.location.search).get("next");
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return undefined;
+  return raw;
+}
+
 function AuthPage() {
   const navigate = useNavigate();
+  const nextPath = safeNextPath();
+  const returnUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}${nextPath ?? "/"}`
+      : (nextPath ?? "/");
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,7 +64,7 @@ function AuthPage() {
       const { error } = await supabase.auth.resend({
         type: "signup",
         email,
-        options: { emailRedirectTo: window.location.origin },
+        options: { emailRedirectTo: returnUrl },
       });
       if (error) throw error;
       toast.success("E-mail de confirmação reenviado", {
@@ -75,13 +88,17 @@ function AuthPage() {
       if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        if (nextPath) {
+          window.location.href = nextPath;
+          return;
+        }
         const seen = typeof window !== "undefined" && window.localStorage.getItem(WELCOME_SEEN_KEY) === "1";
         navigate({ to: seen ? "/" : "/bem-vindo", replace: true });
       } else if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: { emailRedirectTo: returnUrl },
         });
         if (error) throw error;
         setMode("login");
