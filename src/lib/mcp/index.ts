@@ -1,5 +1,4 @@
 import { auth, defineMcp } from "@lovable.dev/mcp-js";
-import type { AnyToolDefinition } from "@lovable.dev/mcp-js";
 
 import gerarDocumentoBiblioteca from "./tools/gerar-documento-biblioteca";
 import listarDocumentosGerados from "./tools/listar-documentos-biblioteca";
@@ -17,5 +16,5 @@ export default defineMcp({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
-  tools: [listarModelosBiblioteca, gerarDocumentoBiblioteca, listarDocumentosGerados] as unknown as AnyToolDefinition[],
+  tools: [listarModelosBiblioteca, gerarDocumentoBiblioteca, listarDocumentosGerados] as unknown as Parameters<typeof defineMcp>[0]["tools"],
 });
