@@ -13,11 +13,6 @@ import { Separator } from "@/components/ui/separator";
 import { WELCOME_SEEN_KEY } from "@/lib/onboarding";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    next: typeof s["next"] === "string" && s["next"].startsWith("/") && !s["next"].startsWith("//")
-      ? s["next"]
-      : undefined,
-  }),
   head: () => ({
     meta: [
       { title: "Entrar | Legal Health" },
@@ -33,9 +28,17 @@ export const Route = createFileRoute("/auth")({
 
 type Mode = "login" | "signup" | "forgot";
 
+/** Caminho relativo same-origin para retorno após o login (ex.: consentimento OAuth). */
+function safeNextPath(): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  const raw = new URLSearchParams(window.location.search).get("next");
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return undefined;
+  return raw;
+}
+
 function AuthPage() {
   const navigate = useNavigate();
-  const { next: nextPath } = Route.useSearch();
+  const nextPath = safeNextPath();
   const returnUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}${nextPath ?? "/"}`
