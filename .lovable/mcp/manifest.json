@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.2",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://xdvzxdkiqxjfyilpexxi.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "legal-health",
+      "version": "0.1.0",
+      "title": "Legal health"
+    },
+    "tools": [
+      {
+        "name": "listar_modelos_biblioteca",
+        "title": "Listar modelos da Biblioteca Inteligente",
+        "description": "Lista as categorias (Minutas, Protocolos, Checklists) e os modelos de documento disponíveis na Biblioteca Inteligente, com os identificadores usados para gerar cada documento.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "categoria": {
+              "description": "Filtra os modelos de uma única categoria.",
+              "type": "string",
+              "enum": [
+                "minutas",
+                "protocolos",
+                "checklists"
+              ]
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "gerar_documento_biblioteca",
+        "title": "Gerar documento da Biblioteca Inteligente",
+        "description": "Gera com IA uma minuta, protocolo ou checklist da Biblioteca Inteligente personalizado para o profissional e salva o resultado no histórico do usuário logado.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "categoria": {
+              "type": "string",
+              "enum": [
+                "minutas",
+                "protocolos",
+                "checklists"
+              ]
+            },
+            "documento": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Identificador do modelo, obtido em listar_modelos_biblioteca."
+            },
+            "nome": {
+              "description": "Nome do profissional.",
+              "type": "string"
+            },
+            "crm": {
+              "description": "CRM / UF.",
+              "type": "string"
+            },
+            "especialidade": {
+              "type": "string"
+            },
+            "cidade": {
+              "description": "Cidade / UF.",
+              "type": "string"
+            },
+            "procedimento": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "categoria",
+            "documento"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "listar_documentos_gerados",
+        "title": "Listar documentos gerados",
+        "description": "Lista os documentos do histórico do usuário logado (Biblioteca, peças e análises de risco), do mais recente para o mais antigo.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "origem": {
+              "description": "Filtra pela origem do documento.",
+              "type": "string",
+              "enum": [
+                "biblioteca",
+                "peca",
+                "risco"
+              ]
+            },
+            "limite": {
+              "description": "Padrão: 10.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "incluir_conteudo": {
+              "description": "Inclui o texto completo de cada documento.",
+              "type": "boolean"
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

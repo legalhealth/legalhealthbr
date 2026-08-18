@@ -11,7 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedBemVindoRouteImport } from './routes/_authenticated/bem-vindo'
 import { Route as AuthenticatedBibliotecaRouteImport } from './routes/_authenticated/biblioteca'
@@ -24,6 +27,7 @@ import { Route as ApiAiChatRouteImport } from './routes/api/ai-chat'
 import { Route as ApiAiDocumentoLeituraRouteImport } from './routes/api/ai-documento-leitura'
 import { Route as ApiAiPecaRouteImport } from './routes/api/ai-peca'
 import { Route as ApiAiPlanoRouteImport } from './routes/api/ai-plano'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia.index'
 import { Route as AuthenticatedIaAssistenteRouteImport } from './routes/_authenticated/ia.assistente'
 import { Route as AuthenticatedIaDocumentosRouteImport } from './routes/_authenticated/ia.documentos'
@@ -42,11 +46,28 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -107,6 +128,12 @@ const ApiAiPlanoRoute = ApiAiPlanoRouteImport.update({
   path: '/api/ai-plano',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedIaIndexRoute = AuthenticatedIaIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -155,7 +182,10 @@ const ApiPublicHooksPlanRemindersRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/ia': typeof AuthenticatedIaRouteWithChildren
@@ -167,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/ia/historico': typeof AuthenticatedIaHistoricoRoute
@@ -178,7 +209,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/juriscore': typeof AuthenticatedJuriscoreRoute
@@ -190,6 +224,7 @@ export interface FileRoutesByTo {
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
   '/': typeof AuthenticatedIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/ia/historico': typeof AuthenticatedIaHistoricoRoute
@@ -203,7 +238,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/_authenticated/ia': typeof AuthenticatedIaRouteWithChildren
@@ -216,6 +254,7 @@ export interface FileRoutesById {
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/_authenticated/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/_authenticated/ia/historico': typeof AuthenticatedIaHistoricoRoute
@@ -230,7 +269,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/mcp'
     | '/reset-password'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/bem-vindo'
     | '/biblioteca'
     | '/ia'
@@ -242,6 +284,7 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/.mcp/invoke-tool/$tool'
     | '/ia/assistente'
     | '/ia/documentos'
     | '/ia/historico'
@@ -253,7 +296,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/mcp'
     | '/reset-password'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/bem-vindo'
     | '/biblioteca'
     | '/juriscore'
@@ -265,6 +311,7 @@ export interface FileRouteTypes {
     | '/api/ai-peca'
     | '/api/ai-plano'
     | '/'
+    | '/.mcp/invoke-tool/$tool'
     | '/ia/assistente'
     | '/ia/documentos'
     | '/ia/historico'
@@ -277,7 +324,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/mcp'
     | '/reset-password'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/_authenticated/bem-vindo'
     | '/_authenticated/biblioteca'
     | '/_authenticated/ia'
@@ -290,6 +340,7 @@ export interface FileRouteTypes {
     | '/api/ai-peca'
     | '/api/ai-plano'
     | '/_authenticated/'
+    | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/ia/assistente'
     | '/_authenticated/ia/documentos'
     | '/_authenticated/ia/historico'
@@ -303,12 +354,16 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  McpRoute: typeof McpRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiAiBibliotecaRoute: typeof ApiAiBibliotecaRoute
   ApiAiChatRoute: typeof ApiAiChatRoute
   ApiAiDocumentoLeituraRoute: typeof ApiAiDocumentoLeituraRoute
   ApiAiPecaRoute: typeof ApiAiPecaRoute
   ApiAiPlanoRoute: typeof ApiAiPlanoRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicHooksPlanRemindersRoute: typeof ApiPublicHooksPlanRemindersRoute
 }
 
@@ -328,11 +383,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/': {
@@ -417,6 +493,13 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-plano'
       fullPath: '/api/ai-plano'
       preLoaderRoute: typeof ApiAiPlanoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/ia/': {
@@ -528,12 +611,17 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  McpRoute: McpRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiAiBibliotecaRoute: ApiAiBibliotecaRoute,
   ApiAiChatRoute: ApiAiChatRoute,
   ApiAiDocumentoLeituraRoute: ApiAiDocumentoLeituraRoute,
   ApiAiPecaRoute: ApiAiPecaRoute,
   ApiAiPlanoRoute: ApiAiPlanoRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicHooksPlanRemindersRoute: ApiPublicHooksPlanRemindersRoute,
 }
 export const routeTree = rootRouteImport
