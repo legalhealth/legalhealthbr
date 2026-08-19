@@ -24,15 +24,31 @@ type Props = {
   titulo: string;
   conteudo: string;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  preselectedDocumentIds?: string[];
 };
 
-export function EnviarRevisaoDialog({ docId, titulo, conteudo, trigger }: Props) {
-  const [open, setOpen] = useState(false);
+export function EnviarRevisaoDialog({
+  docId,
+  titulo,
+  conteudo,
+  trigger,
+  open: openProp,
+  onOpenChange,
+  preselectedDocumentIds,
+}: Props) {
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = (value: boolean) => {
+    setOpenState(value);
+    onOpenChange?.(value);
+  };
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [oab, setOab] = useState("");
   const [mensagem, setMensagem] = useState("");
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<string[]>(preselectedDocumentIds ?? []);
   const { data: documents } = useDocuments();
   const enviar = useEnviarRevisao();
 
@@ -85,7 +101,8 @@ export function EnviarRevisaoDialog({ docId, titulo, conteudo, trigger }: Props)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      {trigger === null ? null : (
+        <DialogTrigger asChild>
         {trigger ?? (
           <Button
             variant="outline"
@@ -96,7 +113,8 @@ export function EnviarRevisaoDialog({ docId, titulo, conteudo, trigger }: Props)
             Enviar ao advogado
           </Button>
         )}
-      </DialogTrigger>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-display text-xl">Enviar para revisão</DialogTitle>
