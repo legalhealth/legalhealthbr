@@ -23,10 +23,10 @@ export type IaTool = {
 
 export const IA_TOOLS: IaTool[] = [
   {
-    to: "/ia/peca",
-    label: "Redigir peça",
-    description: "Defesa, petição, notificação",
-    icon: FileSignature,
+    to: "/ia/assistente",
+    label: "Assistente",
+    description: "Dúvidas do dia a dia clínico",
+    icon: MessageSquare,
   },
   {
     to: "/ia/risco",
@@ -35,16 +35,16 @@ export const IA_TOOLS: IaTool[] = [
     icon: ScrollText,
   },
   {
+    to: "/ia/peca",
+    label: "Redigir peça",
+    description: "Defesa, petição, notificação",
+    icon: FileSignature,
+  },
+  {
     to: "/ia/documentos",
     label: "Documentos",
     description: "Upload e OCR",
     icon: ScanLine,
-  },
-  {
-    to: "/ia/assistente",
-    label: "Assistente",
-    description: "Dúvidas do dia a dia clínico",
-    icon: MessageSquare,
   },
   {
     to: "/ia/revisoes",
