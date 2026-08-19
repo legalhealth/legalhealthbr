@@ -58,7 +58,7 @@ type Analysis = {
 function Page() {
   const { data: ctx } = useDiagnosticContext();
   const { doc } = Route.useSearch();
-  const { data: documents } = useDocuments();
+  const { data: documents, refetch: refetchDocuments } = useDocuments();
   const queryClient = useQueryClient();
   const [prazo, setPrazo] = useState("");
   const [texto, setTexto] = useState("");
@@ -94,9 +94,7 @@ function Page() {
     if (files.length === 0) return;
     try {
       await upload.mutateAsync({ files, tag: "intimacao" });
-      const { data: fresh } = await queryClient.fetchQuery({
-        queryKey: ["documents"],
-      }).then((rows) => ({ data: rows as DocumentRow[] }));
+      const { data: fresh } = await refetchDocuments();
       const names = new Set(files.map((f) => f.name));
       const uploaded = (fresh ?? []).filter((d) => names.has(d.nome)).slice(0, files.length);
       setAttached((prev) => [...uploaded, ...prev]);
