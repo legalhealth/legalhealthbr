@@ -286,7 +286,6 @@ function Page() {
           </div>
 
           <div className="space-y-3">
-            <Label>Anexar documento</Label>
             <input
               ref={fileInputRef}
               type="file"
