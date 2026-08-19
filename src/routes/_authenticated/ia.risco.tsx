@@ -1,17 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, ScrollText, Sparkles } from "lucide-react";
+import { AlertTriangle, Paperclip, ScrollText, Send, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { DiagnosticContextCard } from "@/components/ia/diagnostic-context-card";
+import { EnviarRevisaoDialog } from "@/components/ia/enviar-revisao-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
 import { saveHistoryItem } from "@/lib/ia-history";
-import { tagLabel, useDocuments } from "@/lib/ia-documents";
+import {
+  formatSize,
+  tagLabel,
+  useAnalyzeDocument,
+  useDocuments,
+  useUploadDocuments,
+  type DocumentRow,
+} from "@/lib/ia-documents";
 import { AiDisclaimer } from "@/components/ia/ai-disclaimer";
 
 export const Route = createFileRoute("/_authenticated/ia/risco")({
@@ -56,6 +64,13 @@ function Page() {
   const [texto, setTexto] = useState("");
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(false);
+  const [attached, setAttached] = useState<DocumentRow[]>([]);
+  const [savedDocId, setSavedDocId] = useState<string | null>(null);
+  const [revisaoOpen, setRevisaoOpen] = useState(false);
+  const [preparing, setPreparing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const upload = useUploadDocuments();
+  const analyzeDoc = useAnalyzeDocument();
 
   const selectedDoc = doc ? (documents ?? []).find((d) => d.id === doc) : undefined;
 
@@ -74,6 +89,92 @@ function Page() {
           ].join("\n"),
     );
   }, [selectedDoc]);
+
+  const handleFiles = async (files: File[]) => {
+    if (files.length === 0) return;
+    try {
+      await upload.mutateAsync({ files, tag: "intimacao" });
+      const { data: fresh } = await queryClient.fetchQuery({
+        queryKey: ["documents"],
+      }).then((rows) => ({ data: rows as DocumentRow[] }));
+      const names = new Set(files.map((f) => f.name));
+      const uploaded = (fresh ?? []).filter((d) => names.has(d.nome)).slice(0, files.length);
+      setAttached((prev) => [...uploaded, ...prev]);
+      toast.success("Documento anexado. Lendo o conteúdo...");
+
+      for (const docRow of uploaded) {
+        try {
+          const analise = await analyzeDoc.mutateAsync(docRow);
+          const trecho = [
+            `Documento anexado: ${docRow.nome} (${analise.tipo_documento}).`,
+            ...analise.transcricao_essencial,
+          ].join("\n");
+          setTexto((prev) => (prev.trim().length > 0 ? `${prev}\n\n${trecho}` : trecho));
+        } catch {
+          setTexto((prev) =>
+            prev.trim().length > 0
+              ? `${prev}\n\nDocumento anexado: ${docRow.nome}`
+              : `Documento anexado: ${docRow.nome}`,
+          );
+        }
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Falha ao anexar o documento.");
+    }
+  };
+
+  const analysisConteudo = (result: Analysis) =>
+    [
+      `Nível de risco: ${result.nivel}`,
+      `Prazo: ${result.prazo}`,
+      "",
+      result.contexto,
+      "",
+      "Riscos identificados:",
+      ...result.riscos.map((r) => `- ${r}`),
+      "",
+      "Estratégia sugerida:",
+      ...result.estrategia.map((e, i) => `${i + 1}. ${e}`),
+      "",
+      "Documento analisado:",
+      texto.trim(),
+    ].join("\n");
+
+  const handleEnviarAdvogado = async () => {
+    if (savedDocId) {
+      setRevisaoOpen(true);
+      return;
+    }
+    if (texto.trim().length < 20 && attached.length === 0) {
+      toast.error("Anexe um documento ou cole o conteúdo antes de enviar ao advogado.");
+      return;
+    }
+    setPreparing(true);
+    try {
+      const titulo = analysis
+        ? `Análise de risco — nível ${analysis.nivel}`
+        : "Documento para revisão jurídica";
+      const conteudo = analysis
+        ? analysisConteudo(analysis)
+        : [`Prazo indicado: ${prazo || "não informado"}`, "", texto.trim()].join("\n");
+      const id = await saveHistoryItem({
+        origem: "risco",
+        tipo: analysis ? `Risco ${analysis.nivel}` : "Documento",
+        titulo,
+        conteudo,
+      });
+      void queryClient.invalidateQueries({ queryKey: ["ia-history"] });
+      if (!id) throw new Error("Sessão expirada.");
+      setSavedDocId(id);
+      setRevisaoOpen(true);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Não foi possível preparar o envio.",
+      );
+    } finally {
+      setPreparing(false);
+    }
+  };
 
   const handleAnalyze = () => {
     if (texto.trim().length < 20) {
@@ -116,21 +217,7 @@ function Page() {
       setAnalysis(result);
       setLoading(false);
 
-      const conteudo = [
-        `Nível de risco: ${result.nivel}`,
-        `Prazo: ${result.prazo}`,
-        "",
-        result.contexto,
-        "",
-        "Riscos identificados:",
-        ...result.riscos.map((r) => `- ${r}`),
-        "",
-        "Estratégia sugerida:",
-        ...result.estrategia.map((e, i) => `${i + 1}. ${e}`),
-        "",
-        "Documento analisado:",
-        texto.trim(),
-      ].join("\n");
+      const conteudo = analysisConteudo(result);
 
       void saveHistoryItem({
         origem: "risco",
@@ -139,7 +226,8 @@ function Page() {
         conteudo,
         contexto: { score: ctx?.score ?? null, level: ctx?.level?.name ?? null },
       })
-        .then(() => {
+        .then((id) => {
+          if (id) setSavedDocId(id);
           void queryClient.invalidateQueries({ queryKey: ["ia-history"] });
           toast.success("Análise salva no histórico.");
         })
@@ -198,16 +286,100 @@ function Page() {
               className="min-h-[160px]"
             />
           </div>
+
+          <div className="space-y-3">
+            <Label>Anexar documento</Label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*,application/pdf"
+              className="hidden"
+              onChange={(e) => {
+                const files = Array.from(e.target.files ?? []);
+                e.target.value = "";
+                void handleFiles(files);
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={upload.isPending || analyzeDoc.isPending}
+              onClick={() => fileInputRef.current?.click()}
+              className="border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+            >
+              <Paperclip className="mr-2 h-4 w-4" />
+              {upload.isPending || analyzeDoc.isPending
+                ? "Processando..."
+                : "Anexar intimação ou documento"}
+            </Button>
+            <p className="text-xs text-subtle">
+              PDF ou imagem, até 15 MB. O conteúdo lido é adicionado ao campo acima.
+            </p>
+            {attached.length > 0 ? (
+              <ul className="space-y-2">
+                {attached.map((d) => (
+                  <li
+                    key={d.id}
+                    className="flex items-center gap-3 rounded-xl border border-border bg-muted/20 px-3 py-2"
+                  >
+                    <Paperclip className="h-4 w-4 shrink-0 text-gold" />
+                    <span className="flex-1 text-sm text-foreground">
+                      {d.nome}
+                      <span className="ml-2 text-xs text-subtle">{formatSize(d.size_bytes)}</span>
+                    </span>
+                    <button
+                      type="button"
+                      aria-label={`Remover ${d.nome} do contexto`}
+                      onClick={() => setAttached((prev) => prev.filter((x) => x.id !== d.id))}
+                      className="text-subtle transition hover:text-foreground"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
         </div>
 
-        <Button
-          onClick={handleAnalyze}
-          disabled={loading}
-          className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
-        >
-          <Sparkles className="mr-2 h-4 w-4" />
-          {loading ? "Analisando..." : "Analisar risco"}
-        </Button>
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <Button
+            onClick={handleAnalyze}
+            disabled={loading}
+            className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            {loading ? "Analisando..." : "Analisar risco"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={preparing}
+            onClick={() => void handleEnviarAdvogado()}
+            className="border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+          >
+            <Send className="mr-2 h-4 w-4" />
+            {preparing ? "Preparando..." : "Enviar ao advogado"}
+          </Button>
+        </div>
+
+        {savedDocId ? (
+          <EnviarRevisaoDialog
+            docId={savedDocId}
+            titulo={
+              analysis
+                ? `Análise de risco — nível ${analysis.nivel}`
+                : "Documento para revisão jurídica"
+            }
+            conteudo={analysis ? analysisConteudo(analysis) : texto.trim()}
+            trigger={null}
+            open={revisaoOpen}
+            onOpenChange={setRevisaoOpen}
+            preselectedDocumentIds={attached.map((d) => d.id)}
+          />
+        ) : null}
       </section>
 
       {analysis ? (
