@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Loader2, Paperclip, Send, X } from "lucide-react";
+import { Check, Download, Loader2, Paperclip, Send, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,12 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { formatSize, tagLabel, useDocuments } from "@/lib/ia-documents";
-import { anexosSignedUrls, buildMailto, useEnviarRevisao } from "@/lib/ia-revisoes";
+import {
+  anexosSignedUrls,
+  buildComprovante,
+  buildMailto,
+  useEnviarRevisao,
+} from "@/lib/ia-revisoes";
 
 type Props = {
   docId: string;
@@ -55,6 +60,13 @@ export function EnviarRevisaoDialog({
   const { data: documents } = useDocuments();
   const enviar = useEnviarRevisao();
   const [stage, setStage] = useState<"idle" | "enviando" | "processando" | "concluido">("idle");
+  const [comprovante, setComprovante] = useState<{
+    filename: string;
+    content: string;
+    anexos: { nome: string; tamanho: string }[];
+    protocolo: string;
+    enviadoEm: string;
+  } | null>(null);
 
   const preselectedKey = (preselectedDocumentIds ?? []).join(",");
 
@@ -62,6 +74,8 @@ export function EnviarRevisaoDialog({
   useEffect(() => {
     if (!open) return;
     setSelected(preselectedDocumentIds ?? []);
+    setComprovante(null);
+    setStage("idle");
   }, [open, preselectedKey]);
 
   // Mantém apenas anexos que ainda existem na lista de documentos.
@@ -95,6 +109,17 @@ export function EnviarRevisaoDialog({
     concluido: { label: "Concluído — e-mail preparado para envio.", value: 100 },
   } as const;
 
+  const baixarComprovante = () => {
+    if (!comprovante) return;
+    const blob = new Blob([comprovante.content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = comprovante.filename;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleSubmit = async () => {
     if (nome.trim().length < 3) {
       toast.error("Informe o nome do advogado responsável.");
@@ -106,7 +131,7 @@ export function EnviarRevisaoDialog({
     }
     try {
       setStage("enviando");
-      await enviar.mutateAsync({
+      const revisao = await enviar.mutateAsync({
         docId,
         docTitulo: titulo,
         advogadoNome: nome.trim(),
@@ -117,9 +142,7 @@ export function EnviarRevisaoDialog({
       });
 
       setStage("processando");
-      const anexos = await anexosSignedUrls(
-        (documents ?? []).filter((d) => validSelected.includes(d.id)),
-      );
+      const anexos = await anexosSignedUrls(selectedDocs);
       const href = buildMailto({
         para: email.trim(),
         titulo,
@@ -130,12 +153,27 @@ export function EnviarRevisaoDialog({
       });
       window.location.href = href;
 
+      const anexosResumo = selectedDocs.map((d) => ({
+        nome: d.nome,
+        tamanho: formatSize(d.size_bytes),
+      }));
+      const doc = buildComprovante({
+        revisao,
+        titulo,
+        conteudo,
+        anexos: anexosResumo,
+      });
+      setComprovante({
+        ...doc,
+        anexos: anexosResumo,
+        protocolo: revisao.id,
+        enviadoEm: new Date(revisao.enviado_em).toLocaleString("pt-BR"),
+      });
+
       setStage("concluido");
       toast.success("Revisão registrada e e-mail preparado para envio.");
-      setOpen(false);
       setMensagem("");
       applySelection([]);
-      setStage("idle");
     } catch (error) {
       setStage("idle");
       toast.error(
@@ -169,6 +207,45 @@ export function EnviarRevisaoDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {comprovante ? (
+          <div className="space-y-4">
+            <div className="rounded-xl border border-success/40 bg-success/10 p-4">
+              <p className="flex items-center gap-2 text-sm text-success">
+                <Check className="h-4 w-4" />
+                Envio concluído
+              </p>
+              <p className="mt-2 text-xs text-subtle">
+                Protocolo {comprovante.protocolo.slice(0, 8)} · {comprovante.enviadoEm}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-border bg-muted/30 p-4">
+              <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">
+                Resumo do envio
+              </p>
+              <p className="mt-2 text-sm text-foreground">{titulo}</p>
+              <p className="mt-1 text-xs text-subtle">
+                Para {nome.trim()} · {email.trim()}
+              </p>
+              <p className="mt-3 text-[0.7rem] tracking-[0.18em] text-subtle uppercase">
+                Anexos ({comprovante.anexos.length})
+              </p>
+              {comprovante.anexos.length === 0 ? (
+                <p className="mt-1 text-xs text-subtle">Nenhum anexo enviado.</p>
+              ) : (
+                <ul className="mt-2 space-y-1">
+                  {comprovante.anexos.map((a) => (
+                    <li key={a.nome} className="flex items-center gap-2 text-sm text-foreground">
+                      <Paperclip className="h-3.5 w-3.5 shrink-0 text-gold" />
+                      {a.nome}
+                      <span className="text-xs text-subtle">{a.tamanho}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        ) : (
         <div className="space-y-4">
           <div className="rounded-xl border border-border bg-muted/30 p-3">
             <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">Peça</p>
@@ -284,6 +361,7 @@ export function EnviarRevisaoDialog({
             )}
           </div>
         </div>
+        )}
 
         <DialogFooter>
           {stage !== "idle" ? (
@@ -299,6 +377,24 @@ export function EnviarRevisaoDialog({
               <Progress value={STAGE_META[stage].value} className="h-1.5" />
             </div>
           ) : null}
+          {comprovante ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setOpen(false)}
+                className="border-border bg-transparent"
+              >
+                Fechar
+              </Button>
+              <Button
+                onClick={baixarComprovante}
+                className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Baixar comprovante
+              </Button>
+            </>
+          ) : (
           <Button
             onClick={() => void handleSubmit()}
             disabled={enviar.isPending}
@@ -307,6 +403,7 @@ export function EnviarRevisaoDialog({
             <Send className="mr-2 h-4 w-4" />
             {enviar.isPending ? "Enviando..." : "Enviar para revisão"}
           </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
