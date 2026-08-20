@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Paperclip, Send } from "lucide-react";
 import { toast } from "sonner";
 
@@ -52,6 +52,21 @@ export function EnviarRevisaoDialog({
   const { data: documents } = useDocuments();
   const enviar = useEnviarRevisao();
 
+  const preselectedKey = (preselectedDocumentIds ?? []).join(",");
+
+  // Ao abrir, sincroniza a seleção com os anexos ainda vigentes na tela de origem.
+  useEffect(() => {
+    if (!open) return;
+    setSelected(preselectedDocumentIds ?? []);
+  }, [open, preselectedKey]);
+
+  // Mantém apenas anexos que ainda existem na lista de documentos.
+  const validSelected = useMemo(() => {
+    if (!documents) return selected;
+    const ids = new Set(documents.map((d) => d.id));
+    return selected.filter((id) => ids.has(id));
+  }, [documents, selected]);
+
   const toggle = (id: string) =>
     setSelected((prev) => (prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]));
 
@@ -72,11 +87,11 @@ export function EnviarRevisaoDialog({
         advogadoEmail: email.trim(),
         advogadoOab: oab,
         mensagem,
-        documentIds: selected,
+        documentIds: validSelected,
       });
 
       const anexos = await anexosSignedUrls(
-        (documents ?? []).filter((d) => selected.includes(d.id)),
+        (documents ?? []).filter((d) => validSelected.includes(d.id)),
       );
       const href = buildMailto({
         para: email.trim(),
@@ -191,7 +206,7 @@ export function EnviarRevisaoDialog({
                   >
                     <Checkbox
                       id={`doc-${doc.id}`}
-                      checked={selected.includes(doc.id)}
+                      checked={validSelected.includes(doc.id)}
                       onCheckedChange={() => toggle(doc.id)}
                       className="mt-0.5"
                     />
