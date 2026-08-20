@@ -252,3 +252,47 @@ export function buildMailto(input: {
     `[Legal Health] Revisão: ${input.titulo}`,
   )}&body=${encodeURIComponent(corpo)}`;
 }
+
+/** Monta o comprovante de envio (texto) para download pelo médico. */
+export function buildComprovante(input: {
+  revisao: Revisao;
+  titulo: string;
+  conteudo: string;
+  anexos: { nome: string; tamanho: string }[];
+}): { filename: string; content: string } {
+  const enviadoEm = new Date(input.revisao.enviado_em).toLocaleString("pt-BR");
+  const resumo = input.conteudo.trim();
+
+  const content = [
+    "LEGAL HEALTH — COMPROVANTE DE ENVIO PARA REVISÃO JURÍDICA",
+    "ANTECIPE · DECIDA · PROTEJA",
+    "",
+    `Protocolo: ${input.revisao.id}`,
+    `Enviado em: ${enviadoEm}`,
+    `Peça: ${input.titulo}`,
+    "",
+    "ADVOGADO RESPONSÁVEL",
+    `Nome: ${input.revisao.advogado_nome}`,
+    `E-mail: ${input.revisao.advogado_email}`,
+    `OAB: ${input.revisao.advogado_oab ?? "não informado"}`,
+    "",
+    "MENSAGEM ENVIADA",
+    input.revisao.mensagem ?? "Sem mensagem adicional.",
+    "",
+    `ANEXOS (${input.anexos.length})`,
+    input.anexos.length > 0
+      ? input.anexos.map((a, i) => `${i + 1}. ${a.nome} — ${a.tamanho}`).join("\n")
+      : "Nenhum anexo enviado.",
+    "",
+    "RESUMO DO CONTEÚDO ENVIADO",
+    resumo.length > 4000 ? `${resumo.slice(0, 4000)}\n[...conteúdo truncado neste comprovante]` : resumo,
+    "",
+    "Documento gerado por IA na plataforma Legal Health — sujeito a revisão do advogado responsável.",
+  ].join("\n");
+
+  const stamp = new Date(input.revisao.enviado_em).toISOString().slice(0, 10);
+  return {
+    filename: `comprovante-revisao-${stamp}-${input.revisao.id.slice(0, 8)}.txt`,
+    content,
+  };
+}
