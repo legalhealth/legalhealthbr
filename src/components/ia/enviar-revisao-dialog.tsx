@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Loader2, Paperclip, Send, X } from "lucide-react";
+import { Check, Download, Loader2, Paperclip, Send, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,12 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { formatSize, tagLabel, useDocuments } from "@/lib/ia-documents";
-import { anexosSignedUrls, buildMailto, useEnviarRevisao } from "@/lib/ia-revisoes";
+import {
+  anexosSignedUrls,
+  buildComprovante,
+  buildMailto,
+  useEnviarRevisao,
+} from "@/lib/ia-revisoes";
 
 type Props = {
   docId: string;
@@ -55,6 +60,13 @@ export function EnviarRevisaoDialog({
   const { data: documents } = useDocuments();
   const enviar = useEnviarRevisao();
   const [stage, setStage] = useState<"idle" | "enviando" | "processando" | "concluido">("idle");
+  const [comprovante, setComprovante] = useState<{
+    filename: string;
+    content: string;
+    anexos: { nome: string; tamanho: string }[];
+    protocolo: string;
+    enviadoEm: string;
+  } | null>(null);
 
   const preselectedKey = (preselectedDocumentIds ?? []).join(",");
 
@@ -62,6 +74,8 @@ export function EnviarRevisaoDialog({
   useEffect(() => {
     if (!open) return;
     setSelected(preselectedDocumentIds ?? []);
+    setComprovante(null);
+    setStage("idle");
   }, [open, preselectedKey]);
 
   // Mantém apenas anexos que ainda existem na lista de documentos.
@@ -95,6 +109,17 @@ export function EnviarRevisaoDialog({
     concluido: { label: "Concluído — e-mail preparado para envio.", value: 100 },
   } as const;
 
+  const baixarComprovante = () => {
+    if (!comprovante) return;
+    const blob = new Blob([comprovante.content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = comprovante.filename;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleSubmit = async () => {
     if (nome.trim().length < 3) {
       toast.error("Informe o nome do advogado responsável.");
@@ -106,7 +131,7 @@ export function EnviarRevisaoDialog({
     }
     try {
       setStage("enviando");
-      await enviar.mutateAsync({
+      const revisao = await enviar.mutateAsync({
         docId,
         docTitulo: titulo,
         advogadoNome: nome.trim(),
@@ -117,9 +142,7 @@ export function EnviarRevisaoDialog({
       });
 
       setStage("processando");
-      const anexos = await anexosSignedUrls(
-        (documents ?? []).filter((d) => validSelected.includes(d.id)),
-      );
+      const anexos = await anexosSignedUrls(selectedDocs);
       const href = buildMailto({
         para: email.trim(),
         titulo,
@@ -130,12 +153,27 @@ export function EnviarRevisaoDialog({
       });
       window.location.href = href;
 
+      const anexosResumo = selectedDocs.map((d) => ({
+        nome: d.nome,
+        tamanho: formatSize(d.size_bytes),
+      }));
+      const doc = buildComprovante({
+        revisao,
+        titulo,
+        conteudo,
+        anexos: anexosResumo,
+      });
+      setComprovante({
+        ...doc,
+        anexos: anexosResumo,
+        protocolo: revisao.id,
+        enviadoEm: new Date(revisao.enviado_em).toLocaleString("pt-BR"),
+      });
+
       setStage("concluido");
       toast.success("Revisão registrada e e-mail preparado para envio.");
-      setOpen(false);
       setMensagem("");
       applySelection([]);
-      setStage("idle");
     } catch (error) {
       setStage("idle");
       toast.error(
