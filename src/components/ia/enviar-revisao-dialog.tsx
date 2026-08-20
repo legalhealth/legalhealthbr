@@ -207,6 +207,45 @@ export function EnviarRevisaoDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {comprovante ? (
+          <div className="space-y-4">
+            <div className="rounded-xl border border-success/40 bg-success/10 p-4">
+              <p className="flex items-center gap-2 text-sm text-success">
+                <Check className="h-4 w-4" />
+                Envio concluído
+              </p>
+              <p className="mt-2 text-xs text-subtle">
+                Protocolo {comprovante.protocolo.slice(0, 8)} · {comprovante.enviadoEm}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-border bg-muted/30 p-4">
+              <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">
+                Resumo do envio
+              </p>
+              <p className="mt-2 text-sm text-foreground">{titulo}</p>
+              <p className="mt-1 text-xs text-subtle">
+                Para {nome.trim()} · {email.trim()}
+              </p>
+              <p className="mt-3 text-[0.7rem] tracking-[0.18em] text-subtle uppercase">
+                Anexos ({comprovante.anexos.length})
+              </p>
+              {comprovante.anexos.length === 0 ? (
+                <p className="mt-1 text-xs text-subtle">Nenhum anexo enviado.</p>
+              ) : (
+                <ul className="mt-2 space-y-1">
+                  {comprovante.anexos.map((a) => (
+                    <li key={a.nome} className="flex items-center gap-2 text-sm text-foreground">
+                      <Paperclip className="h-3.5 w-3.5 shrink-0 text-gold" />
+                      {a.nome}
+                      <span className="text-xs text-subtle">{a.tamanho}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        ) : (
         <div className="space-y-4">
           <div className="rounded-xl border border-border bg-muted/30 p-3">
             <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">Peça</p>
@@ -322,6 +361,7 @@ export function EnviarRevisaoDialog({
             )}
           </div>
         </div>
+        )}
 
         <DialogFooter>
           {stage !== "idle" ? (
@@ -337,6 +377,24 @@ export function EnviarRevisaoDialog({
               <Progress value={STAGE_META[stage].value} className="h-1.5" />
             </div>
           ) : null}
+          {comprovante ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setOpen(false)}
+                className="border-border bg-transparent"
+              >
+                Fechar
+              </Button>
+              <Button
+                onClick={baixarComprovante}
+                className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Baixar comprovante
+              </Button>
+            </>
+          ) : (
           <Button
             onClick={() => void handleSubmit()}
             disabled={enviar.isPending}
