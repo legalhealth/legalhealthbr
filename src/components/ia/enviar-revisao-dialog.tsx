@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Paperclip, Send } from "lucide-react";
+import { Check, Loader2, Paperclip, Send, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { formatSize, tagLabel, useDocuments } from "@/lib/ia-documents";
 import { anexosSignedUrls, buildMailto, useEnviarRevisao } from "@/lib/ia-revisoes";
@@ -27,6 +28,7 @@ type Props = {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   preselectedDocumentIds?: string[];
+  onSelectionChange?: (ids: string[]) => void;
 };
 
 export function EnviarRevisaoDialog({
@@ -37,6 +39,7 @@ export function EnviarRevisaoDialog({
   open: openProp,
   onOpenChange,
   preselectedDocumentIds,
+  onSelectionChange,
 }: Props) {
   const [openState, setOpenState] = useState(false);
   const open = openProp ?? openState;
@@ -51,6 +54,7 @@ export function EnviarRevisaoDialog({
   const [selected, setSelected] = useState<string[]>(preselectedDocumentIds ?? []);
   const { data: documents } = useDocuments();
   const enviar = useEnviarRevisao();
+  const [stage, setStage] = useState<"idle" | "enviando" | "processando" | "concluido">("idle");
 
   const preselectedKey = (preselectedDocumentIds ?? []).join(",");
 
@@ -67,8 +71,29 @@ export function EnviarRevisaoDialog({
     return selected.filter((id) => ids.has(id));
   }, [documents, selected]);
 
+  const selectedDocs = useMemo(
+    () => (documents ?? []).filter((d) => validSelected.includes(d.id)),
+    [documents, validSelected],
+  );
+
+  const applySelection = (next: string[]) => {
+    setSelected(next);
+    onSelectionChange?.(next);
+  };
+
   const toggle = (id: string) =>
-    setSelected((prev) => (prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]));
+    applySelection(
+      validSelected.includes(id)
+        ? validSelected.filter((v) => v !== id)
+        : [...validSelected, id],
+    );
+
+  const STAGE_META = {
+    idle: { label: "", value: 0 },
+    enviando: { label: "Enviando anexos e registrando a revisão...", value: 35 },
+    processando: { label: "Processando links seguros dos documentos...", value: 75 },
+    concluido: { label: "Concluído — e-mail preparado para envio.", value: 100 },
+  } as const;
 
   const handleSubmit = async () => {
     if (nome.trim().length < 3) {
@@ -80,6 +105,7 @@ export function EnviarRevisaoDialog({
       return;
     }
     try {
+      setStage("enviando");
       await enviar.mutateAsync({
         docId,
         docTitulo: titulo,
@@ -90,6 +116,7 @@ export function EnviarRevisaoDialog({
         documentIds: validSelected,
       });
 
+      setStage("processando");
       const anexos = await anexosSignedUrls(
         (documents ?? []).filter((d) => validSelected.includes(d.id)),
       );
@@ -103,11 +130,14 @@ export function EnviarRevisaoDialog({
       });
       window.location.href = href;
 
+      setStage("concluido");
       toast.success("Revisão registrada e e-mail preparado para envio.");
       setOpen(false);
       setMensagem("");
-      setSelected([]);
+      applySelection([]);
+      setStage("idle");
     } catch (error) {
+      setStage("idle");
       toast.error(
         error instanceof Error ? error.message : "Não foi possível registrar a revisão.",
       );
@@ -193,6 +223,38 @@ export function EnviarRevisaoDialog({
               <Paperclip className="h-4 w-4 text-gold" />
               Documentos anexos
             </Label>
+            {selectedDocs.length > 0 ? (
+              <div className="rounded-xl border border-gold/40 bg-gold/5 p-3">
+                <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">
+                  Serão enviados ({selectedDocs.length})
+                </p>
+                <ul className="mt-2 space-y-2">
+                  {selectedDocs.map((doc) => (
+                    <li key={doc.id} className="flex items-center gap-3">
+                      <Paperclip className="h-4 w-4 shrink-0 text-gold" />
+                      <span className="flex-1 text-sm text-foreground">
+                        {doc.nome}
+                        <span className="ml-2 text-xs text-subtle">
+                          {formatSize(doc.size_bytes)}
+                        </span>
+                      </span>
+                      <button
+                        type="button"
+                        aria-label={`Remover ${doc.nome} do envio`}
+                        onClick={() => toggle(doc.id)}
+                        className="text-subtle transition hover:text-foreground"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <p className="text-xs text-subtle">
+                Nenhum anexo selecionado — apenas a peça será enviada.
+              </p>
+            )}
             {(documents ?? []).length === 0 ? (
               <p className="text-xs text-subtle">
                 Nenhum documento enviado ainda. Use a aba Documentos para anexar arquivos.
@@ -224,6 +286,19 @@ export function EnviarRevisaoDialog({
         </div>
 
         <DialogFooter>
+          {stage !== "idle" ? (
+            <div className="mr-auto w-full space-y-2 sm:w-64">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                {stage === "concluido" ? (
+                  <Check className="h-3.5 w-3.5 text-success" />
+                ) : (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-gold" />
+                )}
+                <span>{STAGE_META[stage].label}</span>
+              </div>
+              <Progress value={STAGE_META[stage].value} className="h-1.5" />
+            </div>
+          ) : null}
           <Button
             onClick={() => void handleSubmit()}
             disabled={enviar.isPending}

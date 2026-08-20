@@ -65,6 +65,7 @@ function Page() {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [attached, setAttached] = useState<DocumentRow[]>([]);
+  const [extracted, setExtracted] = useState<{ id: string; nome: string; trecho: string }[]>([]);
   const [savedDocId, setSavedDocId] = useState<string | null>(null);
   const [revisaoOpen, setRevisaoOpen] = useState(false);
   const [preparing, setPreparing] = useState(false);
@@ -108,6 +109,10 @@ function Page() {
             ...analise.transcricao_essencial,
           ].join("\n");
           setTexto((prev) => (prev.trim().length > 0 ? `${prev}\n\n${trecho}` : trecho));
+          setExtracted((prev) => [
+            { id: docRow.id, nome: docRow.nome, trecho },
+            ...prev.filter((x) => x.id !== docRow.id),
+          ]);
         } catch {
           setTexto((prev) =>
             prev.trim().length > 0
@@ -329,7 +334,10 @@ function Page() {
                     <button
                       type="button"
                       aria-label={`Remover ${d.nome} do contexto`}
-                      onClick={() => setAttached((prev) => prev.filter((x) => x.id !== d.id))}
+                      onClick={() => {
+                        setAttached((prev) => prev.filter((x) => x.id !== d.id));
+                        setExtracted((prev) => prev.filter((x) => x.id !== d.id));
+                      }}
                       className="text-subtle transition hover:text-foreground"
                     >
                       <X className="h-4 w-4" />
@@ -337,6 +345,27 @@ function Page() {
                   </li>
                 ))}
               </ul>
+            ) : null}
+
+            {extracted.length > 0 ? (
+              <div className="space-y-3 rounded-2xl border border-gold/40 bg-gold/5 p-4">
+                <p className="text-[0.7rem] tracking-[0.18em] text-subtle uppercase">
+                  Pré-visualização do texto extraído
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  O trecho destacado abaixo é o que será enviado ao advogado quando você confirmar.
+                </p>
+                {extracted
+                  .filter((e) => attached.some((d) => d.id === e.id))
+                  .map((e) => (
+                    <div key={e.id} className="space-y-1">
+                      <p className="text-sm text-foreground">{e.nome}</p>
+                      <pre className="max-h-40 overflow-y-auto rounded-xl border border-gold/30 bg-gold/10 p-3 text-xs leading-relaxed whitespace-pre-wrap text-foreground">
+                        {e.trecho}
+                      </pre>
+                    </div>
+                  ))}
+              </div>
             ) : null}
           </div>
         </div>
@@ -375,6 +404,9 @@ function Page() {
             open={revisaoOpen}
             onOpenChange={setRevisaoOpen}
             preselectedDocumentIds={attached.map((d) => d.id)}
+            onSelectionChange={(ids) =>
+              setAttached((prev) => prev.filter((d) => ids.includes(d.id)))
+            }
           />
         ) : null}
       </section>
