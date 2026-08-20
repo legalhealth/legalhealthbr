@@ -403,6 +403,7 @@ export function EnviarRevisaoDialog({
             <Send className="mr-2 h-4 w-4" />
             {enviar.isPending ? "Enviando..." : "Enviar para revisão"}
           </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
