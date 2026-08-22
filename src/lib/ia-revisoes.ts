@@ -242,6 +242,10 @@ export function buildComprovante(input: {
     "RESUMO DO CONTEÚDO ENVIADO",
     resumo.length > 4000 ? `${resumo.slice(0, 4000)}\n[...conteúdo truncado neste comprovante]` : resumo,
     "",
+    "CONFIRMAÇÃO DE ENVIO",
+    "E-mail enviado ao advogado pela plataforma Legal Health (notify.legalhealthbr.app),",
+    "com links seguros dos anexos válidos por 24 horas.",
+    "",
     "Documento gerado por IA na plataforma Legal Health — sujeito a revisão do advogado responsável.",
   ].join("\n");
 
