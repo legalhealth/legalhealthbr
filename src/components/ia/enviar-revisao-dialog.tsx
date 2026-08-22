@@ -101,9 +101,10 @@ export function EnviarRevisaoDialog({
 
   const STAGE_META = {
     idle: { label: "", value: 0 },
-    enviando: { label: "Enviando anexos e registrando a revisão...", value: 35 },
-    processando: { label: "Processando links seguros dos documentos...", value: 75 },
-    concluido: { label: "Concluído — e-mail preparado para envio.", value: 100 },
+    enviando: { label: "Registrando a revisão e preparando anexos...", value: 35 },
+    processando: { label: "Enviando e-mail ao advogado...", value: 75 },
+    concluido: { label: `Concluído — e-mail enviado para ${email.trim()}.`, value: 100 },
+    erro: { label: "Revisão registrada, mas o e-mail não foi enviado.", value: 100 },
   } as const;
 
   const baixarComprovante = () => {
@@ -117,6 +118,40 @@ export function EnviarRevisaoDialog({
     URL.revokeObjectURL(url);
   };
 
+  const finalizar = (revisao: Revisao) => {
+    const anexosResumo = selectedDocs.map((d) => ({
+      nome: d.nome,
+      tamanho: formatSize(d.size_bytes),
+    }));
+    const doc = buildComprovante({
+      revisao,
+      titulo,
+      conteudo,
+      anexos: anexosResumo,
+    });
+    setComprovante({
+      ...doc,
+      anexos: anexosResumo,
+      protocolo: revisao.id,
+      enviadoEm: new Date(revisao.enviado_em).toLocaleString("pt-BR"),
+    });
+  };
+
+  const dispararEmail = async (revisao: Revisao) => {
+    setStage("processando");
+    const result = await enviarEmail({
+      data: { revisaoId: revisao.id, titulo, conteudo },
+    });
+    if (!result.sent) {
+      throw new Error(
+        "O e-mail foi bloqueado para este destinatário (endereço com histórico de falha).",
+      );
+    }
+    finalizar(revisao);
+    setStage("concluido");
+    toast.success(`E-mail enviado ao advogado (${result.destinatario}).`);
+  };
+
   const handleSubmit = async () => {
     if (nome.trim().length < 3) {
       toast.error("Informe o nome do advogado responsável.");
@@ -126,9 +161,10 @@ export function EnviarRevisaoDialog({
       toast.error("Informe um e-mail válido.");
       return;
     }
+    let criada: Revisao | null = null;
     try {
       setStage("enviando");
-      const revisao = await enviar.mutateAsync({
+      criada = await enviar.mutateAsync({
         docId,
         docTitulo: titulo,
         advogadoNome: nome.trim(),
@@ -137,42 +173,13 @@ export function EnviarRevisaoDialog({
         mensagem,
         documentIds: validSelected,
       });
+      setRevisaoCriada(criada);
 
-      setStage("processando");
-      const anexos = await anexosSignedUrls(selectedDocs);
-      const href = buildMailto({
-        para: email.trim(),
-        titulo,
-        advogadoNome: nome.trim(),
-        mensagem,
-        conteudo,
-        anexos,
-      });
-      window.location.href = href;
-
-      const anexosResumo = selectedDocs.map((d) => ({
-        nome: d.nome,
-        tamanho: formatSize(d.size_bytes),
-      }));
-      const doc = buildComprovante({
-        revisao,
-        titulo,
-        conteudo,
-        anexos: anexosResumo,
-      });
-      setComprovante({
-        ...doc,
-        anexos: anexosResumo,
-        protocolo: revisao.id,
-        enviadoEm: new Date(revisao.enviado_em).toLocaleString("pt-BR"),
-      });
-
-      setStage("concluido");
-      toast.success("Revisão registrada e e-mail preparado para envio.");
+      await dispararEmail(criada);
       setMensagem("");
       applySelection([]);
     } catch (error) {
-      setStage("idle");
+      setStage(criada ? "erro" : "idle");
       toast.error(
         error instanceof Error ? error.message : "Não foi possível registrar a revisão.",
       );
