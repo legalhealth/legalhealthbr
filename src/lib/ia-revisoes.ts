@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
-import { DOC_BUCKET } from "@/lib/ia-documents";
+
 
 export type RevisaoStatus = "enviada" | "em_revisao" | "ajustes" | "aprovada";
 
