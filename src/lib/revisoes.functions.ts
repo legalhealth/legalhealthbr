@@ -61,11 +61,11 @@ export const enviarRevisaoEmail = createServerFn({ method: "POST" })
 
     const result = await sendTemplateEmail("revisao-advogado", revisao.advogado_email, {
       idempotencyKey: `revisao-advogado-${revisao.id}`,
-      ...(profile?.email ? { replyTo: profile.email } : {}),
+      ...(medicoEmail ? { replyTo: medicoEmail } : {}),
       templateData: {
         advogadoNome: revisao.advogado_nome,
-        medicoNome: profile?.full_name ?? "Profissional Legal Health",
-        medicoEmail: profile?.email ?? undefined,
+        medicoNome: profile?.nome ?? "Profissional Legal Health",
+        medicoEmail,
         titulo: data.titulo,
         mensagem: revisao.mensagem ?? undefined,
         conteudo: data.conteudo,
