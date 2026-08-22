@@ -19,6 +19,7 @@ import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { formatSize, tagLabel, useDocuments } from "@/lib/ia-documents";
 import { buildComprovante, useEnviarRevisao } from "@/lib/ia-revisoes";
+import type { Revisao } from "@/lib/ia-revisoes";
 import { enviarRevisaoEmail } from "@/lib/revisoes.functions";
 import { useServerFn } from "@tanstack/react-start";
 
