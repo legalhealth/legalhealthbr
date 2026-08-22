@@ -303,26 +303,10 @@ function Page() {
                     }
                   >
                     <MessageResponse>{message.content}</MessageResponse>
-                    {message.role === "assistant" && message.id !== "welcome" ? (
-                      <button
-                        type="button"
-                        className="mt-3 inline-flex items-center gap-2 text-xs text-gold transition-colors hover:text-gold-light"
-                        onClick={() =>
-                          saveRecommendation.mutate(
-                            { content: message.content, threadId },
-                            {
-                              onSuccess: () =>
-                                toast.success("Recomendação salva — disponível na peça e no plano."),
-                              onError: () => toast.error("Não foi possível salvar."),
-                            },
-                          )
-                        }
-                      >
-                        <BookmarkPlus className="h-3.5 w-3.5" />
-                        Salvar como recomendação
-                      </button>
-                    ) : null}
                   </MessageContent>
+                  {message.role === "assistant" && message.id !== "welcome" ? (
+                    <SalvarRecomendacaoButton content={message.content} threadId={threadId} />
+                  ) : null}
                 </Message>
               ))
             )}
