@@ -207,51 +207,6 @@ export function useAdicionarComentario() {
   });
 }
 
-/** Gera links temporários (24h) dos anexos para enviar por e-mail ao advogado. */
-export async function anexosSignedUrls(
-  docs: { id: string; nome: string; storage_path: string }[],
-): Promise<{ nome: string; url: string }[]> {
-  const links: { nome: string; url: string }[] = [];
-  for (const doc of docs) {
-    const { data } = await supabase.storage
-      .from(DOC_BUCKET)
-      .createSignedUrl(doc.storage_path, 60 * 60 * 24);
-    if (data?.signedUrl) links.push({ nome: doc.nome, url: data.signedUrl });
-  }
-  return links;
-}
-
-export function buildMailto(input: {
-  para: string;
-  titulo: string;
-  advogadoNome: string;
-  mensagem?: string;
-  conteudo: string;
-  anexos: { nome: string; url: string }[];
-}): string {
-  const corpo = [
-    `Prezado(a) ${input.advogadoNome},`,
-    "",
-    input.mensagem?.trim() ? input.mensagem.trim() : "Segue peça para revisão jurídica.",
-    "",
-    `--- ${input.titulo} ---`,
-    input.conteudo,
-    "",
-    input.anexos.length > 0
-      ? `Documentos anexos (links válidos por 24h):\n${input.anexos
-          .map((a) => `- ${a.nome}: ${a.url}`)
-          .join("\n")}`
-      : "",
-    "",
-    "Documento gerado por IA na plataforma Legal Health — sujeito a revisão do advogado responsável.",
-  ]
-    .filter(Boolean)
-    .join("\n");
-
-  return `mailto:${encodeURIComponent(input.para)}?subject=${encodeURIComponent(
-    `[Legal Health] Revisão: ${input.titulo}`,
-  )}&body=${encodeURIComponent(corpo)}`;
-}
 
 /** Monta o comprovante de envio (texto) para download pelo médico. */
 export function buildComprovante(input: {
