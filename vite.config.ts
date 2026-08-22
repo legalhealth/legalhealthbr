@@ -26,11 +26,19 @@ export default defineConfig({
   vite: {
     plugins: [mcpPlugin()],
     resolve: {
-      alias: {
-        "entities/lib/decode.js": path.resolve(entitiesDir, "lib/decode.js"),
-        "entities/lib/encode.js": path.resolve(entitiesDir, "lib/encode.js"),
-        entities: entitiesDir,
-      },
+      // Exact-match only: a bare "entities" prefix alias would also rewrite
+      // subpaths like "entities/escape" (parse5 v6 API) to the v4 copy.
+      alias: [
+        {
+          find: /^entities\/lib\/decode\.js$/,
+          replacement: path.resolve(entitiesDir, "lib/decode.js"),
+        },
+        {
+          find: /^entities\/lib\/encode\.js$/,
+          replacement: path.resolve(entitiesDir, "lib/encode.js"),
+        },
+        { find: /^entities$/, replacement: entitiesDir },
+      ],
     },
   },
 });
