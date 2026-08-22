@@ -379,6 +379,8 @@ export function EnviarRevisaoDialog({
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 {stage === "concluido" ? (
                   <Check className="h-3.5 w-3.5 text-success" />
+                ) : stage === "erro" ? (
+                  <X className="h-3.5 w-3.5 text-danger" />
                 ) : (
                   <Loader2 className="h-3.5 w-3.5 animate-spin text-gold" />
                 )}
@@ -387,7 +389,37 @@ export function EnviarRevisaoDialog({
               <Progress value={STAGE_META[stage].value} className="h-1.5" />
             </div>
           ) : null}
-          {comprovante ? (
+          {stage === "erro" && revisaoCriada ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setOpen(false)}
+                className="border-border bg-transparent"
+              >
+                Fechar
+              </Button>
+              <Button
+                onClick={() => {
+                  void (async () => {
+                    try {
+                      await dispararEmail(revisaoCriada);
+                    } catch (error) {
+                      setStage("erro");
+                      toast.error(
+                        error instanceof Error
+                          ? error.message
+                          : "Não foi possível enviar o e-mail.",
+                      );
+                    }
+                  })();
+                }}
+                className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
+              >
+                <Send className="mr-2 h-4 w-4" />
+                Tentar enviar novamente
+              </Button>
+            </>
+          ) : comprovante ? (
             <>
               <Button
                 variant="outline"
