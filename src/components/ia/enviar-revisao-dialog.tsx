@@ -77,6 +77,7 @@ export function EnviarRevisaoDialog({
     if (!open) return;
     setSelected(preselectedDocumentIds ?? []);
     setComprovante(null);
+    setRevisaoCriada(null);
     setStage("idle");
   }, [open, preselectedKey]);
 
