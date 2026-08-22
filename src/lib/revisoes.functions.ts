@@ -35,9 +35,14 @@ export const enviarRevisaoEmail = createServerFn({ method: "POST" })
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("full_name, email")
+      .select("nome, clinica")
       .eq("id", userId)
       .maybeSingle();
+    const medicoEmail =
+      typeof (context.claims as Record<string, unknown> | undefined)?.['email'] === "string"
+        ? ((context.claims as Record<string, unknown>)['email'] as string)
+        : undefined;
+
 
     const documentIds = (revisao.document_ids ?? []) as string[];
     const anexos: { nome: string; url: string }[] = [];
