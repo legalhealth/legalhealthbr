@@ -57,7 +57,11 @@ export function EnviarRevisaoDialog({
   const [selected, setSelected] = useState<string[]>(preselectedDocumentIds ?? []);
   const { data: documents } = useDocuments();
   const enviar = useEnviarRevisao();
-  const [stage, setStage] = useState<"idle" | "enviando" | "processando" | "concluido">("idle");
+  const enviarEmail = useServerFn(enviarRevisaoEmail);
+  const [revisaoCriada, setRevisaoCriada] = useState<Revisao | null>(null);
+  const [stage, setStage] = useState<
+    "idle" | "enviando" | "processando" | "concluido" | "erro"
+  >("idle");
   const [comprovante, setComprovante] = useState<{
     filename: string;
     content: string;
