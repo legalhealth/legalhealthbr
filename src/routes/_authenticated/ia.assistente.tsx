@@ -79,7 +79,7 @@ function Page() {
   const { data: threads } = useChatThreads();
   const { data: storedMessages } = useChatMessages(threadId);
   const deleteThread = useDeleteThread();
-  const saveRecommendation = useSaveRecommendation();
+  
   const [input, setInput] = useState(q ?? "");
   const [status, setStatus] = useState<"ready" | "submitted" | "streaming">("ready");
   const [pendingUser, setPendingUser] = useState<string | null>(null);
