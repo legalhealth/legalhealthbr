@@ -79,7 +79,7 @@ function Page() {
   const { data: threads } = useChatThreads();
   const { data: storedMessages } = useChatMessages(threadId);
   const deleteThread = useDeleteThread();
-  const saveRecommendation = useSaveRecommendation();
+  
   const [input, setInput] = useState(q ?? "");
   const [status, setStatus] = useState<"ready" | "submitted" | "streaming">("ready");
   const [pendingUser, setPendingUser] = useState<string | null>(null);
@@ -434,5 +434,43 @@ function Page() {
         </PromptInput>
       </div>
     </div>
+  );
+}
+
+/**
+ * Botão renderizado FORA do balão da mensagem: no Safari/WebKit o conteúdo do
+ * balão usa overflow/clip e variantes de grupo que escondiam o botão.
+ */
+function SalvarRecomendacaoButton({
+  content,
+  threadId,
+}: {
+  content: string;
+  threadId: string | null;
+}) {
+  const saveRecommendation = useSaveRecommendation();
+  const [salvo, setSalvo] = useState(false);
+
+  return (
+    <button
+      type="button"
+      disabled={saveRecommendation.isPending || salvo}
+      className="mt-2 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1.5 text-xs text-gold transition-colors hover:bg-gold/15 hover:text-gold-light disabled:opacity-60"
+      onClick={() =>
+        saveRecommendation.mutate(
+          { content, threadId },
+          {
+            onSuccess: () => {
+              setSalvo(true);
+              toast.success("Recomendação salva — disponível na peça e no plano.");
+            },
+            onError: () => toast.error("Não foi possível salvar."),
+          },
+        )
+      }
+    >
+      <BookmarkPlus className="h-3.5 w-3.5" />
+      {salvo ? "Recomendação salva" : "Salvar como recomendação"}
+    </button>
   );
 }
