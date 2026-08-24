@@ -152,17 +152,29 @@ export function EnviarRevisaoDialog({
 
   const dispararEmail = async (revisao: Revisao) => {
     setStage("processando");
+    setFalha(null);
+    setConfirmacao(null);
     const result = await enviarEmail({
       data: { revisaoId: revisao.id, titulo, conteudo },
     });
+    // Só confirmamos ao usuário depois do retorno do provedor de e-mail.
     if (!result.sent) {
-      throw new Error(
-        "O e-mail foi bloqueado para este destinatário (endereço com histórico de falha).",
+      setFalha({
+        motivo: result.motivo ?? "O provedor de e-mail não confirmou a entrega.",
+        avisoEnviado: Boolean(result.avisoEnviado),
+      });
+      setStage("erro");
+      toast.error(
+        result.avisoEnviado
+          ? "Envio não confirmado. Enviamos um aviso por e-mail com os detalhes."
+          : "Envio não confirmado pelo provedor de e-mail.",
       );
+      return;
     }
+    setConfirmacao(result.confirmadoEm ?? null);
     finalizar(revisao);
     setStage("concluido");
-    toast.success(`E-mail enviado ao advogado (${result.destinatario}).`);
+    toast.success(`Entrega confirmada pelo provedor para ${result.destinatario}.`);
   };
 
   const handleSubmit = async () => {
