@@ -238,15 +238,31 @@ export function EnviarRevisaoDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {falha ? (
+          <div className="rounded-xl border border-danger/40 bg-danger/10 p-4">
+            <p className="flex items-center gap-2 text-sm text-danger">
+              <X className="h-4 w-4" />
+              Entrega não confirmada
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground">{falha.motivo}</p>
+            <p className="mt-2 text-xs text-subtle">
+              {falha.avisoEnviado
+                ? "Enviamos um aviso para o seu e-mail com os detalhes desta tentativa."
+                : "Não foi possível enviar o aviso automático para o seu e-mail."}
+            </p>
+          </div>
+        ) : null}
+
         {comprovante ? (
           <div className="space-y-4">
             <div className="rounded-xl border border-success/40 bg-success/10 p-4">
               <p className="flex items-center gap-2 text-sm text-success">
                 <Check className="h-4 w-4" />
-                Envio concluído
+                Entrega confirmada pelo provedor
               </p>
               <p className="mt-2 text-xs text-subtle">
-                Protocolo {comprovante.protocolo.slice(0, 8)} · {comprovante.enviadoEm}
+                Protocolo {comprovante.protocolo.slice(0, 8)} ·{" "}
+                {confirmacao ?? comprovante.enviadoEm}
               </p>
             </div>
 
