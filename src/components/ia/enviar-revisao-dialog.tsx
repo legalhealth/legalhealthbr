@@ -62,6 +62,8 @@ export function EnviarRevisaoDialog({
   const [stage, setStage] = useState<
     "idle" | "enviando" | "processando" | "concluido" | "erro"
   >("idle");
+  const [confirmacao, setConfirmacao] = useState<string | null>(null);
+  const [falha, setFalha] = useState<{ motivo: string; avisoEnviado: boolean } | null>(null);
   const [comprovante, setComprovante] = useState<{
     filename: string;
     content: string;
