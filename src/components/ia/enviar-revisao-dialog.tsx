@@ -62,6 +62,8 @@ export function EnviarRevisaoDialog({
   const [stage, setStage] = useState<
     "idle" | "enviando" | "processando" | "concluido" | "erro"
   >("idle");
+  const [confirmacao, setConfirmacao] = useState<string | null>(null);
+  const [falha, setFalha] = useState<{ motivo: string; avisoEnviado: boolean } | null>(null);
   const [comprovante, setComprovante] = useState<{
     filename: string;
     content: string;
@@ -79,6 +81,8 @@ export function EnviarRevisaoDialog({
     setComprovante(null);
     setRevisaoCriada(null);
     setStage("idle");
+    setConfirmacao(null);
+    setFalha(null);
   }, [open, preselectedKey]);
 
   // Mantém apenas anexos que ainda existem na lista de documentos.
@@ -108,9 +112,14 @@ export function EnviarRevisaoDialog({
   const STAGE_META = {
     idle: { label: "", value: 0 },
     enviando: { label: "Registrando a revisão e preparando anexos...", value: 35 },
-    processando: { label: "Enviando e-mail ao advogado...", value: 75 },
-    concluido: { label: `Concluído — e-mail enviado para ${email.trim()}.`, value: 100 },
-    erro: { label: "Revisão registrada, mas o e-mail não foi enviado.", value: 100 },
+    processando: { label: "Aguardando confirmação do provedor de e-mail...", value: 75 },
+    concluido: {
+      label: confirmacao
+        ? `E-mail confirmado para ${email.trim()} · ${confirmacao}`
+        : `E-mail enviado para ${email.trim()}.`,
+      value: 100,
+    },
+    erro: { label: "Revisão registrada, mas o e-mail não foi entregue.", value: 100 },
   } as const;
 
   const baixarComprovante = () => {
@@ -145,17 +154,29 @@ export function EnviarRevisaoDialog({
 
   const dispararEmail = async (revisao: Revisao) => {
     setStage("processando");
+    setFalha(null);
+    setConfirmacao(null);
     const result = await enviarEmail({
       data: { revisaoId: revisao.id, titulo, conteudo },
     });
+    // Só confirmamos ao usuário depois do retorno do provedor de e-mail.
     if (!result.sent) {
-      throw new Error(
-        "O e-mail foi bloqueado para este destinatário (endereço com histórico de falha).",
+      setFalha({
+        motivo: result.motivo ?? "O provedor de e-mail não confirmou a entrega.",
+        avisoEnviado: Boolean(result.avisoEnviado),
+      });
+      setStage("erro");
+      toast.error(
+        result.avisoEnviado
+          ? "Envio não confirmado. Enviamos um aviso por e-mail com os detalhes."
+          : "Envio não confirmado pelo provedor de e-mail.",
       );
+      return;
     }
+    setConfirmacao(result.confirmadoEm ?? null);
     finalizar(revisao);
     setStage("concluido");
-    toast.success(`E-mail enviado ao advogado (${result.destinatario}).`);
+    toast.success(`Entrega confirmada pelo provedor para ${result.destinatario}.`);
   };
 
   const handleSubmit = async () => {
@@ -217,15 +238,31 @@ export function EnviarRevisaoDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {falha ? (
+          <div className="rounded-xl border border-danger/40 bg-danger/10 p-4">
+            <p className="flex items-center gap-2 text-sm text-danger">
+              <X className="h-4 w-4" />
+              Entrega não confirmada
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground">{falha.motivo}</p>
+            <p className="mt-2 text-xs text-subtle">
+              {falha.avisoEnviado
+                ? "Enviamos um aviso para o seu e-mail com os detalhes desta tentativa."
+                : "Não foi possível enviar o aviso automático para o seu e-mail."}
+            </p>
+          </div>
+        ) : null}
+
         {comprovante ? (
           <div className="space-y-4">
             <div className="rounded-xl border border-success/40 bg-success/10 p-4">
               <p className="flex items-center gap-2 text-sm text-success">
                 <Check className="h-4 w-4" />
-                Envio concluído
+                Entrega confirmada pelo provedor
               </p>
               <p className="mt-2 text-xs text-subtle">
-                Protocolo {comprovante.protocolo.slice(0, 8)} · {comprovante.enviadoEm}
+                Protocolo {comprovante.protocolo.slice(0, 8)} ·{" "}
+                {confirmacao ?? comprovante.enviadoEm}
               </p>
             </div>
 
