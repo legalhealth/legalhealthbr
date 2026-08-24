@@ -108,9 +108,14 @@ export function EnviarRevisaoDialog({
   const STAGE_META = {
     idle: { label: "", value: 0 },
     enviando: { label: "Registrando a revisão e preparando anexos...", value: 35 },
-    processando: { label: "Enviando e-mail ao advogado...", value: 75 },
-    concluido: { label: `Concluído — e-mail enviado para ${email.trim()}.`, value: 100 },
-    erro: { label: "Revisão registrada, mas o e-mail não foi enviado.", value: 100 },
+    processando: { label: "Aguardando confirmação do provedor de e-mail...", value: 75 },
+    concluido: {
+      label: confirmacao
+        ? `E-mail confirmado para ${email.trim()} · ${confirmacao}`
+        : `E-mail enviado para ${email.trim()}.`,
+      value: 100,
+    },
+    erro: { label: "Revisão registrada, mas o e-mail não foi entregue.", value: 100 },
   } as const;
 
   const baixarComprovante = () => {
