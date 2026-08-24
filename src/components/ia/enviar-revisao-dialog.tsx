@@ -81,6 +81,8 @@ export function EnviarRevisaoDialog({
     setComprovante(null);
     setRevisaoCriada(null);
     setStage("idle");
+    setConfirmacao(null);
+    setFalha(null);
   }, [open, preselectedKey]);
 
   // Mantém apenas anexos que ainda existem na lista de documentos.
