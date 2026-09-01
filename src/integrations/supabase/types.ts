@@ -161,20 +161,79 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          source: string
           title: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          source?: string
           title?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          source?: string
           title?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      chatbot_public_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          role: string
+          session_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          session_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chatbot_public_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chatbot_public_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chatbot_public_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          ip_hash: string | null
+          session_key: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          session_key: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          session_key?: string
+          user_agent?: string | null
         }
         Relationships: []
       }
