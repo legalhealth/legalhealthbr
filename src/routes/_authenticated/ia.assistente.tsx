@@ -305,7 +305,9 @@ function Page() {
                     <MessageResponse>{message.content}</MessageResponse>
                   </MessageContent>
                   {message.role === "assistant" && message.id !== "welcome" ? (
-                    <SalvarRecomendacaoButton content={message.content} threadId={threadId} />
+                    <div className="flex w-full flex-wrap items-center gap-2 overflow-visible">
+                      <SalvarRecomendacaoButton content={message.content} threadId={threadId} />
+                    </div>
                   ) : null}
                 </Message>
               ))
