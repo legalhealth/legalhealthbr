@@ -457,7 +457,8 @@ function SalvarRecomendacaoButton({
     <button
       type="button"
       disabled={saveRecommendation.isPending || salvo}
-      className="mt-2 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1.5 text-xs text-gold transition-colors hover:bg-gold/15 hover:text-gold-light disabled:opacity-60"
+      style={{ WebkitTapHighlightColor: "transparent" }}
+      className="relative z-10 mt-1 inline-flex min-h-11 shrink-0 max-w-full items-center gap-2 whitespace-nowrap rounded-full border border-gold/40 bg-gold/10 px-4 py-2.5 text-xs text-gold transition-colors hover:bg-gold/15 hover:text-gold-light disabled:opacity-60"
       onClick={() =>
         saveRecommendation.mutate(
           { content, threadId },
