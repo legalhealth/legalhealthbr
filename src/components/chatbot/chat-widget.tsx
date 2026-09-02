@@ -109,7 +109,7 @@ export function ChatWidget({ variant }: { variant: ChatbotVariant }) {
               />
               <PromptInputFooter className="justify-end">
                 <PromptInputSubmit
-                  status={pending ? "submitted" : undefined}
+                  status={pending ? "submitted" : "ready"}
                   disabled={pending || input.trim().length === 0}
                 />
               </PromptInputFooter>
