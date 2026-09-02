@@ -37,6 +37,7 @@ import { Route as AuthenticatedIaHistoricoRouteImport } from './routes/_authenti
 import { Route as AuthenticatedIaPecaRouteImport } from './routes/_authenticated/ia.peca'
 import { Route as AuthenticatedIaRevisoesRouteImport } from './routes/_authenticated/ia.revisoes'
 import { Route as AuthenticatedIaRiscoRouteImport } from './routes/_authenticated/ia.risco'
+import { Route as ApiPublicAiChatbotRouteImport } from './routes/api/public/ai-chatbot'
 import { Route as ApiPublicHooksPlanRemindersRouteImport } from './routes/api/public/hooks/plan-reminders'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -187,6 +188,11 @@ const AuthenticatedIaRiscoRoute = AuthenticatedIaRiscoRouteImport.update({
   path: '/risco',
   getParentRoute: () => AuthenticatedIaRoute,
 } as any)
+const ApiPublicAiChatbotRoute = ApiPublicAiChatbotRouteImport.update({
+  id: '/api/public/ai-chatbot',
+  path: '/api/public/ai-chatbot',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksPlanRemindersRoute =
   ApiPublicHooksPlanRemindersRouteImport.update({
     id: '/api/public/hooks/plan-reminders',
@@ -237,6 +243,7 @@ export interface FileRoutesByFullPath {
   '/ia/peca': typeof AuthenticatedIaPecaRoute
   '/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
+  '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/ia/peca': typeof AuthenticatedIaPecaRoute
   '/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
+  '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/ia': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -304,6 +312,7 @@ export interface FileRoutesById {
   '/_authenticated/ia/peca': typeof AuthenticatedIaPecaRoute
   '/_authenticated/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/_authenticated/ia/risco': typeof AuthenticatedIaRiscoRoute
+  '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -339,6 +348,7 @@ export interface FileRouteTypes {
     | '/ia/peca'
     | '/ia/revisoes'
     | '/ia/risco'
+    | '/api/public/ai-chatbot'
     | '/ia/'
     | '/api/public/hooks/plan-reminders'
     | '/lovable/email/auth/preview'
@@ -371,6 +381,7 @@ export interface FileRouteTypes {
     | '/ia/peca'
     | '/ia/revisoes'
     | '/ia/risco'
+    | '/api/public/ai-chatbot'
     | '/ia'
     | '/api/public/hooks/plan-reminders'
     | '/lovable/email/auth/preview'
@@ -405,6 +416,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ia/peca'
     | '/_authenticated/ia/revisoes'
     | '/_authenticated/ia/risco'
+    | '/api/public/ai-chatbot'
     | '/_authenticated/ia/'
     | '/api/public/hooks/plan-reminders'
     | '/lovable/email/auth/preview'
@@ -427,6 +439,7 @@ export interface RootRouteChildren {
   ApiAiPlanoRoute: typeof ApiAiPlanoRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiPublicAiChatbotRoute: typeof ApiPublicAiChatbotRoute
   ApiPublicHooksPlanRemindersRoute: typeof ApiPublicHooksPlanRemindersRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -631,6 +644,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIaRiscoRouteImport
       parentRoute: typeof AuthenticatedIaRoute
     }
+    '/api/public/ai-chatbot': {
+      id: '/api/public/ai-chatbot'
+      path: '/api/public/ai-chatbot'
+      fullPath: '/api/public/ai-chatbot'
+      preLoaderRoute: typeof ApiPublicAiChatbotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/plan-reminders': {
       id: '/api/public/hooks/plan-reminders'
       path: '/api/public/hooks/plan-reminders'
@@ -725,6 +745,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiPlanoRoute: ApiAiPlanoRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiPublicAiChatbotRoute: ApiPublicAiChatbotRoute,
   ApiPublicHooksPlanRemindersRoute: ApiPublicHooksPlanRemindersRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
