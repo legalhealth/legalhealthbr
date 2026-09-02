@@ -18,6 +18,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { LoadingPage } from "@/components/loading-page";
+import { ChatbotMount } from "@/components/chatbot/chatbot-mount";
 
 function NotFoundComponent() {
   return (
