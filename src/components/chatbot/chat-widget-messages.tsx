@@ -48,8 +48,8 @@ export function ChatWidgetMessages({
               <MessageContent
                 className={
                   entry.role === "user"
-                    ? "!bg-[#2563EB] text-sm !text-white [&_*]:!text-white"
-                    : "!bg-transparent px-0 text-sm text-foreground"
+                    ? "bg-[#2563EB]! text-sm text-white! [&_*]:text-white!"
+                    : "bg-transparent! px-0 text-sm text-foreground"
                 }
               >
                 <MessageResponse>{entry.content}</MessageResponse>
