@@ -165,6 +165,7 @@ function RootComponent() {
         </main>
         {!isAuthRoute && <SiteFooter />}
         {!isAuthRoute && <MobileNav />}
+        <ChatbotMount />
         <Toaster position="bottom-right" />
       </div>
     </QueryClientProvider>
