@@ -24,6 +24,7 @@ import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedPlanoRouteImport } from './routes/_authenticated/plano'
 import { Route as ApiAiBibliotecaRouteImport } from './routes/api/ai-biblioteca'
 import { Route as ApiAiChatRouteImport } from './routes/api/ai-chat'
+import { Route as ApiAiChatbotRouteImport } from './routes/api/ai-chatbot'
 import { Route as ApiAiDocumentoLeituraRouteImport } from './routes/api/ai-documento-leitura'
 import { Route as ApiAiPecaRouteImport } from './routes/api/ai-peca'
 import { Route as ApiAiPlanoRouteImport } from './routes/api/ai-plano'
@@ -115,6 +116,11 @@ const ApiAiBibliotecaRoute = ApiAiBibliotecaRouteImport.update({
 const ApiAiChatRoute = ApiAiChatRouteImport.update({
   id: '/api/ai-chat',
   path: '/api/ai-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiChatbotRoute = ApiAiChatbotRouteImport.update({
+  id: '/api/ai-chatbot',
+  path: '/api/ai-chatbot',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAiDocumentoLeituraRoute = ApiAiDocumentoLeituraRouteImport.update({
@@ -219,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/plano': typeof AuthenticatedPlanoRoute
   '/api/ai-biblioteca': typeof ApiAiBibliotecaRoute
   '/api/ai-chat': typeof ApiAiChatRoute
+  '/api/ai-chatbot': typeof ApiAiChatbotRoute
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
@@ -249,6 +256,7 @@ export interface FileRoutesByTo {
   '/plano': typeof AuthenticatedPlanoRoute
   '/api/ai-biblioteca': typeof ApiAiBibliotecaRoute
   '/api/ai-chat': typeof ApiAiChatRoute
+  '/api/ai-chatbot': typeof ApiAiChatbotRoute
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
@@ -283,6 +291,7 @@ export interface FileRoutesById {
   '/_authenticated/plano': typeof AuthenticatedPlanoRoute
   '/api/ai-biblioteca': typeof ApiAiBibliotecaRoute
   '/api/ai-chat': typeof ApiAiChatRoute
+  '/api/ai-chatbot': typeof ApiAiChatbotRoute
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
@@ -318,6 +327,7 @@ export interface FileRouteTypes {
     | '/plano'
     | '/api/ai-biblioteca'
     | '/api/ai-chat'
+    | '/api/ai-chatbot'
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
@@ -348,6 +358,7 @@ export interface FileRouteTypes {
     | '/plano'
     | '/api/ai-biblioteca'
     | '/api/ai-chat'
+    | '/api/ai-chatbot'
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
@@ -381,6 +392,7 @@ export interface FileRouteTypes {
     | '/_authenticated/plano'
     | '/api/ai-biblioteca'
     | '/api/ai-chat'
+    | '/api/ai-chatbot'
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
@@ -409,6 +421,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiAiBibliotecaRoute: typeof ApiAiBibliotecaRoute
   ApiAiChatRoute: typeof ApiAiChatRoute
+  ApiAiChatbotRoute: typeof ApiAiChatbotRoute
   ApiAiDocumentoLeituraRoute: typeof ApiAiDocumentoLeituraRoute
   ApiAiPecaRoute: typeof ApiAiPecaRoute
   ApiAiPlanoRoute: typeof ApiAiPlanoRoute
@@ -525,6 +538,13 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-chat'
       fullPath: '/api/ai-chat'
       preLoaderRoute: typeof ApiAiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-chatbot': {
+      id: '/api/ai-chatbot'
+      path: '/api/ai-chatbot'
+      fullPath: '/api/ai-chatbot'
+      preLoaderRoute: typeof ApiAiChatbotRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ai-documento-leitura': {
@@ -699,6 +719,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiAiBibliotecaRoute: ApiAiBibliotecaRoute,
   ApiAiChatRoute: ApiAiChatRoute,
+  ApiAiChatbotRoute: ApiAiChatbotRoute,
   ApiAiDocumentoLeituraRoute: ApiAiDocumentoLeituraRoute,
   ApiAiPecaRoute: ApiAiPecaRoute,
   ApiAiPlanoRoute: ApiAiPlanoRoute,
