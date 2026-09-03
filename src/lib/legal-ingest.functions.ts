@@ -13,6 +13,8 @@ export type CatalogoItem = {
   pilar: string | null;
   authorityLevel: number;
   artigos: string[];
+  /** PDF com texto já conferido pela curadoria jurídica e pronto para indexar. */
+  curado: boolean;
 };
 
 type Ctx = { supabase: ReturnType<typeof identity>; userId: string };
@@ -39,6 +41,7 @@ export const listarCatalogoIngestao = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<CatalogoItem[]> => {
     await garantirAdmin(context as unknown as Ctx);
     const { CATALOGO } = await import("@/lib/legal-ingest.server");
+    const { temTextoCurado } = await import("@/lib/legal-curadoria-cfm.server");
     return CATALOGO.map((f) => ({
       sourceId: f.sourceId,
       title: f.title,
@@ -50,6 +53,7 @@ export const listarCatalogoIngestao = createServerFn({ method: "GET" })
       pilar: f.pilar,
       authorityLevel: f.authorityLevel,
       artigos: f.artigos,
+      curado: temTextoCurado(f.sourceId),
     }));
   });
 
