@@ -97,6 +97,15 @@ export function Hero() {
                 Conhecer a plataforma
               </a>
             </Button>
+            <Button
+              asChild
+              variant="ghost"
+              className="h-12 rounded-xl px-6 text-[0.95rem] text-gold hover:bg-gold/10 hover:text-gold-light"
+            >
+              <Link to="/auth" onClick={() => track("login_click", { origem: "hero" })}>
+                Já sou cadastrado · Entrar
+              </Link>
+            </Button>
           </div>
 
           <p className="mt-6 text-xs leading-relaxed text-subtle">
