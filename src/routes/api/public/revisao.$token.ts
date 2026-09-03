@@ -101,9 +101,10 @@ export const Route = createFileRoute("/api/public/revisao/$token")({
           .from("revisao_tokens")
           .update({
             opens: (tokenRow.opens ?? 0) + 1,
-            first_opened_at: tokenRow.opens > 0 ? undefined : new Date().toISOString(),
+            ...(tokenRow.opens > 0 ? {} : { first_opened_at: new Date().toISOString() }),
           })
           .eq("id", tokenRow.id);
+
 
         return json({
           revisao: {
