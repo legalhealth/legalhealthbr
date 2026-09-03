@@ -97,3 +97,46 @@ export const historicoIngestao = createServerFn({ method: "GET" })
       .limit(50);
     return (data ?? []) as IngestRun[];
   });
+
+export type AlertaMudanca = {
+  id: string;
+  source_id: string;
+  title: string;
+  tipo: "alterada" | "revogada" | "falha";
+  version: number | null;
+  mensagem: string;
+  official_url: string | null;
+  notified_at: string | null;
+  read_at: string | null;
+  created_at: string;
+};
+
+/** Alertas gerados pela rotina automática de atualização da base jurídica. */
+export const listarAlertasMudanca = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<AlertaMudanca[]> => {
+    const ctx = context as unknown as Ctx;
+    await garantirAdmin(ctx);
+    const { data } = await ctx.supabase
+      .from("legal_change_alerts")
+      .select(
+        "id, source_id, title, tipo, version, mensagem, official_url, notified_at, read_at, created_at",
+      )
+      .order("created_at", { ascending: false })
+      .limit(50);
+    return (data ?? []) as AlertaMudanca[];
+  });
+
+/** Marca um alerta como tratado pela curadoria. */
+export const marcarAlertaLido = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => ({ id: String(input.id) }))
+  .handler(async ({ data, context }) => {
+    const ctx = context as unknown as Ctx;
+    await garantirAdmin(ctx);
+    await ctx.supabase
+      .from("legal_change_alerts")
+      .update({ read_at: new Date().toISOString() })
+      .eq("id", data.id);
+    return { ok: true };
+  });
