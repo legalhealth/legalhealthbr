@@ -140,6 +140,13 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="pt-BR">
       <head>
         <HeadContent />
+        <script
+          // ativa a folha de fontes sem bloquear o primeiro render
+          dangerouslySetInnerHTML={{
+            __html:
+              "document.querySelectorAll('link[data-fontes]').forEach(function(l){l.media='all'});",
+          }}
+        />
       </head>
       <body>
         {children}
