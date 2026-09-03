@@ -16,16 +16,15 @@ import path from "node:path";
 import lighthouse from "lighthouse";
 import * as chromeLauncher from "chrome-launcher";
 
-import {
-  CATEGORIAS,
-  METAS,
-  METRICAS,
-  PASTA_RELATORIOS,
-  ROTAS,
-} from "./lighthouse.config.mjs";
+import { CATEGORIAS, METAS, METRICAS, PASTA_RELATORIOS, ROTAS } from "./lighthouse.config.mjs";
 
 const args = process.argv.slice(2);
-const flag = (nome) => args.find((a) => a.startsWith(`--${nome}=`))?.split("=").slice(1).join("=");
+const flag = (nome) =>
+  args
+    .find((a) => a.startsWith(`--${nome}=`))
+    ?.split("=")
+    .slice(1)
+    .join("=");
 const temFlag = (nome) => args.includes(`--${nome}`);
 
 const BASE_URL = (flag("url") ?? process.env.BASE_URL ?? "http://localhost:8080").replace(
@@ -42,10 +41,7 @@ const rotasSelecionadas = flag("rotas")
         const conhecida = ROTAS.find((r) => r.caminho === caminho);
         return {
           caminho,
-          nome:
-            conhecida?.nome ||
-            caminho.replace(/^\//, "").replace(/[^\w]+/g, "-") ||
-            "raiz",
+          nome: conhecida?.nome || caminho.replace(/^\//, "").replace(/[^\w]+/g, "-") || "raiz",
         };
       })
   : ROTAS;
@@ -221,7 +217,9 @@ async function main() {
       CLS: e.metricas["cumulative-layout-shift"],
     })),
   );
-  console.log(`Relatórios HTML em ${PASTA_RELATORIOS}/ · resumo em ${PASTA_RELATORIOS}/resumo.json`);
+  console.log(
+    `Relatórios HTML em ${PASTA_RELATORIOS}/ · resumo em ${PASTA_RELATORIOS}/resumo.json`,
+  );
 
   if (falhas.length) {
     console.error(`\n✖ Abaixo das metas:\n  - ${falhas.join("\n  - ")}`);
