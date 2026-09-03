@@ -300,7 +300,7 @@ function Page() {
                     <MessageResponse>{welcome.content}</MessageResponse>
                   </MessageContent>
                 </Message>
-                {pendingUser ? null : (
+                {showPendingUser ? null : (
                 <ConversationEmptyState
                   title="Comece pela sua dúvida"
                   description="Descreva um caso, cole um documento ou escolha uma sugestão abaixo."
@@ -333,7 +333,7 @@ function Page() {
               ))
             )}
 
-            {pendingUser ? (
+            {showPendingUser && pendingUser ? (
               <Message from="user" className="max-w-[90%] md:max-w-[85%]">
                 <MessageContent className="rounded-2xl px-5 py-3.5 shadow-sm !bg-info !text-info-foreground">
                   <MessageResponse>{pendingUser}</MessageResponse>
