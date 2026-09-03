@@ -8,16 +8,27 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
-import { Toaster } from "@/components/ui/sonner";
+import { Suspense, lazy, useEffect, type ReactNode } from "react";
+
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { SiteHeader } from "@/components/layout/site-header";
-import { MobileNav } from "@/components/layout/mobile-nav";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { LoadingPage } from "@/components/loading-page";
 import { ChatbotMount } from "@/components/chatbot/chatbot-mount";
+
+// Chrome do app e toaster só existem nas rotas autenticadas: carregados sob
+// demanda para não entrar no bundle inicial das páginas públicas.
+const SiteHeader = lazy(() =>
+  import("@/components/layout/site-header").then((m) => ({ default: m.SiteHeader })),
+);
+const SiteFooter = lazy(() =>
+  import("@/components/layout/site-footer").then((m) => ({ default: m.SiteFooter })),
+);
+const MobileNav = lazy(() =>
+  import("@/components/layout/mobile-nav").then((m) => ({ default: m.MobileNav })),
+);
+const Toaster = lazy(() =>
+  import("@/components/ui/sonner").then((m) => ({ default: m.Toaster })),
+);
 
 function NotFoundComponent() {
   return (
@@ -147,6 +158,8 @@ function RootComponent() {
     path === "/embaixadores" ||
     path === "/termos" ||
     path === "/privacidade" ||
+    path === "/retencao-de-dados" ||
+    path === "/canal-de-privacidade" ||
     path === "/reset-password" ||
     path.startsWith("/revisao");
   const isAuthRoute = isPublicChrome;
@@ -178,15 +191,19 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col">
-        {!isAuthRoute && <SiteHeader />}
+        <Suspense fallback={null}>{!isAuthRoute && <SiteHeader />}</Suspense>
         <main className={cn("flex-1", !isAuthRoute && "pt-[calc(var(--header-h)+1rem)] pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+1.5rem)] lg:pb-0")}>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
         </main>
-        {!isAuthRoute && <SiteFooter />}
-        {!isAuthRoute && <MobileNav />}
+        <Suspense fallback={null}>
+          {!isAuthRoute && <SiteFooter />}
+          {!isAuthRoute && <MobileNav />}
+        </Suspense>
         <ChatbotMount />
-        <Toaster position="bottom-right" />
+        <Suspense fallback={null}>
+          <Toaster position="bottom-right" />
+        </Suspense>
       </div>
     </QueryClientProvider>
   );
