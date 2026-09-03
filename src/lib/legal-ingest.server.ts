@@ -332,7 +332,10 @@ export function dividirEmArtigos(texto: string, filtro: string[] = []): TrechoCo
   for (let i = 0; i < marcas.length; i += 1) {
     const atual = marcas[i]!;
     const proximo = marcas[i + 1];
-    const corpo = texto.slice(atual.end, proximo ? proximo.index : texto.length).trim();
+    const corpo = texto
+      .slice(atual.end, proximo ? proximo.index : texto.length)
+      .replace(/^[.\-–—:\s]+/, "")
+      .trim();
     const numero = numeroDe(atual.label);
 
     if (filtroNormalizado.length > 0 && !filtroNormalizado.includes(numero)) continue;
