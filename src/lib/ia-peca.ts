@@ -15,18 +15,51 @@ export const TIPOS_PECA = [
 
 export type TipoPeca = (typeof TIPOS_PECA)[number]["value"];
 
+/** Valor usado quando a IA deve decidir o tipo de peça a partir do documento. */
+export const TIPO_AUTO = "auto";
+
 export function tipoPecaLabel(value: string): string {
+  if (!value || value === TIPO_AUTO) return "Peça definida pela IA";
   return TIPOS_PECA.find((t) => t.value === value)?.label ?? "Peça jurídica";
 }
 
+/** Sugere o tipo de peça a partir do tipo de documento identificado pela IA. */
+export function sugerirTipoPeca(tipoDocumento: string): TipoPeca | null {
+  const t = tipoDocumento
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  if (t.includes("sindicancia")) return "defesa-sindicancia";
+  if (t.includes("etico") || t.includes("pep")) return "defesa-pep";
+  if (t.includes("glosa") || t.includes("operadora")) return "impugnacao-glosa";
+  if (t.includes("honorario")) return "peticao-honorarios";
+  if (t.includes("recurso") || t.includes("cfm")) return "recurso-cfm";
+  if (t.includes("notificacao")) return "notificacao-extrajudicial";
+  if (
+    t.includes("citacao") ||
+    t.includes("acao") ||
+    t.includes("processo judicial") ||
+    t.includes("inicial") ||
+    t.includes("intimacao")
+  )
+    return "contestacao-responsabilidade";
+  return null;
+}
+
+export type PecaDocumento = {
+  nome: string;
+  tipo_documento: string;
+  partes: string[];
+  prazos: string[];
+  pontos: string[];
+  transcricao: string[];
+};
+
 export type PecaInput = {
+  /** Tipo escolhido pelo usuário; `auto` deixa a IA decidir. */
   tipo: string;
-  cliente: string;
-  contraria: string;
-  orgao: string;
-  fatos: string;
-  objetivo: string;
-  provas: string;
+  documentos: PecaDocumento[];
+  complemento?: string;
   contexto?: string;
 };
 
@@ -34,7 +67,10 @@ export type PecaInput = {
 export function streamPeca(input: PecaInput, onDelta: (chunk: string) => void): Promise<string> {
   return streamAiEndpoint(
     "/api/ai-peca",
-    { ...input, tipo: tipoPecaLabel(input.tipo) },
+    {
+      ...input,
+      tipo: input.tipo === TIPO_AUTO ? "" : tipoPecaLabel(input.tipo),
+    },
     onDelta,
   );
 }
