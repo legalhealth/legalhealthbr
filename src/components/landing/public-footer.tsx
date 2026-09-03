@@ -1,6 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import monograma from "@/assets/lh-monograma.png.asset.json";
 
+// Links sempre sublinhados: não dependem apenas da cor para se distinguir do texto.
+const linkClass =
+  "text-muted-foreground underline underline-offset-4 decoration-border hover:text-foreground hover:decoration-gold";
+
 export function PublicFooter() {
   return (
     <footer className="border-t border-border bg-background">
