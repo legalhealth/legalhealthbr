@@ -32,7 +32,7 @@ import {
   type Prioridade,
 } from "@/lib/plano";
 
-export const Route = createFileRoute("/_authenticated/")({
+export const Route = createFileRoute("/_authenticated/inicio")({
   head: () => ({
     meta: [
       { title: "Início | Legal Health" },

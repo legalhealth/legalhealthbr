@@ -15,10 +15,10 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
-import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedBemVindoRouteImport } from './routes/_authenticated/bem-vindo'
 import { Route as AuthenticatedBibliotecaRouteImport } from './routes/_authenticated/biblioteca'
 import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
+import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedJuriscoreRouteImport } from './routes/_authenticated/juriscore'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedPlanoRouteImport } from './routes/_authenticated/plano'
@@ -78,11 +78,6 @@ const Char91DotwellKnownChar93OauthProtectedResourceRoute =
     path: '/.well-known/oauth-protected-resource',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedBemVindoRoute = AuthenticatedBemVindoRouteImport.update({
   id: '/bem-vindo',
   path: '/bem-vindo',
@@ -96,6 +91,11 @@ const AuthenticatedBibliotecaRoute = AuthenticatedBibliotecaRouteImport.update({
 const AuthenticatedIaRoute = AuthenticatedIaRouteImport.update({
   id: '/ia',
   path: '/ia',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
+  id: '/inicio',
+  path: '/inicio',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedJuriscoreRoute = AuthenticatedJuriscoreRouteImport.update({
@@ -243,7 +243,7 @@ const LovableEmailTransactionalPreviewRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthenticatedIndexRoute
+  '/': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -252,6 +252,7 @@ export interface FileRoutesByFullPath {
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/ia': typeof AuthenticatedIaRouteWithChildren
+  '/inicio': typeof AuthenticatedInicioRoute
   '/juriscore': typeof AuthenticatedJuriscoreRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/plano': typeof AuthenticatedPlanoRoute
@@ -281,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -288,6 +290,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/inicio': typeof AuthenticatedInicioRoute
   '/juriscore': typeof AuthenticatedJuriscoreRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/plano': typeof AuthenticatedPlanoRoute
@@ -298,7 +301,6 @@ export interface FileRoutesByTo {
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
   '/revisao/$token': typeof RevisaoTokenRoute
-  '/': typeof AuthenticatedIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/fontes': typeof AuthenticatedAdminFontesRoute
@@ -328,6 +330,7 @@ export interface FileRoutesById {
   '/_authenticated/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/_authenticated/ia': typeof AuthenticatedIaRouteWithChildren
+  '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/_authenticated/juriscore': typeof AuthenticatedJuriscoreRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/plano': typeof AuthenticatedPlanoRoute
@@ -338,7 +341,6 @@ export interface FileRoutesById {
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
   '/revisao/$token': typeof RevisaoTokenRoute
-  '/_authenticated/': typeof AuthenticatedIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/fontes': typeof AuthenticatedAdminFontesRoute
@@ -369,6 +371,7 @@ export interface FileRouteTypes {
     | '/bem-vindo'
     | '/biblioteca'
     | '/ia'
+    | '/inicio'
     | '/juriscore'
     | '/perfil'
     | '/plano'
@@ -398,6 +401,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/auth'
     | '/mcp'
     | '/reset-password'
@@ -405,6 +409,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/bem-vindo'
     | '/biblioteca'
+    | '/inicio'
     | '/juriscore'
     | '/perfil'
     | '/plano'
@@ -415,7 +420,6 @@ export interface FileRouteTypes {
     | '/api/ai-peca'
     | '/api/ai-plano'
     | '/revisao/$token'
-    | '/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/fontes'
@@ -444,6 +448,7 @@ export interface FileRouteTypes {
     | '/_authenticated/bem-vindo'
     | '/_authenticated/biblioteca'
     | '/_authenticated/ia'
+    | '/_authenticated/inicio'
     | '/_authenticated/juriscore'
     | '/_authenticated/perfil'
     | '/_authenticated/plano'
@@ -454,7 +459,6 @@ export interface FileRouteTypes {
     | '/api/ai-peca'
     | '/api/ai-plano'
     | '/revisao/$token'
-    | '/_authenticated/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/fontes'
@@ -543,13 +547,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/': {
-      id: '/_authenticated/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/bem-vindo': {
       id: '/_authenticated/bem-vindo'
       path: '/bem-vindo'
@@ -569,6 +566,13 @@ declare module '@tanstack/react-router' {
       path: '/ia'
       fullPath: '/ia'
       preLoaderRoute: typeof AuthenticatedIaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inicio': {
+      id: '/_authenticated/inicio'
+      path: '/inicio'
+      fullPath: '/inicio'
+      preLoaderRoute: typeof AuthenticatedInicioRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/juriscore': {
@@ -791,10 +795,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBemVindoRoute: typeof AuthenticatedBemVindoRoute
   AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRouteWithChildren
+  AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
   AuthenticatedJuriscoreRoute: typeof AuthenticatedJuriscoreRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedPlanoRoute: typeof AuthenticatedPlanoRoute
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAdminFontesRoute: typeof AuthenticatedAdminFontesRoute
 }
 
@@ -802,10 +806,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBemVindoRoute: AuthenticatedBemVindoRoute,
   AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRoute,
   AuthenticatedIaRoute: AuthenticatedIaRouteWithChildren,
+  AuthenticatedInicioRoute: AuthenticatedInicioRoute,
   AuthenticatedJuriscoreRoute: AuthenticatedJuriscoreRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedPlanoRoute: AuthenticatedPlanoRoute,
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAdminFontesRoute: AuthenticatedAdminFontesRoute,
 }
 
