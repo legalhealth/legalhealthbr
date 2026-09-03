@@ -133,3 +133,97 @@ export const FAQ = [
       "Não. As informações são analisadas conforme os critérios e a disponibilidade do programa, sem prazo garantido de resposta.",
   },
 ];
+
+/** Responsabilidades do embaixador, exibidas antes do formulário. */
+export const RESPONSABILIDADES = [
+  "Usar a plataforma de forma realista e responsável",
+  "Enviar feedback estruturado sobre clareza e utilidade",
+  "Relatar dificuldades e oportunidades encontradas",
+  "Compartilhar somente materiais autorizados pela equipe",
+  "Não prometer resultados jurídicos a colegas ou pacientes",
+  "Não oferecer aconselhamento em nome da Legal Health",
+  "Não inserir dados identificáveis de pacientes na plataforma",
+  "Respeitar as normas profissionais e de publicidade da própria categoria",
+];
+
+/** Tabela de benefícios: nada aqui deve ser exibido sem situação explícita. */
+export const TABELA_BENEFICIOS: {
+  beneficio: string;
+  situacao: SituacaoBeneficio;
+  observacao: string;
+}[] = [
+  {
+    beneficio: "Acesso de experiência à plataforma",
+    situacao: "piloto",
+    observacao: "Conforme critérios de seleção",
+  },
+  {
+    beneficio: "Uso do Juriscore®",
+    situacao: "disponivel",
+    observacao: "Diagnóstico preventivo em 15 perguntas",
+  },
+  {
+    beneficio: "Onboarding orientado",
+    situacao: "disponivel",
+    observacao: "Conforme agenda da equipe",
+  },
+  {
+    beneficio: "Canal de feedback",
+    situacao: "piloto",
+    observacao: "Sugestões e pesquisas com a equipe",
+  },
+  {
+    beneficio: "Conteúdos exclusivos",
+    situacao: "em-breve",
+    observacao: "Serão anunciados somente quando existirem",
+  },
+  {
+    beneficio: "Comissão ou remuneração",
+    situacao: "regulamento",
+    observacao:
+      "Esta condição ainda está em definição e será informada no regulamento antes da participação",
+  },
+  {
+    beneficio: "Continuidade após os três meses",
+    situacao: "regulamento",
+    observacao: "Decisão posterior, sem promessa de renovação",
+  },
+];
+
+/** Limites explícitos da plataforma, apresentados antes da candidatura. */
+export const LIMITES = [
+  "A Legal Health é uma ferramenta de apoio preventivo, não um serviço jurídico.",
+  "O Juriscore® não prevê processos nem garante proteção jurídica.",
+  "O assistente de IA não substitui a análise de um advogado.",
+  "Dados de saúde exigem tratamento responsável e não devem ser inseridos sem necessidade.",
+  "As fontes jurídicas citadas são identificadas e podem ser verificadas nos sites oficiais.",
+  "O candidato não deve enviar dados de pacientes em nenhuma etapa.",
+];
+
+export const FAQ_EXTRA = [
+  {
+    pergunta: "Preciso indicar outras pessoas para participar?",
+    resposta:
+      "Não. Indicação não é requisito nem meta do programa. O foco é usar a plataforma e enviar feedback estruturado.",
+  },
+  {
+    pergunta: "Posso divulgar nas minhas redes sociais?",
+    resposta:
+      "Sim, desde que use apenas materiais autorizados, sem prometer resultados jurídicos e respeitando as regras de publicidade da sua categoria profissional.",
+  },
+  {
+    pergunta: "Posso enviar dados de pacientes?",
+    resposta:
+      "Não. Nunca insira nome, prontuário, exame, número de processo ou qualquer dado identificável de paciente na candidatura ou na plataforma.",
+  },
+  {
+    pergunta: "O que acontece depois dos três meses?",
+    resposta:
+      "A continuidade depende do regulamento vigente e da avaliação do piloto. Não há promessa automática de renovação, benefício ou remuneração.",
+  },
+  {
+    pergunta: "Como meus dados serão tratados?",
+    resposta:
+      "Os dados da candidatura são usados apenas para avaliar sua participação no programa, com acesso restrito à equipe. Consulte os Termos de Uso e a Política de Privacidade, incluindo retenção e canal de privacidade.",
+  },
+];
