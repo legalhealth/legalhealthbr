@@ -602,7 +602,7 @@ export function CtaFinal() {
         Candidate-se ao programa de Embaixadores e participe dos primeiros três meses de evolução da
         plataforma.
       </p>
-      <div className="mt-8 flex justify-center">
+      <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
         <Button
           asChild
           className="gold-gradient h-12 rounded-xl px-6 font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:brightness-105"
@@ -610,6 +610,15 @@ export function CtaFinal() {
           <a href="#candidatura" onClick={() => track("hero_cta_click", { origem: "cta-final" })}>
             Quero ser Embaixador Legal Health
           </a>
+        </Button>
+        <Button
+          asChild
+          variant="outline"
+          className="h-12 rounded-xl border-border px-6 hover:bg-accent"
+        >
+          <Link to="/auth" onClick={() => track("login_click", { origem: "cta-final" })}>
+            Já sou cadastrado · Entrar
+          </Link>
         </Button>
       </div>
       <p className="mt-5 text-xs text-subtle">
