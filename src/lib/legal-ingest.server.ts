@@ -498,6 +498,7 @@ export async function ingerirFonte(
     pilar: fonte.pilar,
     publication_date: fonte.publicationDate,
     last_checked_at: new Date().toISOString(),
+    ...(curado ? { responsavel_juridico: curado.revisadoPor } : {}),
   };
 
   let sourceUuid = fonteExistente?.id ?? null;
