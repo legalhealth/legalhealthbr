@@ -1,75 +1,52 @@
 import { Suspense, lazy, useEffect, useState } from "react";
+import { MessageCircle } from "lucide-react";
 
-import { supabase } from "@/integrations/supabase/client";
 import type { ChatbotVariant } from "@/lib/chatbot";
 
-// O widget (e suas dependências) só entram no bundle depois da primeira pintura,
-// mantendo o JavaScript inicial da landing enxuto.
+// O widget e suas dependências (markdown, prompt input, cliente do banco) só são
+// baixados quando a pessoa abre o assistente — nada disso pesa no carregamento.
 const ChatWidget = lazy(() =>
   import("@/components/chatbot/chat-widget").then((m) => ({ default: m.ChatWidget })),
 );
 
-/** Espera a página ficar ociosa ou o primeiro sinal de interação do visitante. */
-function useDeferredMount() {
-  const [pronto, setPronto] = useState(false);
-
-  useEffect(() => {
-    if (pronto) return;
-    let cancelado = false;
-    const liberar = () => {
-      if (!cancelado) setPronto(true);
-    };
-
-    const eventos = ["pointerdown", "keydown", "touchstart", "scroll"] as const;
-    eventos.forEach((e) => window.addEventListener(e, liberar, { once: true, passive: true }));
-
-    const idle = (
-      window as Window & { requestIdleCallback?: (cb: () => void) => number }
-    ).requestIdleCallback;
-    const timer = idle ? idle(liberar) : window.setTimeout(liberar, 2500);
-
-    return () => {
-      cancelado = true;
-      eventos.forEach((e) => window.removeEventListener(e, liberar));
-      if (!idle) window.clearTimeout(timer as number);
-    };
-  }, [pronto]);
-
-  return pronto;
-}
-
 /**
- * Uma única bolha por tela: versão logada (contexto jurídico) quando existe
- * sessão, versão pública (apresentação da plataforma) para visitantes.
+ * Uma única bolha por tela. O botão é HTML/CSS estático; a variante (logada ou
+ * pública) é resolvida no clique, junto do carregamento do widget.
  */
 export function ChatbotMount() {
-  const pronto = useDeferredMount();
+  const [aberto, setAberto] = useState(false);
   const [variant, setVariant] = useState<ChatbotVariant | null>(null);
 
   useEffect(() => {
-    if (!pronto) return;
-    let active = true;
-
-    void supabase.auth.getSession().then(({ data }) => {
-      if (active) setVariant(data.session ? "app" : "publico");
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (active) setVariant(session ? "app" : "publico");
-    });
-
+    if (!aberto || variant) return;
+    let ativo = true;
+    void import("@/integrations/supabase/client").then(({ supabase }) =>
+      supabase.auth.getSession().then(({ data }) => {
+        if (ativo) setVariant(data.session ? "app" : "publico");
+      }),
+    );
     return () => {
-      active = false;
-      subscription.unsubscribe();
+      ativo = false;
     };
-  }, [pronto]);
+  }, [aberto, variant]);
 
-  if (!pronto || !variant) return null;
+  if (aberto && variant) {
+    return (
+      <Suspense fallback={null}>
+        <ChatWidget key={variant} variant={variant} defaultOpen />
+      </Suspense>
+    );
+  }
+
   return (
-    <Suspense fallback={null}>
-      <ChatWidget key={variant} variant={variant} />
-    </Suspense>
+    <button
+      type="button"
+      onClick={() => setAberto(true)}
+      aria-label="Abrir assistente"
+      className="fixed right-4 bottom-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+1rem)] z-[71] grid h-14 w-14 place-items-center rounded-full border border-gold/40 bg-gradient-to-br from-[#D4B87A] to-[#B8975A] shadow-xl transition-transform hover:scale-105 lg:right-6 lg:bottom-6"
+      style={{ WebkitTapHighlightColor: "transparent" }}
+    >
+      <MessageCircle className="h-6 w-6 text-[#0A0A0A]" aria-hidden="true" />
+    </button>
   );
 }
