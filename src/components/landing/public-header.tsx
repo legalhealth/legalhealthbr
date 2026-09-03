@@ -76,6 +76,7 @@ export function PublicHeader() {
         </div>
 
         <button
+          ref={botaoRef}
           type="button"
           className="grid h-10 w-10 place-items-center rounded-xl border border-border text-foreground lg:hidden"
           aria-label={open ? "Fechar menu" : "Abrir menu"}
