@@ -8,17 +8,27 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
-import { Toaster } from "@/components/ui/sonner";
+import { Suspense, lazy, useEffect, type ReactNode } from "react";
 
-import { supabase } from "@/integrations/supabase/client";
+
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { SiteHeader } from "@/components/layout/site-header";
-import { MobileNav } from "@/components/layout/mobile-nav";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { LoadingPage } from "@/components/loading-page";
 import { ChatbotMount } from "@/components/chatbot/chatbot-mount";
+
+// Chrome do app e toaster só existem nas rotas autenticadas: carregados sob
+// demanda para não entrar no bundle inicial das páginas públicas.
+const SiteHeader = lazy(() =>
+  import("@/components/layout/site-header").then((m) => ({ default: m.SiteHeader })),
+);
+const SiteFooter = lazy(() =>
+  import("@/components/layout/site-footer").then((m) => ({ default: m.SiteFooter })),
+);
+const MobileNav = lazy(() =>
+  import("@/components/layout/mobile-nav").then((m) => ({ default: m.MobileNav })),
+);
+const Toaster = lazy(() =>
+  import("@/components/ui/sonner").then((m) => ({ default: m.Toaster })),
+);
 
 function NotFoundComponent() {
   return (
@@ -104,8 +114,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
+        // carregado sem bloquear a renderização: media="print" + troca por script
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Playfair+Display:wght@400;500;600;700&family=Karla:wght@300;400;500;600&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Playfair+Display:wght@500&family=Karla:wght@400;500;600&display=swap",
+        media: "print",
+        "data-fontes": "google",
       },
       {
         rel: "stylesheet",
@@ -127,6 +140,13 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="pt-BR">
       <head>
         <HeadContent />
+        <script
+          // ativa a folha de fontes sem bloquear o primeiro render
+          dangerouslySetInnerHTML={{
+            __html:
+              "document.querySelectorAll('link[data-fontes]').forEach(function(l){l.media='all'});",
+          }}
+        />
       </head>
       <body>
         {children}
@@ -148,36 +168,52 @@ function RootComponent() {
     path === "/embaixadores" ||
     path === "/termos" ||
     path === "/privacidade" ||
+    path === "/retencao-de-dados" ||
+    path === "/canal-de-privacidade" ||
     path === "/reset-password" ||
     path.startsWith("/revisao");
   const isAuthRoute = isPublicChrome;
 
+  // Cliente de autenticação entra por import dinâmico: fora do bundle inicial
+  // das páginas públicas, sem afetar o comportamento nas rotas autenticadas.
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-      router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+    let ativo = true;
+    let unsubscribe: (() => void) | null = null;
+
+    void import("@/integrations/supabase/client").then(({ supabase }) => {
+      if (!ativo) return;
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((event) => {
+        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+        router.invalidate();
+        if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      });
+      unsubscribe = () => subscription.unsubscribe();
     });
 
     return () => {
-      subscription.unsubscribe();
+      ativo = false;
+      unsubscribe?.();
     };
   }, [router, queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col">
-        {!isAuthRoute && <SiteHeader />}
+        <Suspense fallback={null}>{!isAuthRoute && <SiteHeader />}</Suspense>
         <main className={cn("flex-1", !isAuthRoute && "pt-[calc(var(--header-h)+1rem)] pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+1.5rem)] lg:pb-0")}>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
         </main>
-        {!isAuthRoute && <SiteFooter />}
-        {!isAuthRoute && <MobileNav />}
+        <Suspense fallback={null}>
+          {!isAuthRoute && <SiteFooter />}
+          {!isAuthRoute && <MobileNav />}
+        </Suspense>
         <ChatbotMount />
-        <Toaster position="bottom-right" />
+        <Suspense fallback={null}>
+          <Toaster position="bottom-right" />
+        </Suspense>
       </div>
     </QueryClientProvider>
   );

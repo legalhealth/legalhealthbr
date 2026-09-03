@@ -96,7 +96,7 @@
   /* neutros de texto */
   --muted: oklch(0.226 0 0);
   --muted-foreground: oklch(0.711 0.014 261); /* #9CA3AF */
-  --subtle: oklch(0.551 0.023 264); /* #6B7280 */
+  --subtle: oklch(0.645 0.019 264); /* #8B93A0 — contraste AA sobre #0A0A0A */
   --secondary: oklch(0.226 0 0);
   --secondary-foreground: oklch(0.961 0 0);
   --accent: oklch(0.245 0 0);
@@ -170,6 +170,13 @@
   button {
     transition-timing-function: var(--ease-lux);
     transition-duration: 280ms;
+  }
+
+  /* foco sempre visível para navegação por teclado */
+  :focus-visible {
+    outline: 2px solid var(--gold-light);
+    outline-offset: 2px;
+    border-radius: 0.35rem;
   }
 }
 

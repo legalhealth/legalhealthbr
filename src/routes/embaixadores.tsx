@@ -1,8 +1,15 @@
+import { lazy } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { PublicHeader } from "@/components/landing/public-header";
 import { PublicFooter } from "@/components/landing/public-footer";
-import { CandidaturaForm } from "@/components/landing/candidatura-form";
+import { DeferredSection } from "@/components/landing/deferred-section";
+
+// Formulário (selects, checkbox, cliente do banco) sob demanda: o topo da página
+// é HTML/CSS estático, o que mantém LCP e TBT baixos no mobile.
+const CandidaturaForm = lazy(() =>
+  import("@/components/landing/candidatura-form").then((m) => ({ default: m.CandidaturaForm })),
+);
 
 const TITLE = "Candidatura ao programa de Embaixadores | Legal Health";
 const DESCRIPTION =
@@ -35,9 +42,18 @@ function EmbaixadoresPage() {
           Três meses para conhecer, usar e avaliar a Legal Health. Vagas, recursos liberados e
           condições de continuidade seguem o regulamento do programa piloto.
         </p>
-        <div className="mt-8">
-          <CandidaturaForm />
-        </div>
+        <DeferredSection
+          minHeight="42rem"
+          fallback={
+            <p className="text-sm text-muted-foreground" role="status" aria-live="polite">
+              Carregando formulário de candidatura…
+            </p>
+          }
+        >
+          <div className="mt-8">
+            <CandidaturaForm />
+          </div>
+        </DeferredSection>
       </main>
       <PublicFooter />
     </div>

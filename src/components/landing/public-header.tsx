@@ -33,7 +33,7 @@ export function PublicHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3 md:px-8">
-        <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="Legal Health — início">
+        <Link to="/" className="flex min-w-0 items-center gap-3 py-1">
           <img src={monograma.url} alt="" className="h-9 w-auto shrink-0 md:h-10" />
           <span className="min-w-0">
             <span className="block truncate wordmark text-[0.95rem] leading-none text-gold-light md:text-lg">
@@ -50,7 +50,7 @@ export function PublicHeader() {
             <a
               key={l.href}
               href={l.href}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               {l.label}
             </a>
@@ -61,13 +61,13 @@ export function PublicHeader() {
           <Link
             to="/auth"
             onClick={() => track("login_click", { origem: "header" })}
-            className="rounded-xl border border-border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+            className="inline-flex min-h-11 items-center rounded-xl border border-border px-4 text-sm text-foreground transition-colors hover:bg-accent"
           >
             Entrar
           </Link>
           <Button
             asChild
-            className="gold-gradient h-10 rounded-xl px-4 text-sm font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:brightness-105"
+            className="gold-gradient inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:brightness-105"
           >
             <a href="#candidatura" onClick={() => track("hero_cta_click", { origem: "header" })}>
               Quero ser Embaixador

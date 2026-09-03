@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CanalDePrivacidadeRouteImport } from './routes/canal-de-privacidade'
 import { Route as EmbaixadoresRouteImport } from './routes/embaixadores'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as RetencaoDeDadosRouteImport } from './routes/retencao-de-dados'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -65,6 +67,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CanalDePrivacidadeRoute = CanalDePrivacidadeRouteImport.update({
+  id: '/canal-de-privacidade',
+  path: '/canal-de-privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmbaixadoresRoute = EmbaixadoresRouteImport.update({
   id: '/embaixadores',
   path: '/embaixadores',
@@ -83,6 +90,11 @@ const PrivacidadeRoute = PrivacidadeRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RetencaoDeDadosRoute = RetencaoDeDadosRouteImport.update({
+  id: '/retencao-de-dados',
+  path: '/retencao-de-dados',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermosRoute = TermosRouteImport.update({
@@ -269,10 +281,12 @@ const LovableEmailTransactionalPreviewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/canal-de-privacidade': typeof CanalDePrivacidadeRoute
   '/embaixadores': typeof EmbaixadoresRoute
   '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/retencao-de-dados': typeof RetencaoDeDadosRoute
   '/termos': typeof TermosRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -311,10 +325,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/canal-de-privacidade': typeof CanalDePrivacidadeRoute
   '/embaixadores': typeof EmbaixadoresRoute
   '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/retencao-de-dados': typeof RetencaoDeDadosRoute
   '/termos': typeof TermosRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -354,10 +370,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/canal-de-privacidade': typeof CanalDePrivacidadeRoute
   '/embaixadores': typeof EmbaixadoresRoute
   '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/retencao-de-dados': typeof RetencaoDeDadosRoute
   '/termos': typeof TermosRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -398,10 +416,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/canal-de-privacidade'
     | '/embaixadores'
     | '/mcp'
     | '/privacidade'
     | '/reset-password'
+    | '/retencao-de-dados'
     | '/termos'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -440,10 +460,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/canal-de-privacidade'
     | '/embaixadores'
     | '/mcp'
     | '/privacidade'
     | '/reset-password'
+    | '/retencao-de-dados'
     | '/termos'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -482,10 +504,12 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/canal-de-privacidade'
     | '/embaixadores'
     | '/mcp'
     | '/privacidade'
     | '/reset-password'
+    | '/retencao-de-dados'
     | '/termos'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -526,10 +550,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CanalDePrivacidadeRoute: typeof CanalDePrivacidadeRoute
   EmbaixadoresRoute: typeof EmbaixadoresRoute
   McpRoute: typeof McpRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  RetencaoDeDadosRoute: typeof RetencaoDeDadosRoute
   TermosRoute: typeof TermosRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -574,6 +600,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/canal-de-privacidade': {
+      id: '/canal-de-privacidade'
+      path: '/canal-de-privacidade'
+      fullPath: '/canal-de-privacidade'
+      preLoaderRoute: typeof CanalDePrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/embaixadores': {
       id: '/embaixadores'
       path: '/embaixadores'
@@ -600,6 +633,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/retencao-de-dados': {
+      id: '/retencao-de-dados'
+      path: '/retencao-de-dados'
+      fullPath: '/retencao-de-dados'
+      preLoaderRoute: typeof RetencaoDeDadosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/termos': {
@@ -896,10 +936,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CanalDePrivacidadeRoute: CanalDePrivacidadeRoute,
   EmbaixadoresRoute: EmbaixadoresRoute,
   McpRoute: McpRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  RetencaoDeDadosRoute: RetencaoDeDadosRoute,
   TermosRoute: TermosRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:

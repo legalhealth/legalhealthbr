@@ -20,8 +20,14 @@ const WELCOME: Record<ChatbotVariant, string> = {
     "Olá. Sou o assistente da Legal Health. Posso explicar o Juriscore®, os módulos de IA e os planos da plataforma.",
 };
 
-export function ChatWidget({ variant }: { variant: ChatbotVariant }) {
-  const [open, setOpen] = useState(false);
+export function ChatWidget({
+  variant,
+  defaultOpen = false,
+}: {
+  variant: ChatbotVariant;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
   const [input, setInput] = useState("");
   const { messages, pending, error, send, reset } = useChatbot(variant, open);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
