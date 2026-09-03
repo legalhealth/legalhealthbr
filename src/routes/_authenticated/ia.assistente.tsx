@@ -89,11 +89,17 @@ function Page() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const messages: ChatMessage[] = (storedMessages ?? []).map((m) => ({
-    id: m.id,
-    role: m.role === "user" ? "user" : "assistant",
-    content: m.content ?? "",
-  }));
+  // Remove repetições consecutivas de mesmo papel/conteúdo (inserções duplicadas
+  // antigas no banco ou reenvio de rede) para que nada apareça duas vezes na tela.
+  const messages: ChatMessage[] = (storedMessages ?? [])
+    .map((m) => ({
+      id: m.id,
+      role: (m.role === "user" ? "user" : "assistant") as ChatMessage["role"],
+      content: m.content ?? "",
+    }))
+    .filter(
+      (m, i, arr) => i === 0 || m.role !== arr[i - 1]?.role || m.content !== arr[i - 1]?.content,
+    );
 
   const welcome = useMemo<ChatMessage>(() => {
     const base =
