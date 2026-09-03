@@ -46,7 +46,7 @@ const steps = [
 function Page() {
   const navigate = useNavigate();
 
-  const finish = (to: "/" | "/juriscore") => {
+  const finish = (to: "/inicio" | "/juriscore") => {
     markWelcomeSeen();
     navigate({ to, replace: true });
   };
@@ -91,7 +91,7 @@ function Page() {
         </Button>
         <Button
           variant="outline"
-          onClick={() => finish("/")}
+          onClick={() => finish("/inicio")}
           className="h-11 rounded-xl border-border px-6 hover:bg-accent hover:text-accent-foreground"
         >
           <Check className="h-4 w-4" />

@@ -1,5 +1,14 @@
 # Roadmap — Legal Health
 
+## Landing pública de Embaixadores (concluído)
+- [x] Landing pública em `/` (visitante) + painel movido para `/inicio` (redireciona quem já tem sessão)
+- [x] Candidatura real em `ambassador_applications` (insert público validado por RLS, leitura só admin) + página `/embaixadores`
+- [x] Páginas legais `/termos` e `/privacidade` (com retenção e canal de privacidade)
+- [x] Eventos de conversão sem dados pessoais em `src/lib/analytics.ts`
+- [ ] Regulamento oficial do programa + revisão jurídica dos textos legais (hoje marcados como preliminares)
+- [ ] Painel admin para triagem das candidaturas
+- [ ] Lighthouse mobile/desktop após publicação
+
 ## Em andamento
 - [ ] Base própria de Q&A jurídico (`legal_qa`) + busca no banco usada pelo chatbot antes da IA externa
 - [ ] Painel de curadoria da base em `/admin/base-juridica` (papel admin)

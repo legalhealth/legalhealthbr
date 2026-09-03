@@ -41,8 +41,8 @@ function AuthPage() {
   const nextPath = safeNextPath();
   const returnUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin}${nextPath ?? "/"}`
-      : (nextPath ?? "/");
+      ? `${window.location.origin}${nextPath ?? "/inicio"}`
+      : (nextPath ?? "/inicio");
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -93,7 +93,7 @@ function AuthPage() {
           return;
         }
         const seen = typeof window !== "undefined" && window.localStorage.getItem(WELCOME_SEEN_KEY) === "1";
-        navigate({ to: seen ? "/" : "/bem-vindo", replace: true });
+        navigate({ to: seen ? "/inicio" : "/bem-vindo", replace: true });
       } else if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email,

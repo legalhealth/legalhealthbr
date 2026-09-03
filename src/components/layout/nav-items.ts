@@ -2,14 +2,14 @@ import { Home, Sparkles, Gauge, ClipboardList, BookOpen, User } from "lucide-rea
 import type { ComponentType } from "react";
 
 type NavItem = {
-  to: "/" | "/ia" | "/juriscore" | "/plano" | "/biblioteca" | "/perfil";
+  to: "/inicio" | "/ia" | "/juriscore" | "/plano" | "/biblioteca" | "/perfil";
   label: string;
   icon: ComponentType<{ className?: string; strokeWidth?: number }>;
   exact: boolean;
 };
 
 export const navItems: NavItem[] = [
-  { to: "/", label: "Início", icon: Home, exact: true },
+  { to: "/inicio", label: "Início", icon: Home, exact: true },
   { to: "/ia", label: "IA", icon: Sparkles, exact: false },
   { to: "/juriscore", label: "Juriscore®", icon: Gauge, exact: false },
   { to: "/plano", label: "Plano", icon: ClipboardList, exact: false },

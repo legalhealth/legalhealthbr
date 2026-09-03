@@ -12,6 +12,7 @@ export type ChatbotMessage = {
 /** Atalhos que o modelo pode sugerir no fim da resposta, no formato [IR:/caminho|Rótulo]. */
 export const CHATBOT_ROUTES = [
   "/",
+  "/inicio",
   "/auth",
   "/ia",
   "/ia/assistente",

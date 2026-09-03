@@ -186,6 +186,60 @@ export type Database = {
         }
         Relationships: []
       }
+      ambassador_applications: {
+        Row: {
+          aceite_regulamento: boolean
+          cidade: string
+          ciencia_nao_substitui_advogado: boolean
+          comunidade_tamanho: string | null
+          consentimento_contato: boolean
+          created_at: string
+          email: string
+          estado: string
+          id: string
+          link_profissional: string | null
+          motivo: string
+          nome: string
+          profissao: string
+          status: string
+          tipo_atuacao: string
+        }
+        Insert: {
+          aceite_regulamento?: boolean
+          cidade: string
+          ciencia_nao_substitui_advogado?: boolean
+          comunidade_tamanho?: string | null
+          consentimento_contato?: boolean
+          created_at?: string
+          email: string
+          estado: string
+          id?: string
+          link_profissional?: string | null
+          motivo: string
+          nome: string
+          profissao: string
+          status?: string
+          tipo_atuacao: string
+        }
+        Update: {
+          aceite_regulamento?: boolean
+          cidade?: string
+          ciencia_nao_substitui_advogado?: boolean
+          comunidade_tamanho?: string | null
+          consentimento_contato?: boolean
+          created_at?: string
+          email?: string
+          estado?: string
+          id?: string
+          link_profissional?: string | null
+          motivo?: string
+          nome?: string
+          profissao?: string
+          status?: string
+          tipo_atuacao?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           content: string | null
