@@ -217,6 +217,10 @@ function Page() {
   };
 
   const isBusy = status !== "ready";
+  // Só mostra o balão otimista enquanto a mensagem ainda não voltou do banco.
+  const lastStored = messages[messages.length - 1];
+  const showPendingUser =
+    pendingUser !== null && !(lastStored?.role === "user" && lastStored.content === pendingUser);
 
   return (
     <div className="space-y-6">
