@@ -48,7 +48,7 @@ export const InviteEmail = ({ siteName, siteUrl, confirmationUrl }: InviteEmailP
           <Link href={siteUrl} style={link}>
             <strong>{siteName}</strong>
           </Link>
-          , a plataforma de inteligência jurídica para medicina. Clique abaixo para aceitar o
+          , a plataforma de inteligência jurídica para saúde. Clique abaixo para aceitar o
           convite e criar sua conta.
         </Text>
         <Button style={button} href={confirmationUrl}>

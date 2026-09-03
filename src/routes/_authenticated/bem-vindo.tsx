@@ -59,7 +59,7 @@ function Page() {
           Bem-vindo ao Legal Health
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-          Sua central de inteligência jurídica para medicina. Em poucos minutos você entende seus riscos e recebe
+          Sua central de inteligência jurídica para saúde. Em poucos minutos você entende seus riscos e recebe
           orientações práticas. Veja como aproveitar a plataforma.
         </p>
       </div>

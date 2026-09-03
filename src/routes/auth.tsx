@@ -139,7 +139,7 @@ function AuthPage() {
         <div className="mb-8 flex justify-center sm:mb-10">
           <img
             src={verticalLogoAsset.url}
-            alt="Legal Health — Inteligência Jurídica para Medicina"
+            alt="Legal Health — Inteligência Jurídica para Saúde"
             width={260}
             height={260}
             className="block h-auto w-[62%] min-w-[168px] max-w-[200px] object-contain sm:w-full sm:max-w-[240px]"

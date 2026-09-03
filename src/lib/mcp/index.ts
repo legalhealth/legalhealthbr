@@ -11,7 +11,7 @@ export default defineMcp({
   title: "Legal health",
   version: "0.1.0",
   instructions:
-    "Ferramentas da Legal Health, plataforma de inteligência jurídica para medicina no Brasil. Use `listar_modelos_biblioteca` para descobrir os modelos da Biblioteca Inteligente, `gerar_documento_biblioteca` para gerar minutas, protocolos e checklists personalizados (salvos no histórico do usuário) e `listar_documentos_gerados` para consultar o histórico. Todo conteúdo gerado é sujeito à revisão do advogado responsável.",
+    "Ferramentas da Legal Health, plataforma de inteligência jurídica para saúde no Brasil. Use `listar_modelos_biblioteca` para descobrir os modelos da Biblioteca Inteligente, `gerar_documento_biblioteca` para gerar minutas, protocolos e checklists personalizados (salvos no histórico do usuário) e `listar_documentos_gerados` para consultar o histórico. Todo conteúdo gerado é sujeito à revisão do advogado responsável.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",

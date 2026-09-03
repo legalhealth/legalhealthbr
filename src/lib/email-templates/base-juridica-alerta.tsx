@@ -75,7 +75,7 @@ export function BaseJuridicaAlerta({
         <Container style={container}>
           <Section style={brandWrap}>
             <Text style={brandName}>LEGAL HEALTH</Text>
-            <Text style={brandTagline}>Inteligência Jurídica para Medicina</Text>
+            <Text style={brandTagline}>Inteligência Jurídica para Saúde</Text>
           </Section>
 
           <Heading style={h1}>Atualização automática da base jurídica</Heading>
