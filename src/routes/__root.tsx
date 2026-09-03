@@ -152,17 +152,27 @@ function RootComponent() {
     path.startsWith("/revisao");
   const isAuthRoute = isPublicChrome;
 
+  // Cliente de autenticação entra por import dinâmico: fora do bundle inicial
+  // das páginas públicas, sem afetar o comportamento nas rotas autenticadas.
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-      router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+    let ativo = true;
+    let unsubscribe: (() => void) | null = null;
+
+    void import("@/integrations/supabase/client").then(({ supabase }) => {
+      if (!ativo) return;
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((event) => {
+        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+        router.invalidate();
+        if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      });
+      unsubscribe = () => subscription.unsubscribe();
     });
 
     return () => {
-      subscription.unsubscribe();
+      ativo = false;
+      unsubscribe?.();
     };
   }, [router, queryClient]);
 
