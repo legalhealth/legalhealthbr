@@ -54,3 +54,14 @@
 - Reconfere as 12 fontes oficiais, cria nova versão quando o texto muda (versão anterior preservada como `alterada`).
 - Detecta nota de revogação/suspensão no cabeçalho oficial → fonte marcada `em_revisao` para triagem humana.
 - Alertas gravados em `legal_change_alerts`, exibidos em `/admin/fontes` e enviados por e-mail aos administradores (template `base-juridica-alerta`).
+
+## Auditoria da landing pública (briefing 9/10)
+- Bloco de clareza imediata com os três benefícios confirmados e situação explícita.
+- Cartões da plataforma com situação real por recurso e texto honesto sobre fontes oficiais.
+- Novas seções: responsabilidades do embaixador (antes do formulário), tabela Benefício/Situação/Observação (inclui remuneração "sujeito ao regulamento") e limites da plataforma.
+- FAQ ampliada (indicação, redes sociais, dados de pacientes, pós-3 meses, tratamento de dados).
+- Formulário: primeira etapa curta (cidade e tipo de atuação passaram a opcionais), erros com `aria-live` e evento `application_field_error`; envio por POST (sem dados na URL).
+- Menu mobile fecha por Escape e devolve o foco ao botão.
+- Analytics: `benefits_view`, `application_field_error`, `diagnostic_cta_click` adicionados.
+- Verificado: menu, FAQ, tabela, envio real (com sucesso e erro), zero erro de console, 200 em /, /auth, /embaixadores, /termos, /privacidade, /inicio.
+- Pendente: Lighthouse mobile/desktop após publicação, teste com 10 profissionais, regulamento oficial do programa, painel admin de candidaturas.
