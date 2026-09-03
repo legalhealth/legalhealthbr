@@ -547,11 +547,16 @@ export async function ingerirFonte(
       content: conteudo.slice(0, 500000),
       content_hash: hash,
       supersedes_version_id: versaoAtual?.id ?? null,
-      change_reason:
-        novaVersao === 1
+      change_reason: curado
+        ? "Curadoria manual do PDF oficial do órgão emissor."
+        : novaVersao === 1
           ? "Coleta inicial do texto oficial."
           : "Coleta automática detectou alteração no texto oficial.",
-      review_notes: `Coletado de ${fonte.officialUrl} em ${new Date().toISOString().slice(0, 10)}.`,
+      reviewed_by: curado?.revisadoPor ?? null,
+      reviewed_at: curado ? new Date().toISOString() : null,
+      review_notes: curado
+        ? `Texto conferido artigo por artigo no PDF oficial (${fonte.officialUrl}) em ${curado.conferidoEm}.`
+        : `Coletado de ${fonte.officialUrl} em ${new Date().toISOString().slice(0, 10)}.`,
       published: true,
     })
     .select("id, version")
