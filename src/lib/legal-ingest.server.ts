@@ -360,14 +360,37 @@ async function sha256(texto: string): Promise<string> {
     .join("");
 }
 
+// Portais oficiais (Planalto, entre outros) encerram a conexão para clientes sem
+// identificação de navegador; mantemos um agente compatível e uma tentativa extra.
+const AGENTES = [
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36 LegalHealthBot/1.0",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
+];
+
+async function buscarComRetentativa(url: string): Promise<Response> {
+  let ultimoErro: unknown = null;
+  for (const agente of AGENTES) {
+    try {
+      const res = await fetch(url, {
+        redirect: "follow",
+        headers: {
+          "user-agent": agente,
+          accept: "text/html,application/xhtml+xml",
+          "accept-language": "pt-BR,pt;q=0.9",
+        },
+      });
+      if (res.ok) return res;
+      ultimoErro = new Error(`A fonte respondeu ${res.status}.`);
+    } catch (e) {
+      ultimoErro = e;
+    }
+  }
+  throw ultimoErro instanceof Error ? ultimoErro : new Error("Falha ao acessar a fonte oficial.");
+}
+
 /** Baixa o HTML oficial respeitando a codificação declarada pela fonte. */
 async function baixarTexto(url: string): Promise<string> {
-  const res = await fetch(url, {
-    headers: {
-      "user-agent": "LegalHealthBot/1.0 (+https://legalhealthbr.app)",
-      accept: "text/html,application/xhtml+xml",
-    },
-  });
+  const res = await buscarComRetentativa(url);
   if (!res.ok) throw new Error(`A fonte respondeu ${res.status}.`);
 
   const buffer = await res.arrayBuffer();
