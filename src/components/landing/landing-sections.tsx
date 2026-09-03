@@ -271,61 +271,81 @@ export function Problema() {
 /* ------------------------------- A plataforma ------------------------------- */
 
 export function Plataforma() {
-  const recursos = [
+  const recursos: {
+    icon: typeof Gauge;
+    titulo: string;
+    beneficio: string;
+    situacao: SituacaoBeneficio;
+  }[] = [
     {
       icon: Gauge,
       titulo: "Juriscore®",
-      texto:
-        "Diagnóstico de 15 perguntas em cinco pilares, com pontuação e leitura dos pontos de atenção.",
+      beneficio:
+        "Diagnóstico preventivo em 15 perguntas e cinco pilares: você vê onde está o maior ponto de atenção.",
+      situacao: "disponivel",
     },
     {
       icon: MessagesSquare,
-      titulo: "Assistente com base própria",
-      texto:
-        "Respostas citando norma, artigo, órgão emissor, vigência e link oficial das fontes indexadas.",
+      titulo: "Assistente de IA",
+      beneficio:
+        "Apoio contextualizado com limites claros e fontes oficiais identificadas quando disponíveis.",
+      situacao: "disponivel",
     },
     {
       icon: ClipboardList,
-      titulo: "Plano de ação",
-      texto: "Prioridades por risco e prazo, geradas a partir do seu diagnóstico.",
+      titulo: "Plano de Ação",
+      beneficio: "Prioridades organizadas por risco e prazo a partir do seu diagnóstico.",
+      situacao: "disponivel",
     },
     {
       icon: FileSearch,
       titulo: "Leitura de documentos",
-      texto: "Anexe uma intimação ou contrato e receba a leitura estruturada do conteúdo.",
+      beneficio:
+        "Leitura assistida de uma intimação ou contrato, sem substituir a revisão jurídica.",
+      situacao: "piloto",
     },
     {
       icon: BookOpen,
       titulo: "Biblioteca",
-      texto: "Modelos, protocolos e checklists para revisar rotinas do consultório ou clínica.",
+      beneficio: "Modelos, protocolos e checklists para revisar rotinas do consultório ou clínica.",
+      situacao: "disponivel",
     },
     {
       icon: Users,
-      titulo: "Encaminhamento ao advogado",
-      texto: "Envio organizado dos anexos e do contexto, com comprovante do que foi encaminhado.",
+      titulo: "Envio ao advogado",
+      beneficio:
+        "Encaminhamento organizado dos anexos e do contexto, com comprovante do que foi enviado.",
+      situacao: "piloto",
     },
   ];
   return (
     <section id="plataforma" className="scroll-mt-20 border-y border-border bg-card/30">
       <div className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
-        <SectionTitle eyebrow="A plataforma" title="O que você vai usar durante a experiência." />
+        <SectionTitle eyebrow="A plataforma" title="Conheça o que a Legal Health organiza." />
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {recursos.map(({ icon: Icon, titulo, texto }) => (
+          {recursos.map(({ icon: Icon, titulo, beneficio, situacao }) => (
             <div key={titulo} className="rounded-2xl border border-border bg-card p-6">
-              <Icon className="h-5 w-5 text-gold" aria-hidden="true" />
+              <div className="flex items-start justify-between gap-3">
+                <Icon className="h-5 w-5 text-gold" aria-hidden="true" />
+                <SituacaoTag situacao={situacao} />
+              </div>
               <h3 className="mt-4 text-[0.95rem] font-medium text-foreground">{titulo}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{texto}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{beneficio}</p>
             </div>
           ))}
         </div>
-        <div className="mt-8">
+        <p className="mt-8 max-w-2xl text-xs leading-relaxed text-subtle">
+          Fontes oficiais identificadas, com revisão profissional quando aplicável. As respostas
+          indicam norma, órgão emissor e link oficial para que você possa conferir na fonte.
+        </p>
+        <div className="mt-6">
           <Link
             to="/auth"
-            onClick={() => track("diagnostic_start", { origem: "plataforma" })}
-            className="inline-flex items-center gap-2 text-sm text-gold hover:text-gold-light"
+            onClick={() => track("diagnostic_cta_click", { origem: "plataforma" })}
+            className="inline-flex items-center gap-2 text-sm text-gold underline underline-offset-4 hover:text-gold-light"
           >
             Criar conta e iniciar o diagnóstico
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>
       </div>
