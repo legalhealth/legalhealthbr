@@ -25,6 +25,8 @@ export function useChatbot(variant: ChatbotVariant, open: boolean) {
   const [error, setError] = useState<string | null>(null);
   const threadRef = useRef<string | null>(null);
   const restoredRef = useRef(false);
+  // Guarda por ref: `pending` no state pode estar defasado em cliques rápidos.
+  const sendingRef = useRef(false);
 
   // Retoma a última conversa do usuário logado ao abrir a bolha.
   useEffect(() => {
@@ -35,11 +37,18 @@ export function useChatbot(variant: ChatbotVariant, open: boolean) {
         if (!thread) return;
         threadRef.current = thread.id;
         setMessages(
-          thread.messages.map((message) =>
-            message.role === "assistant"
-              ? { ...message, ...parseChatbotAnswer(message.content) }
-              : message,
-          ),
+          thread.messages
+            .filter(
+              (message, i, arr) =>
+                i === 0 ||
+                message.role !== arr[i - 1]?.role ||
+                message.content !== arr[i - 1]?.content,
+            )
+            .map((message) =>
+              message.role === "assistant"
+                ? { ...message, ...parseChatbotAnswer(message.content) }
+                : message,
+            ),
         );
       })
       .catch(() => {
@@ -48,6 +57,7 @@ export function useChatbot(variant: ChatbotVariant, open: boolean) {
   }, [variant, open]);
 
   const reset = useCallback(() => {
+    sendingRef.current = false;
     threadRef.current = null;
     setMessages([]);
     setError(null);
@@ -56,7 +66,8 @@ export function useChatbot(variant: ChatbotVariant, open: boolean) {
   const send = useCallback(
     async (raw: string) => {
       const text = raw.trim();
-      if (!text || pending) return;
+      if (!text || pending || sendingRef.current) return;
+      sendingRef.current = true;
 
       setError(null);
       const userEntry: ChatbotEntry = { id: newId(), role: "user", content: text };
@@ -114,6 +125,7 @@ export function useChatbot(variant: ChatbotVariant, open: boolean) {
         setMessages((prev) => prev.filter((entry) => entry.id !== assistantId));
       } finally {
         setPending(false);
+        sendingRef.current = false;
       }
     },
     [messages, pending, variant],
