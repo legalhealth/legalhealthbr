@@ -1,5 +1,3 @@
-import type { TrechoColetado } from "./legal-ingest.server";
-
 /**
  * Curadoria manual das resoluções do CFM publicadas apenas em PDF.
  *
@@ -455,5 +453,3 @@ IV – As omissões deste Código serão sanadas pelo Conselho Federal de Medici
 export function temTextoCurado(sourceId: string): boolean {
   return Boolean(TEXTOS_CURADOS[sourceId]);
 }
-
-export type { TrechoColetado };
