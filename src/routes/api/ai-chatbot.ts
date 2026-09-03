@@ -86,6 +86,7 @@ export const Route = createFileRoute("/api/ai-chatbot")({
           contextoDasFontes,
           recuperarFontes,
           registrarAuditoria,
+          respostaDasFontes,
           rodapeDeFontes,
         } = await import("@/lib/legal-sources.server");
 
