@@ -1,0 +1,1 @@
+ALTER TABLE public.ambassador_applications ALTER COLUMN cidade DROP NOT NULL, ALTER COLUMN tipo_atuacao DROP NOT NULL;
