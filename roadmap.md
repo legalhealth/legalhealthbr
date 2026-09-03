@@ -37,4 +37,5 @@
 - Catálogo curado de 12 fontes oficiais em `src/lib/legal-ingest.server.ts` (9 HTML automáticas + 3 do CFM em PDF, com curadoria manual).
 - Coleta idempotente: compara o texto oficial com o indexado, cria nova versão só quando há alteração e preserva a anterior.
 - Painel admin em /admin/fontes (`src/components/admin/painel-ingestao.tsx`) com histórico em `legal_ingest_runs`.
-- Pendências: extração de PDFs do CFM, painel do advogado /advogado, suíte de 100 casos.
+- Resoluções CFM 2.314/2022, 2.336/2023 e 2.217/2018 curadas em `src/lib/legal-curadoria-cfm.server.ts` e indexadas (152 trechos vigentes, versão 2, revisor registrado).
+- Pendências: painel do advogado /advogado, suíte de 100 casos.

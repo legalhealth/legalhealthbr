@@ -438,7 +438,12 @@ export async function ingerirFonte(
     return r;
   };
 
-  if (fonte.formato === "pdf") {
+  // Fontes em PDF entram pela curadoria manual: o texto conferido pelo curador
+  // jurídico é indexado com a mesma trilha de versão, vigência e status.
+  const { TEXTOS_CURADOS } = await import("./legal-curadoria-cfm.server");
+  const curado = fonte.formato === "pdf" ? TEXTOS_CURADOS[fonte.sourceId] : undefined;
+
+  if (fonte.formato === "pdf" && !curado) {
     return registrar({
       ...base,
       resultado: "manual",
@@ -448,10 +453,14 @@ export async function ingerirFonte(
   }
 
   let texto: string;
-  try {
-    texto = await baixarTexto(fonte.officialUrl);
-  } catch (e) {
-    return registrar({ ...base, mensagem: e instanceof Error ? e.message : "Falha ao baixar." });
+  if (curado) {
+    texto = curado.texto;
+  } else {
+    try {
+      texto = await baixarTexto(fonte.officialUrl);
+    } catch (e) {
+      return registrar({ ...base, mensagem: e instanceof Error ? e.message : "Falha ao baixar." });
+    }
   }
   if (texto.length < 500) {
     return registrar({ ...base, mensagem: "Conteúdo insuficiente na página oficial." });
@@ -489,6 +498,7 @@ export async function ingerirFonte(
     pilar: fonte.pilar,
     publication_date: fonte.publicationDate,
     last_checked_at: new Date().toISOString(),
+    ...(curado ? { responsavel_juridico: curado.revisadoPor } : {}),
   };
 
   let sourceUuid = fonteExistente?.id ?? null;
@@ -538,11 +548,16 @@ export async function ingerirFonte(
       content: conteudo.slice(0, 500000),
       content_hash: hash,
       supersedes_version_id: versaoAtual?.id ?? null,
-      change_reason:
-        novaVersao === 1
+      change_reason: curado
+        ? "Curadoria manual do PDF oficial do órgão emissor."
+        : novaVersao === 1
           ? "Coleta inicial do texto oficial."
           : "Coleta automática detectou alteração no texto oficial.",
-      review_notes: `Coletado de ${fonte.officialUrl} em ${new Date().toISOString().slice(0, 10)}.`,
+      reviewed_by: curado?.revisadoPor ?? null,
+      reviewed_at: curado ? new Date().toISOString() : null,
+      review_notes: curado
+        ? `Texto conferido artigo por artigo no PDF oficial (${fonte.officialUrl}) em ${curado.conferidoEm}.`
+        : `Coletado de ${fonte.officialUrl} em ${new Date().toISOString().slice(0, 10)}.`,
       published: true,
     })
     .select("id, version")

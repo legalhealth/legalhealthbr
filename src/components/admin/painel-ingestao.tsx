@@ -118,9 +118,13 @@ export function PainelIngestao() {
                       {fonte.authorityLevel}
                     </p>
                   </div>
-                  {fonte.formato === "pdf" ? (
+                  {fonte.formato === "pdf" && fonte.curado ? (
+                    <span className="flex shrink-0 items-center gap-1 text-xs text-[#2FBF7B]">
+                      <FileText className="size-3.5" /> PDF curado
+                    </span>
+                  ) : fonte.formato === "pdf" ? (
                     <span className="flex shrink-0 items-center gap-1 text-xs text-[#D9A648]">
-                      <FileText className="size-3.5" /> PDF
+                      <FileText className="size-3.5" /> PDF pendente
                     </span>
                   ) : (
                     <span className="flex shrink-0 items-center gap-1 text-xs text-[#2FBF7B]">
@@ -129,9 +133,11 @@ export function PainelIngestao() {
                   )}
                 </div>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  {fonte.artigos.length > 0
-                    ? `Recorte curado: ${fonte.artigos.join(", ")}`
-                    : "Texto integral publicado em PDF pelo órgão emissor."}
+                  {fonte.formato === "pdf" && fonte.curado
+                    ? "Texto do PDF oficial conferido pela curadoria jurídica e indexado com vigência e status."
+                    : fonte.artigos.length > 0
+                      ? `Recorte curado: ${fonte.artigos.join(", ")}`
+                      : "Texto integral publicado em PDF pelo órgão emissor."}
                 </p>
                 <a
                   href={fonte.officialUrl}
