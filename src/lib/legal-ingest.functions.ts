@@ -15,17 +15,20 @@ export type CatalogoItem = {
   artigos: string[];
 };
 
+type Ctx = { supabase: ReturnType<typeof identity>; userId: string };
+function identity() {
+  return null as unknown as import("@supabase/supabase-js").SupabaseClient<
+    import("@/integrations/supabase/types").Database
+  >;
+}
+
 /** Só administradores acionam a coleta oficial. */
-async function garantirAdmin(supabase: {
-  from: (t: string) => {
-    select: (c: string) => {
-      eq: (c: string, v: string) => { limit: (n: number) => Promise<{ data: unknown[] | null }> };
-    };
-  };
-}, userId: string) {
-  const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId).limit(20);
-  const roles = (data ?? []) as { role?: string }[];
-  if (!roles.some((r) => r.role === "admin")) {
+async function garantirAdmin(context: Ctx) {
+  const { data } = await context.supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", context.userId);
+  if (!(data ?? []).some((r) => r.role === "admin")) {
     throw new Error("Apenas administradores podem executar a coleta da base jurídica.");
   }
 }
@@ -34,7 +37,7 @@ async function garantirAdmin(supabase: {
 export const listarCatalogoIngestao = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<CatalogoItem[]> => {
-    await garantirAdmin(context.supabase as never, context.userId);
+    await garantirAdmin(context as unknown as Ctx);
     const { CATALOGO } = await import("@/lib/legal-ingest.server");
     return CATALOGO.map((f) => ({
       sourceId: f.sourceId,
@@ -52,12 +55,12 @@ export const listarCatalogoIngestao = createServerFn({ method: "GET" })
 
 /** Coleta e indexa as fontes escolhidas (ou o catálogo completo). */
 export const executarIngestao = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { sourceIds?: string[] } | undefined) => ({
     sourceIds: Array.isArray(input?.sourceIds) ? input!.sourceIds.map(String).slice(0, 30) : [],
   }))
-  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
-    await garantirAdmin(context.supabase as never, context.userId);
+    await garantirAdmin(context as unknown as Ctx);
     const { ingerirCatalogo } = await import("@/lib/legal-ingest.server");
     const resultados = await ingerirCatalogo(context.userId, data.sourceIds);
     return { resultados };
@@ -79,19 +82,14 @@ export type IngestRun = {
 export const historicoIngestao = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<IngestRun[]> => {
-    await garantirAdmin(context.supabase as never, context.userId);
-    const { data } = await (context.supabase as never as {
-      from: (t: string) => {
-        select: (c: string) => {
-          order: (c: string, o: { ascending: boolean }) => {
-            limit: (n: number) => Promise<{ data: IngestRun[] | null }>;
-          };
-        };
-      };
-    })
+    const ctx = context as unknown as Ctx;
+    await garantirAdmin(ctx);
+    const { data } = await ctx.supabase
       .from("legal_ingest_runs")
-      .select("id, source_id, official_url, resultado, version, chunks, tamanho_texto, mensagem, created_at")
+      .select(
+        "id, source_id, official_url, resultado, version, chunks, tamanho_texto, mensagem, created_at",
+      )
       .order("created_at", { ascending: false })
       .limit(50);
-    return data ?? [];
+    return (data ?? []) as IngestRun[];
   });
