@@ -162,7 +162,7 @@ function HeroComposicao() {
   ];
 
   return (
-    <div className="space-y-4" aria-label="Exemplo ilustrativo da plataforma">
+    <div className="space-y-4" role="group" aria-label="Exemplo ilustrativo da plataforma">
       <div className="glass-card rounded-2xl p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
