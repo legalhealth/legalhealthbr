@@ -73,7 +73,7 @@ function ResetPasswordPage() {
         <div className="mb-8 text-center">
           <img
             src={verticalLogoAsset.url}
-            alt="Legal Health — Inteligência Jurídica para Medicina"
+            alt="Legal Health — Inteligência Jurídica para Saúde"
             className="mx-auto h-auto w-full max-w-[220px]"
           />
         </div>

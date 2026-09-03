@@ -40,7 +40,7 @@ export function PublicHeader() {
               Legal Health
             </span>
             <span className="mt-1.5 block truncate text-[0.55rem] uppercase tracking-[0.24em] text-gold md:text-[0.62rem]">
-              inteligência jurídica para medicina
+              inteligência jurídica para saúde
             </span>
           </span>
         </Link>
