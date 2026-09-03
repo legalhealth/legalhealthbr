@@ -20,53 +20,39 @@ export function PublicFooter() {
           <div className="grid gap-8 sm:grid-cols-3">
             <nav aria-label="Plataforma" className="grid gap-2 text-sm">
               <p className="text-xs uppercase tracking-[0.2em] text-subtle">Plataforma</p>
-              <a href="#plataforma" className="text-muted-foreground hover:text-foreground">
+              <a href="#plataforma" className={linkClass}>
                 Sobre a plataforma
               </a>
-              <a href="#candidatura" className="text-muted-foreground hover:text-foreground">
+              <a href="#candidatura" className={linkClass}>
                 Candidatura
               </a>
-              <Link to="/auth" className="text-muted-foreground hover:text-foreground">
+              <Link to="/auth" className={linkClass}>
                 Entrar
               </Link>
             </nav>
 
             <nav aria-label="Documentos legais" className="grid gap-2 text-sm">
               <p className="text-xs uppercase tracking-[0.2em] text-subtle">Legal</p>
-              <Link to="/termos" className="text-muted-foreground hover:text-foreground">
+              <Link to="/termos" className={linkClass}>
                 Termos de Uso
               </Link>
-              <Link to="/privacidade" className="text-muted-foreground hover:text-foreground">
+              <Link to="/privacidade" className={linkClass}>
                 Política de Privacidade
               </Link>
-              <Link
-                to="/privacidade"
-                hash="retencao"
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <Link to="/retencao-de-dados" className={linkClass}>
                 Retenção de Dados
               </Link>
-              <Link
-                to="/privacidade"
-                hash="canal"
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <Link to="/canal-de-privacidade" className={linkClass}>
                 Canal de Privacidade
               </Link>
             </nav>
 
             <div className="grid gap-2 text-sm">
               <p className="text-xs uppercase tracking-[0.2em] text-subtle">Contato</p>
-              <a
-                href="mailto:contato@legalhealthbr.app"
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <a href="mailto:contato@legalhealthbr.app" className={linkClass}>
                 contato@legalhealthbr.app
               </a>
-              <a
-                href="mailto:privacidade@legalhealthbr.app"
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <a href="mailto:privacidade@legalhealthbr.app" className={linkClass}>
                 privacidade@legalhealthbr.app
               </a>
             </div>
