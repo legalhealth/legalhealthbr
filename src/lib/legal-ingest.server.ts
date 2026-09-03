@@ -286,7 +286,23 @@ export type ResultadoIngestao = {
   chunks: number;
   tamanhoTexto: number;
   mensagem: string;
+  /** Indício, no próprio texto oficial, de que a norma foi revogada ou suspensa. */
+  revogacao?: string | null;
 };
+
+/**
+ * Procura, no cabeçalho do texto oficial, a marca de revogação usada pelos
+ * portais (Planalto, CFM): "Revogada pela Lei nº ...", "(Revogado pelo Decreto ...".
+ * A detecção alimenta o alerta automático — a baixa efetiva da norma continua
+ * dependendo de confirmação da curadoria jurídica.
+ */
+export function detectarRevogacao(texto: string): string | null {
+  const cabecalho = texto.slice(0, 4000).replace(/\s+/g, " ");
+  const re =
+    /((?:Revogad[ao]|Suspens[ao])(?:\s+integralmente)?\s+(?:pel[ao]|por)\s+[^.;)]{5,140})/i;
+  const m = re.exec(cabecalho);
+  return m ? m[1]!.trim() : null;
+}
 
 /** Texto legível a partir do HTML oficial (sem dependências externas). */
 export function htmlParaTexto(html: string): string {
@@ -422,6 +438,7 @@ export async function ingerirFonte(
     chunks: 0,
     tamanhoTexto: 0,
     mensagem: "",
+    revogacao: null,
   };
 
   const registrar = async (r: ResultadoIngestao) => {
@@ -465,6 +482,8 @@ export async function ingerirFonte(
   if (texto.length < 500) {
     return registrar({ ...base, mensagem: "Conteúdo insuficiente na página oficial." });
   }
+
+  base.revogacao = detectarRevogacao(texto);
 
   const trechos = dividirEmArtigos(texto, fonte.artigos);
   if (trechos.length === 0) {
