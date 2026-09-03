@@ -60,7 +60,10 @@ export function CandidaturaForm() {
       return;
     }
     if (motivo.trim().length < 10) {
-      falhaDeCampo("motivo", "Conte em poucas linhas por que deseja participar (mínimo de 10 caracteres).");
+      falhaDeCampo(
+        "motivo",
+        "Conte em poucas linhas por que deseja participar (mínimo de 10 caracteres).",
+      );
       return;
     }
     if (!aceite || !ciencia) {
@@ -216,8 +219,7 @@ export function CandidaturaForm() {
 
         <div className="space-y-2">
           <Label htmlFor="link">
-            Link profissional ou rede social{" "}
-            <span className="text-subtle">(opcional)</span>
+            Link profissional ou rede social <span className="text-subtle">(opcional)</span>
           </Label>
           <Input
             id="link"

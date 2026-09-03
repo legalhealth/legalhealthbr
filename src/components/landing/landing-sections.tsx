@@ -125,10 +125,7 @@ export function Hero() {
               variant="outline"
               className="h-12 rounded-xl border-border px-6 text-[0.95rem] hover:bg-accent"
             >
-              <a
-                href="#plataforma"
-                onClick={() => track("platform_cta_click", { origem: "hero" })}
-              >
+              <a href="#plataforma" onClick={() => track("platform_cta_click", { origem: "hero" })}>
                 Conhecer a plataforma
               </a>
             </Button>
@@ -393,12 +390,12 @@ export function Plataforma() {
 export function SerEmbaixador() {
   const ref = useVistoUmaVez("ambassador_section_view", "ser-embaixador");
 
-
   const blocos = [
     {
       icon: Compass,
       titulo: "Experimente",
-      texto: "Use os recursos disponíveis e conheça o diagnóstico preventivo na sua própria rotina.",
+      texto:
+        "Use os recursos disponíveis e conheça o diagnóstico preventivo na sua própria rotina.",
     },
     {
       icon: Lightbulb,
@@ -690,7 +687,10 @@ export function QuemPode() {
         <h3 className="text-[0.95rem] font-medium text-foreground">Critérios transparentes</h3>
         <ul className="mt-4 space-y-2">
           {criterios.map((c) => (
-            <li key={c} className="flex items-start gap-3 text-sm leading-relaxed text-muted-foreground">
+            <li
+              key={c}
+              className="flex items-start gap-3 text-sm leading-relaxed text-muted-foreground"
+            >
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
               {c}
             </li>

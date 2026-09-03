@@ -5,11 +5,7 @@
  * funcionalidade pronta se ainda não existir no produto.
  */
 
-export type SituacaoBeneficio =
-  | "disponivel"
-  | "piloto"
-  | "em-breve"
-  | "regulamento";
+export type SituacaoBeneficio = "disponivel" | "piloto" | "em-breve" | "regulamento";
 
 export const SITUACAO_LABEL: Record<SituacaoBeneficio, string> = {
   disponivel: "Disponível agora",
@@ -93,7 +89,33 @@ export const TIPOS_ATUACAO = [
 ] as const;
 
 export const UFS = [
-  "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO",
+  "AC",
+  "AL",
+  "AP",
+  "AM",
+  "BA",
+  "CE",
+  "DF",
+  "ES",
+  "GO",
+  "MA",
+  "MT",
+  "MS",
+  "MG",
+  "PA",
+  "PB",
+  "PR",
+  "PE",
+  "PI",
+  "RJ",
+  "RN",
+  "RS",
+  "RO",
+  "RR",
+  "SC",
+  "SP",
+  "SE",
+  "TO",
 ] as const;
 
 export const FAQ = [
