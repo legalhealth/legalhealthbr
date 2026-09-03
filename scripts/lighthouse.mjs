@@ -37,7 +37,14 @@ const FORMATOS = (flag("formatos") ?? "mobile,desktop").split(",").map((f) => f.
 const rotasSelecionadas = flag("rotas")
   ? flag("rotas")
       .split(",")
-      .map((c) => ({ caminho: c.trim(), nome: c.trim().replace(/[^\w]+/g, "_") || "raiz" }))
+      .map((c) => {
+        const caminho = c.trim();
+        const conhecida = ROTAS.find((r) => r.caminho === caminho);
+        return {
+          caminho,
+          nome: conhecida?.nome ?? caminho.replace(/^\//, "").replace(/[^\w]+/g, "-") || "raiz",
+        };
+      })
   : ROTAS;
 
 /** Caminhos possíveis do Chromium já disponível no ambiente. */
