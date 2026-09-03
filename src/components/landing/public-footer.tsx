@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import horizontal from "@/assets/LH_horizontal_fundo_escuro.png.asset.json";
+import monograma from "@/assets/lh-monograma.png.asset.json";
 
 export function PublicFooter() {
   return (
