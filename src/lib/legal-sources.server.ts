@@ -182,12 +182,13 @@ export async function registrarAuditoria(input: {
   exigeAdvogado?: boolean;
 }): Promise<void> {
   const trechos = input.trechos ?? [];
-  const { error } = await supabaseAdmin.rpc("registrar_auditoria_resposta", {
-    ...(input.userId ? { user_id_in: input.userId } : {}),
+  // Os parâmetros aceitam nulo no banco; os tipos gerados não expressam isso.
+  const args = {
+    user_id_in: input.userId ?? null,
     origem_in: input.origem,
     pergunta_in: input.pergunta.slice(0, 1000),
     fonte_in: input.fonte,
-    ...(input.qaId ? { qa_id_in: input.qaId } : {}),
+    qa_id_in: input.qaId ?? null,
     version_ids_in: Array.from(new Set(trechos.map((t) => t.versionId))),
     citacoes_in: trechos.map((t) => ({
       source_id: t.sourceId,
@@ -195,8 +196,12 @@ export async function registrarAuditoria(input: {
       artigo: t.artigo,
       citacao: citacao(t),
     })),
-    ...(input.nivelRisco ? { nivel_risco_in: input.nivelRisco } : {}),
+    nivel_risco_in: input.nivelRisco ?? null,
     exige_advogado_in: input.exigeAdvogado ?? false,
-  });
+  };
+  const { error } = await supabaseAdmin.rpc(
+    "registrar_auditoria_resposta",
+    args as unknown as Database["public"]["Functions"]["registrar_auditoria_resposta"]["Args"],
+  );
   if (error) console.error("auditoria de resposta: falha ao registrar", error);
 }
