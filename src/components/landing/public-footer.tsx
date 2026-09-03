@@ -7,7 +7,7 @@ export function PublicFooter() {
       <div className="mx-auto max-w-7xl px-5 py-12 md:px-8">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
-            <img src={horizontal.url} alt="Legal Health" className="h-9 w-auto" />
+            <img src={monograma.url} alt="Legal Health" className="h-9 w-auto" />
             <p className="mt-4 text-[0.65rem] uppercase tracking-[0.3em] text-gold">
               Antecipe · Decida · Proteja
             </p>
