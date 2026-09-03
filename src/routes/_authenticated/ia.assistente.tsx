@@ -141,7 +141,10 @@ function Page() {
   ) => {
     e.preventDefault();
     const text = input.trim();
-    if (!text || status !== "ready") return;
+    // Guarda por ref: evita envio duplicado quando o submit dispara duas vezes
+    // (Enter + clique, toque duplo no mobile ou remount em StrictMode).
+    if (!text || status !== "ready" || sendingRef.current) return;
+    sendingRef.current = true;
 
     const sentAttachments = attachments;
     const attachmentNote =
@@ -165,6 +168,11 @@ function Page() {
       }
 
       await appendMessage(activeThread, "user", text + attachmentNote);
+      // A mensagem já está persistida: recarrega o histórico e descarta o balão
+      // otimista para não exibir a mesma pergunta duas vezes.
+      await queryClient.invalidateQueries({ queryKey: ["chat-messages", activeThread] });
+      setPendingUser(null);
+
 
       setStatus("streaming");
       const history = [
