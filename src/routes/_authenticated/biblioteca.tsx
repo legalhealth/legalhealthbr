@@ -89,6 +89,8 @@ function Page() {
   }
 
   async function handleGenerate() {
+    if (gerandoRef.current) return;
+    gerandoRef.current = true;
     setGenerating(true);
     setError(null);
     setDocId(null);
