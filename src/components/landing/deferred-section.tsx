@@ -30,7 +30,7 @@ export function DeferredSection({
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) liberar();
       },
-      { rootMargin: "600px 0px" },
+      { rootMargin: "200px 0px" },
     );
     obs.observe(alvo);
 
