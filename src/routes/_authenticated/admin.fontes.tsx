@@ -132,7 +132,10 @@ function Page() {
         </div>
       )}
 
+      <PainelIngestao />
+
       <h2 className="mt-10 text-sm tracking-[0.2em] text-primary uppercase">
+
         Auditoria de respostas
       </h2>
       <div className="mt-4 space-y-2">
