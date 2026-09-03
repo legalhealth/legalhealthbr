@@ -1,26 +1,14 @@
-import { useEffect } from "react";
+import { lazy, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/landing/public-header";
 import { PublicFooter } from "@/components/landing/public-footer";
-import { CandidaturaForm } from "@/components/landing/candidatura-form";
-import {
-  Beneficios,
-  ComoFunciona,
-  CtaFinal,
-  FaqSection,
-  Hero,
-  Limites,
-  Plataforma,
-  Problema,
-  QuemPode,
-  Responsabilidades,
-  SerEmbaixador,
-  TrustBar,
-  Vantagens,
-} from "@/components/landing/landing-sections";
+import { Hero, TrustBar } from "@/components/landing/landing-hero";
+import { DeferredSection } from "@/components/landing/deferred-section";
 import { track } from "@/lib/analytics";
+
+// Seções abaixo da dobra (inclui formulário, accordion e selects) em chunk próprio.
+const LandingBelowFold = lazy(() => import("@/components/landing/landing-below-fold"));
 
 const TITLE = "Legal Health | Programa de Embaixadores para profissionais da saúde";
 const DESCRIPTION =
@@ -50,11 +38,14 @@ function LandingPage() {
   }, []);
 
   // Visitante vê a landing; usuário autenticado segue para o painel em /inicio.
+  // O cliente de autenticação entra por import dinâmico para não pesar no LCP.
   useEffect(() => {
     let ativo = true;
-    supabase.auth.getSession().then(({ data }) => {
-      if (ativo && data.session) navigate({ to: "/inicio", replace: true });
-    });
+    void import("@/integrations/supabase/client").then(({ supabase }) =>
+      supabase.auth.getSession().then(({ data }) => {
+        if (ativo && data.session) navigate({ to: "/inicio", replace: true });
+      }),
+    );
     return () => {
       ativo = false;
     };
@@ -66,34 +57,9 @@ function LandingPage() {
       <main className="flex-1">
         <Hero />
         <TrustBar />
-        <Problema />
-        <Plataforma />
-        <SerEmbaixador />
-        <Vantagens />
-        <Beneficios />
-        <ComoFunciona />
-        <Responsabilidades />
-        <QuemPode />
-        <Limites />
-
-        <section id="candidatura" className="scroll-mt-20 border-t border-border bg-card/30">
-          <div className="mx-auto max-w-3xl px-5 py-16 md:px-8 md:py-20">
-            <p className="text-[0.62rem] uppercase tracking-[0.28em] text-gold">Candidatura</p>
-            <h2 className="mt-3 font-display text-[1.8rem] leading-tight tracking-tight text-foreground md:text-[2.3rem]">
-              Envie seu interesse em ser Embaixador.
-            </h2>
-            <p className="mt-4 text-[0.95rem] leading-relaxed text-muted-foreground">
-              Pedimos apenas contato e área de atuação. Não solicitamos CRM, número de conselho,
-              dados de pacientes ou documentos sensíveis nesta etapa.
-            </p>
-            <div className="mt-8">
-              <CandidaturaForm />
-            </div>
-          </div>
-        </section>
-
-        <FaqSection />
-        <CtaFinal />
+        <DeferredSection minHeight="120rem">
+          <LandingBelowFold />
+        </DeferredSection>
       </main>
       <PublicFooter />
     </div>
