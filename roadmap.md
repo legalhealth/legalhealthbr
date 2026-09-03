@@ -22,3 +22,13 @@
 - [ ] Painel do advogado (`/advogado`) com parecer e resposta direta + e-mail ao médico (template `revisao-parecer` já criado)
 - [ ] Painel admin da base jurídica (`/admin/base-juridica`) usando `src/lib/legal-qa.ts`
 - [ ] Publicar e validar logado com pergunta coberta pela base
+
+## Progresso (infraestrutura da base jurídica)
+- [x] Fontes oficiais versionadas (`legal_sources`, `legal_source_versions`, hash, vigência, responsáveis)
+- [x] Trechos indexados (`legal_chunks`) com tema, pilar, risco e exigência de advogado
+- [x] Recuperação `match_legal_chunks` com relevância por termos raros, filtro de vigência e autoridade
+- [x] Citação de fontes + auditoria (`ai_answer_audit`) nas rotas de IA (assistente, chatbot logado e público)
+- [x] Painel de governança em `/admin/fontes` (alertas, versões, bloqueio, auditoria)
+- [ ] Suíte de 100 casos jurídicos de validação
+- [ ] Painel do advogado (`/advogado`) e painel `/admin/base-juridica`
+
