@@ -506,16 +506,17 @@ export async function ingerirFonte(
     await supabaseAdmin.from("legal_sources").update(metadados).eq("id", sourceUuid);
   }
 
-  // Versão vigente já indexada — hash igual significa texto oficial inalterado.
+  // Versão já indexada — texto idêntico significa que o órgão emissor não alterou a norma.
+  // A comparação usa o próprio conteúdo salvo, pois o hash é recalculado pelo banco.
   const { data: versaoAtual } = await supabaseAdmin
     .from("legal_source_versions")
-    .select("id, version, content_hash")
+    .select("id, version, content")
     .eq("source_uuid", sourceUuid)
     .order("version", { ascending: false })
     .limit(1)
     .maybeSingle();
 
-  if (versaoAtual?.content_hash && versaoAtual.content_hash === hash) {
+  if (versaoAtual?.content && versaoAtual.content.trim() === conteudo.trim()) {
     return registrar({
       ...base,
       resultado: "sem_mudanca",
