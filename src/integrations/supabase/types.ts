@@ -71,6 +71,59 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_answer_audit: {
+        Row: {
+          base_snapshot: string
+          citacoes: Json | null
+          created_at: string
+          exige_advogado: boolean
+          fonte: string
+          id: string
+          nivel_risco: Database["public"]["Enums"]["legal_risk_level"] | null
+          origem: string
+          pergunta: string
+          qa_id: string | null
+          user_id: string | null
+          version_ids: string[]
+        }
+        Insert: {
+          base_snapshot?: string
+          citacoes?: Json | null
+          created_at?: string
+          exige_advogado?: boolean
+          fonte?: string
+          id?: string
+          nivel_risco?: Database["public"]["Enums"]["legal_risk_level"] | null
+          origem?: string
+          pergunta: string
+          qa_id?: string | null
+          user_id?: string | null
+          version_ids?: string[]
+        }
+        Update: {
+          base_snapshot?: string
+          citacoes?: Json | null
+          created_at?: string
+          exige_advogado?: boolean
+          fonte?: string
+          id?: string
+          nivel_risco?: Database["public"]["Enums"]["legal_risk_level"] | null
+          origem?: string
+          pergunta?: string
+          qa_id?: string | null
+          user_id?: string | null
+          version_ids?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_answer_audit_qa_id_fkey"
+            columns: ["qa_id"]
+            isOneToOne: false
+            referencedRelation: "legal_qa"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_recommendations: {
         Row: {
           content: string
@@ -348,6 +401,91 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_chunks: {
+        Row: {
+          artigo: string | null
+          busca: unknown
+          contexto_aplicacao: string | null
+          created_at: string
+          excecoes: string | null
+          exige_advogado: boolean
+          id: string
+          nivel_risco: Database["public"]["Enums"]["legal_risk_level"]
+          ordem: number
+          pilar: string | null
+          secao: string | null
+          source_uuid: string
+          temas: string[]
+          termos_juridicos: string[]
+          termos_medicos: string[]
+          texto: string
+          updated_at: string
+          version_id: string
+        }
+        Insert: {
+          artigo?: string | null
+          busca?: unknown
+          contexto_aplicacao?: string | null
+          created_at?: string
+          excecoes?: string | null
+          exige_advogado?: boolean
+          id?: string
+          nivel_risco?: Database["public"]["Enums"]["legal_risk_level"]
+          ordem?: number
+          pilar?: string | null
+          secao?: string | null
+          source_uuid: string
+          temas?: string[]
+          termos_juridicos?: string[]
+          termos_medicos?: string[]
+          texto: string
+          updated_at?: string
+          version_id: string
+        }
+        Update: {
+          artigo?: string | null
+          busca?: unknown
+          contexto_aplicacao?: string | null
+          created_at?: string
+          excecoes?: string | null
+          exige_advogado?: boolean
+          id?: string
+          nivel_risco?: Database["public"]["Enums"]["legal_risk_level"]
+          ordem?: number
+          pilar?: string | null
+          secao?: string | null
+          source_uuid?: string
+          temas?: string[]
+          termos_juridicos?: string[]
+          termos_medicos?: string[]
+          texto?: string
+          updated_at?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_chunks_source_uuid_fkey"
+            columns: ["source_uuid"]
+            isOneToOne: false
+            referencedRelation: "legal_source_alerts"
+            referencedColumns: ["source_uuid"]
+          },
+          {
+            foreignKeyName: "legal_chunks_source_uuid_fkey"
+            columns: ["source_uuid"]
+            isOneToOne: false
+            referencedRelation: "legal_sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "legal_chunks_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "legal_source_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       legal_qa: {
         Row: {
           busca: unknown
@@ -396,6 +534,45 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_qa_fontes: {
+        Row: {
+          artigo: string | null
+          created_at: string
+          id: string
+          qa_id: string
+          version_id: string
+        }
+        Insert: {
+          artigo?: string | null
+          created_at?: string
+          id?: string
+          qa_id: string
+          version_id: string
+        }
+        Update: {
+          artigo?: string | null
+          created_at?: string
+          id?: string
+          qa_id?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_qa_fontes_qa_id_fkey"
+            columns: ["qa_id"]
+            isOneToOne: false
+            referencedRelation: "legal_qa"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "legal_qa_fontes_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "legal_source_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       legal_qa_lacunas: {
         Row: {
           created_at: string
@@ -422,6 +599,165 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      legal_source_versions: {
+        Row: {
+          change_reason: string | null
+          content: string
+          content_hash: string
+          created_at: string
+          effective_from: string | null
+          effective_until: string | null
+          id: string
+          published: boolean
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source_uuid: string
+          status: Database["public"]["Enums"]["legal_source_status"]
+          supersedes_version_id: string | null
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          change_reason?: string | null
+          content: string
+          content_hash?: string
+          created_at?: string
+          effective_from?: string | null
+          effective_until?: string | null
+          id?: string
+          published?: boolean
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_uuid: string
+          status?: Database["public"]["Enums"]["legal_source_status"]
+          supersedes_version_id?: string | null
+          updated_at?: string
+          version: number
+        }
+        Update: {
+          change_reason?: string | null
+          content?: string
+          content_hash?: string
+          created_at?: string
+          effective_from?: string | null
+          effective_until?: string | null
+          id?: string
+          published?: boolean
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_uuid?: string
+          status?: Database["public"]["Enums"]["legal_source_status"]
+          supersedes_version_id?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_source_versions_source_uuid_fkey"
+            columns: ["source_uuid"]
+            isOneToOne: false
+            referencedRelation: "legal_source_alerts"
+            referencedColumns: ["source_uuid"]
+          },
+          {
+            foreignKeyName: "legal_source_versions_source_uuid_fkey"
+            columns: ["source_uuid"]
+            isOneToOne: false
+            referencedRelation: "legal_sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "legal_source_versions_supersedes_version_id_fkey"
+            columns: ["supersedes_version_id"]
+            isOneToOne: false
+            referencedRelation: "legal_source_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      legal_sources: {
+        Row: {
+          authority_level: number
+          created_at: string
+          current_version_id: string | null
+          id: string
+          issuing_body: string
+          jurisdiction: string
+          last_checked_at: string | null
+          number: string | null
+          official_url: string | null
+          pilar: string | null
+          publication_date: string | null
+          responsavel_juridico: string | null
+          responsavel_medico: string | null
+          responsavel_produto: string | null
+          responsavel_tecnico: string | null
+          source_id: string
+          source_type: Database["public"]["Enums"]["legal_source_type"]
+          status: Database["public"]["Enums"]["legal_source_status"]
+          temas: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          authority_level: number
+          created_at?: string
+          current_version_id?: string | null
+          id?: string
+          issuing_body: string
+          jurisdiction?: string
+          last_checked_at?: string | null
+          number?: string | null
+          official_url?: string | null
+          pilar?: string | null
+          publication_date?: string | null
+          responsavel_juridico?: string | null
+          responsavel_medico?: string | null
+          responsavel_produto?: string | null
+          responsavel_tecnico?: string | null
+          source_id: string
+          source_type: Database["public"]["Enums"]["legal_source_type"]
+          status?: Database["public"]["Enums"]["legal_source_status"]
+          temas?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          authority_level?: number
+          created_at?: string
+          current_version_id?: string | null
+          id?: string
+          issuing_body?: string
+          jurisdiction?: string
+          last_checked_at?: string | null
+          number?: string | null
+          official_url?: string | null
+          pilar?: string | null
+          publication_date?: string | null
+          responsavel_juridico?: string | null
+          responsavel_medico?: string | null
+          responsavel_produto?: string | null
+          responsavel_tecnico?: string | null
+          source_id?: string
+          source_type?: Database["public"]["Enums"]["legal_source_type"]
+          status?: Database["public"]["Enums"]["legal_source_status"]
+          temas?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_sources_current_version_fkey"
+            columns: ["current_version_id"]
+            isOneToOne: false
+            referencedRelation: "legal_source_versions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       plan_reminders: {
         Row: {
@@ -703,7 +1039,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      legal_source_alerts: {
+        Row: {
+          alerta: string | null
+          source_id: string | null
+          source_uuid: string | null
+          status: Database["public"]["Enums"]["legal_source_status"] | null
+          title: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       current_user_email: { Args: never; Returns: string }
@@ -713,6 +1058,33 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      match_legal_chunks: {
+        Args: {
+          autoridade_max?: number
+          consulta: string
+          limite?: number
+          pilar_in?: string
+        }
+        Returns: {
+          artigo: string
+          authority_level: number
+          chunk_id: string
+          effective_from: string
+          exige_advogado: boolean
+          issuing_body: string
+          nivel_risco: Database["public"]["Enums"]["legal_risk_level"]
+          number: string
+          official_url: string
+          pilar: string
+          score: number
+          secao: string
+          source_id: string
+          texto: string
+          title: string
+          version: number
+          version_id: string
+        }[]
       }
       match_legal_qa: {
         Args: { consulta: string; limite?: number }
@@ -727,6 +1099,20 @@ export type Database = {
           tags: string[]
         }[]
       }
+      registrar_auditoria_resposta: {
+        Args: {
+          citacoes_in: Json
+          exige_advogado_in: boolean
+          fonte_in: string
+          nivel_risco_in: Database["public"]["Enums"]["legal_risk_level"]
+          origem_in: string
+          pergunta_in: string
+          qa_id_in: string
+          user_id_in: string
+          version_ids_in: string[]
+        }
+        Returns: undefined
+      }
       registrar_lacuna_legal_qa: {
         Args: { origem_in?: string; texto: string }
         Returns: undefined
@@ -737,6 +1123,24 @@ export type Database = {
     }
     Enums: {
       app_role: "medico" | "advogado" | "admin"
+      legal_risk_level: "baixo" | "medio" | "alto"
+      legal_source_status:
+        | "vigente"
+        | "alterada"
+        | "revogada"
+        | "suspensa"
+        | "em_revisao"
+      legal_source_type:
+        | "constituicao"
+        | "lei"
+        | "decreto"
+        | "resolucao"
+        | "portaria"
+        | "parecer"
+        | "decisao"
+        | "guia"
+        | "doutrina"
+        | "editorial"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -865,6 +1269,26 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["medico", "advogado", "admin"],
+      legal_risk_level: ["baixo", "medio", "alto"],
+      legal_source_status: [
+        "vigente",
+        "alterada",
+        "revogada",
+        "suspensa",
+        "em_revisao",
+      ],
+      legal_source_type: [
+        "constituicao",
+        "lei",
+        "decreto",
+        "resolucao",
+        "portaria",
+        "parecer",
+        "decisao",
+        "guia",
+        "doutrina",
+        "editorial",
+      ],
     },
   },
 } as const
