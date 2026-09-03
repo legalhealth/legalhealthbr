@@ -59,7 +59,7 @@ export async function recuperarFontes(
   const { data, error } = await supabaseAdmin.rpc("match_legal_chunks", {
     consulta: texto.slice(0, 600),
     limite: opcoes.limite ?? 4,
-    pilar_in: opcoes.pilar ?? undefined,
+    ...(opcoes.pilar ? { pilar_in: opcoes.pilar } : {}),
     autoridade_max: 4,
   });
 
@@ -183,11 +183,11 @@ export async function registrarAuditoria(input: {
 }): Promise<void> {
   const trechos = input.trechos ?? [];
   const { error } = await supabaseAdmin.rpc("registrar_auditoria_resposta", {
-    user_id_in: input.userId ?? undefined,
+    ...(input.userId ? { user_id_in: input.userId } : {}),
     origem_in: input.origem,
     pergunta_in: input.pergunta.slice(0, 1000),
     fonte_in: input.fonte,
-    qa_id_in: input.qaId ?? undefined,
+    ...(input.qaId ? { qa_id_in: input.qaId } : {}),
     version_ids_in: Array.from(new Set(trechos.map((t) => t.versionId))),
     citacoes_in: trechos.map((t) => ({
       source_id: t.sourceId,
@@ -195,7 +195,7 @@ export async function registrarAuditoria(input: {
       artigo: t.artigo,
       citacao: citacao(t),
     })),
-    nivel_risco_in: input.nivelRisco ?? undefined,
+    ...(input.nivelRisco ? { nivel_risco_in: input.nivelRisco } : {}),
     exige_advogado_in: input.exigeAdvogado ?? false,
   });
   if (error) console.error("auditoria de resposta: falha ao registrar", error);
