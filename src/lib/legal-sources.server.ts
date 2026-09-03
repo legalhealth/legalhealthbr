@@ -153,9 +153,7 @@ export function rodapeDeFontes(rec: RecuperacaoJuridica): string {
   if (rec.trechos.length === 0) return "";
   const hoje = new Date().toISOString().slice(0, 10);
   const linhas = rec.trechos.map((t) => `- ${citacao(t)}`);
-  return [
-    "",
-    "",
+  const bloco = [
     `**Fontes consultadas na base Legal Health** (consulta em ${hoje}):`,
     ...linhas,
     rec.exigeAdvogado
@@ -164,6 +162,7 @@ export function rodapeDeFontes(rec: RecuperacaoJuridica): string {
   ]
     .filter((l) => l !== "")
     .join("\n");
+  return `\n\n${bloco}`;
 }
 
 /** Resposta padrão quando a base não tem fundamento suficiente. */
