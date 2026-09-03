@@ -438,7 +438,12 @@ export async function ingerirFonte(
     return r;
   };
 
-  if (fonte.formato === "pdf") {
+  // Fontes em PDF entram pela curadoria manual: o texto conferido pelo curador
+  // jurídico é indexado com a mesma trilha de versão, vigência e status.
+  const { TEXTOS_CURADOS } = await import("./legal-curadoria-cfm.server");
+  const curado = fonte.formato === "pdf" ? TEXTOS_CURADOS[fonte.sourceId] : undefined;
+
+  if (fonte.formato === "pdf" && !curado) {
     return registrar({
       ...base,
       resultado: "manual",
@@ -448,10 +453,14 @@ export async function ingerirFonte(
   }
 
   let texto: string;
-  try {
-    texto = await baixarTexto(fonte.officialUrl);
-  } catch (e) {
-    return registrar({ ...base, mensagem: e instanceof Error ? e.message : "Falha ao baixar." });
+  if (curado) {
+    texto = curado.texto;
+  } else {
+    try {
+      texto = await baixarTexto(fonte.officialUrl);
+    } catch (e) {
+      return registrar({ ...base, mensagem: e instanceof Error ? e.message : "Falha ao baixar." });
+    }
   }
   if (texto.length < 500) {
     return registrar({ ...base, mensagem: "Conteúdo insuficiente na página oficial." });
