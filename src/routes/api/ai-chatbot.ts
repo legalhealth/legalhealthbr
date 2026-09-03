@@ -161,6 +161,12 @@ export const Route = createFileRoute("/api/ai-chatbot")({
           .join("\n\n");
 
 
+        const responderPelasFontes = (motivo: string) => {
+          if (!fontes.suficiente) return null;
+          console.warn("ai-chatbot: fallback pelas fontes", motivo);
+          return sseFromText(respostaDasFontes(fontes) + rodapeDeFontes(fontes));
+        };
+
         let upstream: Response;
         try {
           upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -178,31 +184,46 @@ export const Route = createFileRoute("/api/ai-chatbot")({
             }),
           });
         } catch {
-          return jsonError(
-            "Falha de rede ao consultar a IA. Verifique sua conexão e tente novamente.",
-            502,
+          return (
+            responderPelasFontes("falha de rede") ??
+            jsonError(
+              "Falha de rede ao consultar a IA. Verifique sua conexão e tente novamente.",
+              502,
+            )
           );
         }
 
         if (upstream.status === 429) {
-          return jsonError(
-            "O serviço de IA está com muitas requisições agora. Aguarde alguns segundos e tente novamente.",
-            429,
+          return (
+            responderPelasFontes("429") ??
+            jsonError(
+              "O serviço de IA está com muitas requisições agora. Aguarde alguns segundos e tente novamente.",
+              429,
+            )
           );
         }
         if (upstream.status === 402) {
-          return jsonError(
-            "Os créditos de IA do projeto foram esgotados. Recarregue para continuar usando o assistente.",
-            402,
+          return (
+            responderPelasFontes("402") ??
+            jsonError(
+              "Os créditos de IA do projeto foram esgotados. Recarregue para continuar usando o assistente.",
+              402,
+            )
           );
         }
         if (upstream.status === 403) {
-          return jsonError("O serviço de IA está bloqueado nas configurações do projeto.", 403);
+          return (
+            responderPelasFontes("403") ??
+            jsonError("O serviço de IA está bloqueado nas configurações do projeto.", 403)
+          );
         }
         if (!upstream.ok || !upstream.body) {
           const detail = await upstream.text().catch(() => "");
           console.error("ai-chatbot upstream error", upstream.status, detail);
-          return jsonError("A IA não conseguiu responder agora. Tente novamente em instantes.", 502);
+          return (
+            responderPelasFontes(`upstream ${upstream.status}`) ??
+            jsonError("A IA não conseguiu responder agora. Tente novamente em instantes.", 502)
+          );
         }
 
         return new Response(upstream.body, {
