@@ -150,7 +150,13 @@ export const Route = createFileRoute("/api/public/ai-chatbot")({
               model: "google/gemini-3.7-flash",
               max_tokens: 600,
               messages: [
-                { role: "system", content: systemPromptFor("chatbot_publico") },
+                {
+                  role: "system",
+                  content: contextoBase
+                    ? `${systemPromptFor("chatbot_publico")}\n\n${contextoBase}`
+                    : systemPromptFor("chatbot_publico"),
+                },
+
                 ...parsed.messages,
               ],
             }),
