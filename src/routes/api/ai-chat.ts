@@ -149,6 +149,25 @@ export const Route = createFileRoute("/api/ai-chat")({
 
         await supabase.from("ai_usage").insert({ user_id: userId, endpoint: "ai-chat" });
 
+        // Fundamentação obrigatória: fontes oficiais vigentes da base jurídica.
+        const { contextoDasFontes, recuperarFontes, registrarAuditoria } = await import(
+          "@/lib/legal-sources.server"
+        );
+        const perguntaAtual =
+          [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+        const fontes = await recuperarFontes(perguntaAtual);
+        const contextoFontes = contextoDasFontes(fontes);
+
+        await registrarAuditoria({
+          userId,
+          origem: `assistente:${task}`,
+          pergunta: perguntaAtual,
+          fonte: fontes.suficiente ? "base-fontes" : "ia",
+          trechos: fontes.trechos,
+          nivelRisco: fontes.nivelRisco,
+          exigeAdvogado: fontes.exigeAdvogado,
+        });
+
         let upstream: Response;
         try {
           upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -163,7 +182,12 @@ export const Route = createFileRoute("/api/ai-chat")({
               model: "google/gemini-3.6-flash",
               stream: true,
               messages: [
-                { role: "system", content: systemPromptFor(task) },
+                {
+                  role: "system",
+                  content: contextoFontes
+                    ? `${systemPromptFor(task)}\n\n${contextoFontes}`
+                    : systemPromptFor(task),
+                },
                 ...withAttachments(messages, body.attachments),
               ],
             }),
