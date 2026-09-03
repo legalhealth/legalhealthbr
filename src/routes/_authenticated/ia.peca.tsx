@@ -82,6 +82,7 @@ function Page() {
   const [docTitulo, setDocTitulo] = useState<string>("");
   const [generating, setGenerating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const gerandoRef = useRef(false);
   const draftRef = useRef<HTMLDivElement>(null);
 
   const lendo = upload.isPending || analyzeDoc.isPending;
@@ -171,6 +172,8 @@ function Page() {
       .filter(Boolean)
       .join("\n");
 
+    if (gerandoRef.current) return;
+    gerandoRef.current = true;
     setGenerating(true);
     setDraft("");
     setDocId(null);
@@ -206,6 +209,7 @@ function Page() {
       toast.error(error instanceof Error ? error.message : "Não foi possível gerar a peça.");
     } finally {
       setGenerating(false);
+      gerandoRef.current = false;
       draftRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };

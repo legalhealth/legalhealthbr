@@ -83,16 +83,23 @@ function Page() {
   const [input, setInput] = useState(q ?? "");
   const [status, setStatus] = useState<"ready" | "submitted" | "streaming">("ready");
   const [pendingUser, setPendingUser] = useState<string | null>(null);
+  const sendingRef = useRef(false);
   const [draft, setDraft] = useState("");
   const [attachments, setAttachments] = useState<ChatAttachment[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const messages: ChatMessage[] = (storedMessages ?? []).map((m) => ({
-    id: m.id,
-    role: m.role === "user" ? "user" : "assistant",
-    content: m.content ?? "",
-  }));
+  // Remove repetições consecutivas de mesmo papel/conteúdo (inserções duplicadas
+  // antigas no banco ou reenvio de rede) para que nada apareça duas vezes na tela.
+  const messages: ChatMessage[] = (storedMessages ?? [])
+    .map((m) => ({
+      id: m.id,
+      role: (m.role === "user" ? "user" : "assistant") as ChatMessage["role"],
+      content: m.content ?? "",
+    }))
+    .filter(
+      (m, i, arr) => i === 0 || m.role !== arr[i - 1]?.role || m.content !== arr[i - 1]?.content,
+    );
 
   const welcome = useMemo<ChatMessage>(() => {
     const base =
@@ -141,7 +148,10 @@ function Page() {
   ) => {
     e.preventDefault();
     const text = input.trim();
-    if (!text || status !== "ready") return;
+    // Guarda por ref: evita envio duplicado quando o submit dispara duas vezes
+    // (Enter + clique, toque duplo no mobile ou remount em StrictMode).
+    if (!text || status !== "ready" || sendingRef.current) return;
+    sendingRef.current = true;
 
     const sentAttachments = attachments;
     const attachmentNote =
@@ -165,6 +175,11 @@ function Page() {
       }
 
       await appendMessage(activeThread, "user", text + attachmentNote);
+      // A mensagem já está persistida: recarrega o histórico e descarta o balão
+      // otimista para não exibir a mesma pergunta duas vezes.
+      await queryClient.invalidateQueries({ queryKey: ["chat-messages", activeThread] });
+      setPendingUser(null);
+
 
       setStatus("streaming");
       const history = [
@@ -197,10 +212,15 @@ function Page() {
       setPendingUser(null);
       setDraft("");
       setStatus("ready");
+      sendingRef.current = false;
     }
   };
 
   const isBusy = status !== "ready";
+  // Só mostra o balão otimista enquanto a mensagem ainda não voltou do banco.
+  const lastStored = messages[messages.length - 1];
+  const showPendingUser =
+    pendingUser !== null && !(lastStored?.role === "user" && lastStored.content === pendingUser);
 
   return (
     <div className="space-y-6">
@@ -280,7 +300,7 @@ function Page() {
                     <MessageResponse>{welcome.content}</MessageResponse>
                   </MessageContent>
                 </Message>
-                {pendingUser ? null : (
+                {showPendingUser ? null : (
                 <ConversationEmptyState
                   title="Comece pela sua dúvida"
                   description="Descreva um caso, cole um documento ou escolha uma sugestão abaixo."
@@ -313,7 +333,7 @@ function Page() {
               ))
             )}
 
-            {pendingUser ? (
+            {showPendingUser && pendingUser ? (
               <Message from="user" className="max-w-[90%] md:max-w-[85%]">
                 <MessageContent className="rounded-2xl px-5 py-3.5 shadow-sm !bg-info !text-info-foreground">
                   <MessageResponse>{pendingUser}</MessageResponse>

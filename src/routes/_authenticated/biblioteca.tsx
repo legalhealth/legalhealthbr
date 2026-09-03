@@ -56,6 +56,7 @@ function Page() {
   const [docId, setDocId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const draftRef = useRef<HTMLElement | null>(null);
+  const gerandoRef = useRef(false);
 
   const docs = useMemo(() => docsDaCategoria(categoria), [categoria]);
   const docAtual = docs.find((d) => d.value === documento) ?? docs[0]!;
@@ -89,6 +90,8 @@ function Page() {
   }
 
   async function handleGenerate() {
+    if (gerandoRef.current) return;
+    gerandoRef.current = true;
     setGenerating(true);
     setError(null);
     setDocId(null);
@@ -125,6 +128,7 @@ function Page() {
       if (!text) setDraft(null);
     } finally {
       setGenerating(false);
+      gerandoRef.current = false;
     }
   }
 
