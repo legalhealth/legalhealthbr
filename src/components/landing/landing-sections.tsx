@@ -391,26 +391,8 @@ export function Plataforma() {
 /* --------------------------- O que é ser embaixador --------------------------- */
 
 export function SerEmbaixador() {
-  const ref = useRef<HTMLElement | null>(null);
-  const visto = useRef(false);
+  const ref = useVistoUmaVez("ambassador_section_view", "ser-embaixador");
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting && !visto.current) {
-            visto.current = true;
-            track("ambassador_section_view", { secao: "ser-embaixador" });
-          }
-        }
-      },
-      { threshold: 0.35 },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
 
   const blocos = [
     {
