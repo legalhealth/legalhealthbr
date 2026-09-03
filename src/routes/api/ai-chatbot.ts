@@ -73,6 +73,30 @@ export const Route = createFileRoute("/api/ai-chatbot")({
 
         const contexto = typeof body.contexto === "string" ? body.contexto.slice(0, 3000) : "";
 
+        // Base própria primeiro: respostas cobertas não consomem créditos de IA.
+        const {
+          buscarNaBase,
+          contextoDaBase,
+          registrarLacuna,
+          registrarUsoBase,
+          respostaDaBase,
+          sseFromText,
+        } = await import("@/lib/legal-qa.server");
+
+        const ultimaPergunta = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+        const base = await buscarNaBase(ultimaPergunta);
+
+        if (base.confianca === "alta" && base.match) {
+          await registrarUsoBase(base.match.id);
+          return sseFromText(respostaDaBase(base.match));
+        }
+        if (base.confianca === "nenhuma" && ultimaPergunta.trim().length >= 6) {
+          await registrarLacuna(ultimaPergunta, "chatbot");
+        }
+        const contextoBase = base.match ? contextoDaBase(base.match) : "";
+
+
+
         const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         const { count, error: countError } = await supabase
           .from("ai_usage")
@@ -95,9 +119,14 @@ export const Route = createFileRoute("/api/ai-chatbot")({
 
         await supabase.from("ai_usage").insert({ user_id: userId, endpoint: "ai-chatbot" });
 
-        const system = contexto
-          ? `${systemPromptFor("chatbot")}\n\nContexto do usuário atual:\n${contexto}`
-          : systemPromptFor("chatbot");
+        const system = [
+          systemPromptFor("chatbot"),
+          contexto ? `Contexto do usuário atual:\n${contexto}` : "",
+          contextoBase,
+        ]
+          .filter(Boolean)
+          .join("\n\n");
+
 
         let upstream: Response;
         try {

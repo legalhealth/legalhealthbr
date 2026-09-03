@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sendTemplateEmail } from "@/lib/email-templates/send-email";
@@ -85,6 +86,48 @@ export const enviarRevisaoEmail = createServerFn({ method: "POST" })
       }
     };
 
+    // Link público seguro (7 dias) para o advogado abrir a revisão sem login.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    let origin = "https://legalhealthbr.app";
+    try {
+      origin = new URL(getRequest().url).origin;
+    } catch {
+      /* mantém o domínio padrão */
+    }
+
+    const agoraIso = new Date().toISOString();
+    let token: string | null = null;
+    const { data: tokenExistente } = await supabaseAdmin
+      .from("revisao_tokens")
+      .select("token, expires_at, revoked_at")
+      .eq("revisao_id", revisao.id)
+      .is("revoked_at", null)
+      .gt("expires_at", agoraIso)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (tokenExistente?.token) {
+      token = tokenExistente.token;
+    } else {
+      const bytes = new Uint8Array(24);
+      crypto.getRandomValues(bytes);
+      const novoToken = Array.from(bytes)
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+      const { error: tokenError } = await supabaseAdmin
+        .from("revisao_tokens")
+        .insert({ revisao_id: revisao.id, token: novoToken });
+      if (tokenError) {
+        console.error("revisao_tokens insert error", tokenError);
+      } else {
+        token = novoToken;
+      }
+    }
+
+    const link = token ? `${origin}/revisao/${token}` : null;
+
     let result: { sent: boolean; reason?: string };
     try {
       result = await sendTemplateEmail("revisao-advogado", revisao.advogado_email, {
@@ -102,6 +145,7 @@ export const enviarRevisaoEmail = createServerFn({ method: "POST" })
             timeZone: "America/Fortaleza",
           }),
           anexos,
+          link,
         },
       });
     } catch (error) {
@@ -156,5 +200,6 @@ export const enviarRevisaoEmail = createServerFn({ method: "POST" })
       confirmadoEm: tentativaEm,
       anexos: anexos.length,
       destinatario: revisao.advogado_email,
+      link,
     };
   });

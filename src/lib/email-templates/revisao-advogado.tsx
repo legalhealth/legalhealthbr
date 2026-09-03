@@ -38,6 +38,7 @@ interface RevisaoAdvogadoProps {
   protocolo?: string
   enviadoEm?: string
   anexos?: { nome: string; url: string }[]
+  link?: string | null
 }
 
 const label = {
@@ -82,6 +83,7 @@ const RevisaoAdvogadoEmail = ({
   protocolo,
   enviadoEm,
   anexos = [],
+  link: linkRevisao,
 }: RevisaoAdvogadoProps) => (
   <Html lang="pt-BR" dir="ltr">
     <Head />
@@ -112,6 +114,18 @@ const RevisaoAdvogadoEmail = ({
             </Text>
           ) : null}
         </Section>
+
+        {linkRevisao ? (
+          <Section style={box}>
+            <Text style={label}>Acesso seguro (sem login)</Text>
+            <Text style={{ ...meta, margin: '0 0 8px' }}>
+              <Link href={linkRevisao} style={link}>
+                Abrir a revisão completa, com a intimação anexada e o Juriscore do paciente
+              </Link>
+            </Text>
+            <Text style={{ ...meta, color: '#9CA3AF' }}>Link válido por 7 dias.</Text>
+          </Section>
+        ) : null}
 
         {mensagem ? (
           <Section style={box}>
@@ -165,6 +179,7 @@ export const template = {
     protocolo: '8f2c1a4e-0000-0000-0000-000000000000',
     enviadoEm: '22/08/2026 00:20',
     anexos: [{ nome: 'reclamacao.pdf', url: 'https://exemplo.com/arquivo' }],
+    link: 'https://legalhealthbr.app/revisao/abc123',
   },
 } satisfies TemplateEntry
 

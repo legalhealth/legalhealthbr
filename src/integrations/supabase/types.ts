@@ -348,6 +348,81 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_qa: {
+        Row: {
+          busca: unknown
+          categoria: string
+          created_at: string
+          fundamentacao: string[]
+          id: string
+          pergunta: string
+          pilar: string | null
+          resposta: string
+          status: string
+          tags: string[]
+          updated_at: string
+          usos: number
+          variacoes: string[]
+        }
+        Insert: {
+          busca?: unknown
+          categoria?: string
+          created_at?: string
+          fundamentacao?: string[]
+          id?: string
+          pergunta: string
+          pilar?: string | null
+          resposta: string
+          status?: string
+          tags?: string[]
+          updated_at?: string
+          usos?: number
+          variacoes?: string[]
+        }
+        Update: {
+          busca?: unknown
+          categoria?: string
+          created_at?: string
+          fundamentacao?: string[]
+          id?: string
+          pergunta?: string
+          pilar?: string | null
+          resposta?: string
+          status?: string
+          tags?: string[]
+          updated_at?: string
+          usos?: number
+          variacoes?: string[]
+        }
+        Relationships: []
+      }
+      legal_qa_lacunas: {
+        Row: {
+          created_at: string
+          id: string
+          ocorrencias: number
+          origem: string
+          pergunta: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ocorrencias?: number
+          origem?: string
+          pergunta: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ocorrencias?: number
+          origem?: string
+          pergunta?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       plan_reminders: {
         Row: {
           channel: string
@@ -502,6 +577,47 @@ export type Database = {
           },
         ]
       }
+      revisao_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          first_opened_at: string | null
+          id: string
+          opens: number
+          revisao_id: string
+          revoked_at: string | null
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          first_opened_at?: string | null
+          id?: string
+          opens?: number
+          revisao_id: string
+          revoked_at?: string | null
+          token: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          first_opened_at?: string | null
+          id?: string
+          opens?: number
+          revisao_id?: string
+          revoked_at?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revisao_tokens_revisao_id_fkey"
+            columns: ["revisao_id"]
+            isOneToOne: false
+            referencedRelation: "revisoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       revisoes: {
         Row: {
           advogado_email: string
@@ -514,6 +630,8 @@ export type Database = {
           enviado_em: string
           id: string
           mensagem: string | null
+          parecer: string | null
+          parecer_em: string | null
           status: string
           updated_at: string
           user_id: string
@@ -529,6 +647,8 @@ export type Database = {
           enviado_em?: string
           id?: string
           mensagem?: string | null
+          parecer?: string | null
+          parecer_em?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -544,6 +664,8 @@ export type Database = {
           enviado_em?: string
           id?: string
           mensagem?: string | null
+          parecer?: string | null
+          parecer_em?: string | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -558,15 +680,63 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      current_user_email: { Args: never; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      match_legal_qa: {
+        Args: { consulta: string; limite?: number }
+        Returns: {
+          categoria: string
+          fundamentacao: string[]
+          id: string
+          pergunta: string
+          pilar: string
+          resposta: string
+          score: number
+          tags: string[]
+        }[]
+      }
+      registrar_lacuna_legal_qa: {
+        Args: { origem_in?: string; texto: string }
+        Returns: undefined
+      }
+      registrar_uso_legal_qa: { Args: { qa_id: string }; Returns: undefined }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "medico" | "advogado" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -693,6 +863,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["medico", "advogado", "admin"],
+    },
   },
 } as const

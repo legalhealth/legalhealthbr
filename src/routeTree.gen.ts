@@ -28,6 +28,7 @@ import { Route as ApiAiChatbotRouteImport } from './routes/api/ai-chatbot'
 import { Route as ApiAiDocumentoLeituraRouteImport } from './routes/api/ai-documento-leitura'
 import { Route as ApiAiPecaRouteImport } from './routes/api/ai-peca'
 import { Route as ApiAiPlanoRouteImport } from './routes/api/ai-plano'
+import { Route as RevisaoTokenRouteImport } from './routes/revisao.$token'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia.index'
@@ -39,6 +40,7 @@ import { Route as AuthenticatedIaRevisoesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedIaRiscoRouteImport } from './routes/_authenticated/ia.risco'
 import { Route as ApiPublicAiChatbotRouteImport } from './routes/api/public/ai-chatbot'
 import { Route as ApiPublicHooksPlanRemindersRouteImport } from './routes/api/public/hooks/plan-reminders'
+import { Route as ApiPublicRevisaoTokenRouteImport } from './routes/api/public/revisao.$token'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -139,6 +141,11 @@ const ApiAiPlanoRoute = ApiAiPlanoRouteImport.update({
   path: '/api/ai-plano',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RevisaoTokenRoute = RevisaoTokenRouteImport.update({
+  id: '/revisao/$token',
+  path: '/revisao/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   id: '/.lovable/oauth/consent',
   path: '/.lovable/oauth/consent',
@@ -199,6 +206,11 @@ const ApiPublicHooksPlanRemindersRoute =
     path: '/api/public/hooks/plan-reminders',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicRevisaoTokenRoute = ApiPublicRevisaoTokenRouteImport.update({
+  id: '/api/public/revisao/$token',
+  path: '/api/public/revisao/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
   path: '/lovable/email/auth/preview',
@@ -235,6 +247,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/revisao/$token': typeof RevisaoTokenRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
@@ -246,6 +259,7 @@ export interface FileRoutesByFullPath {
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
+  '/api/public/revisao/$token': typeof ApiPublicRevisaoTokenRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -267,6 +281,7 @@ export interface FileRoutesByTo {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/revisao/$token': typeof RevisaoTokenRoute
   '/': typeof AuthenticatedIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -279,6 +294,7 @@ export interface FileRoutesByTo {
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/ia': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
+  '/api/public/revisao/$token': typeof ApiPublicRevisaoTokenRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -303,6 +319,7 @@ export interface FileRoutesById {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/revisao/$token': typeof RevisaoTokenRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -315,6 +332,7 @@ export interface FileRoutesById {
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
+  '/api/public/revisao/$token': typeof ApiPublicRevisaoTokenRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -340,6 +358,7 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/revisao/$token'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/ia/assistente'
@@ -351,6 +370,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-chatbot'
     | '/ia/'
     | '/api/public/hooks/plan-reminders'
+    | '/api/public/revisao/$token'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -372,6 +392,7 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/revisao/$token'
     | '/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -384,6 +405,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-chatbot'
     | '/ia'
     | '/api/public/hooks/plan-reminders'
+    | '/api/public/revisao/$token'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -407,6 +429,7 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/revisao/$token'
     | '/_authenticated/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -419,6 +442,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-chatbot'
     | '/_authenticated/ia/'
     | '/api/public/hooks/plan-reminders'
+    | '/api/public/revisao/$token'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -437,10 +461,12 @@ export interface RootRouteChildren {
   ApiAiDocumentoLeituraRoute: typeof ApiAiDocumentoLeituraRoute
   ApiAiPecaRoute: typeof ApiAiPecaRoute
   ApiAiPlanoRoute: typeof ApiAiPlanoRoute
+  RevisaoTokenRoute: typeof RevisaoTokenRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicAiChatbotRoute: typeof ApiPublicAiChatbotRoute
   ApiPublicHooksPlanRemindersRoute: typeof ApiPublicHooksPlanRemindersRoute
+  ApiPublicRevisaoTokenRoute: typeof ApiPublicRevisaoTokenRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -581,6 +607,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiPlanoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/revisao/$token': {
+      id: '/revisao/$token'
+      path: '/revisao/$token'
+      fullPath: '/revisao/$token'
+      preLoaderRoute: typeof RevisaoTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.lovable/oauth/consent': {
       id: '/.lovable/oauth/consent'
       path: '/.lovable/oauth/consent'
@@ -656,6 +689,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/hooks/plan-reminders'
       fullPath: '/api/public/hooks/plan-reminders'
       preLoaderRoute: typeof ApiPublicHooksPlanRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/revisao/$token': {
+      id: '/api/public/revisao/$token'
+      path: '/api/public/revisao/$token'
+      fullPath: '/api/public/revisao/$token'
+      preLoaderRoute: typeof ApiPublicRevisaoTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/auth/preview': {
@@ -743,10 +783,12 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiDocumentoLeituraRoute: ApiAiDocumentoLeituraRoute,
   ApiAiPecaRoute: ApiAiPecaRoute,
   ApiAiPlanoRoute: ApiAiPlanoRoute,
+  RevisaoTokenRoute: RevisaoTokenRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicAiChatbotRoute: ApiPublicAiChatbotRoute,
   ApiPublicHooksPlanRemindersRoute: ApiPublicHooksPlanRemindersRoute,
+  ApiPublicRevisaoTokenRoute: ApiPublicRevisaoTokenRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,

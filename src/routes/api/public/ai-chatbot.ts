@@ -115,7 +115,28 @@ export const Route = createFileRoute("/api/public/ai-chatbot")({
             .insert({ session_id: sessionId, role: "user", content: lastUser.content });
         }
 
+        // Base própria primeiro: respostas cobertas não dependem de créditos de IA.
+        const { buscarNaBase, contextoDaBase, registrarLacuna, registrarUsoBase, respostaDaBase } =
+          await import("@/lib/legal-qa.server");
+
+        const perguntaAtual = lastUser?.content ?? "";
+        const base = await buscarNaBase(perguntaAtual);
+
+        if (base.confianca === "alta" && base.match) {
+          const answer = respostaDaBase(base.match);
+          await registrarUsoBase(base.match.id);
+          await supabaseAdmin
+            .from("chatbot_public_messages")
+            .insert({ session_id: sessionId, role: "assistant", content: answer });
+          return jsonResponse({ answer, fonte: "base-propria" });
+        }
+        if (base.confianca === "nenhuma" && perguntaAtual.trim().length >= 6) {
+          await registrarLacuna(perguntaAtual, "chatbot_publico");
+        }
+        const contextoBase = base.match ? contextoDaBase(base.match) : "";
+
         let upstream: Response;
+
         try {
           upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
             method: "POST",
@@ -129,7 +150,13 @@ export const Route = createFileRoute("/api/public/ai-chatbot")({
               model: "google/gemini-3.7-flash",
               max_tokens: 600,
               messages: [
-                { role: "system", content: systemPromptFor("chatbot_publico") },
+                {
+                  role: "system",
+                  content: contextoBase
+                    ? `${systemPromptFor("chatbot_publico")}\n\n${contextoBase}`
+                    : systemPromptFor("chatbot_publico"),
+                },
+
                 ...parsed.messages,
               ],
             }),
