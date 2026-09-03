@@ -82,18 +82,51 @@ export const Route = createFileRoute("/api/ai-chatbot")({
           respostaDaBase,
           sseFromText,
         } = await import("@/lib/legal-qa.server");
+        const {
+          contextoDasFontes,
+          recuperarFontes,
+          registrarAuditoria,
+          rodapeDeFontes,
+        } = await import("@/lib/legal-sources.server");
 
         const ultimaPergunta = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
         const base = await buscarNaBase(ultimaPergunta);
+        const fontes = await recuperarFontes(ultimaPergunta);
 
         if (base.confianca === "alta" && base.match) {
           await registrarUsoBase(base.match.id);
-          return sseFromText(respostaDaBase(base.match));
+          await registrarAuditoria({
+            userId,
+            origem: "chatbot",
+            pergunta: ultimaPergunta,
+            fonte: "base-propria",
+            qaId: base.match.id,
+            trechos: fontes.trechos,
+            nivelRisco: fontes.nivelRisco,
+            exigeAdvogado: fontes.exigeAdvogado,
+          });
+          return sseFromText(respostaDaBase(base.match) + rodapeDeFontes(fontes));
         }
         if (base.confianca === "nenhuma" && ultimaPergunta.trim().length >= 6) {
           await registrarLacuna(ultimaPergunta, "chatbot");
         }
-        const contextoBase = base.match ? contextoDaBase(base.match) : "";
+        const contextoBase = [
+          base.match ? contextoDaBase(base.match) : "",
+          contextoDasFontes(fontes),
+        ]
+          .filter(Boolean)
+          .join("\n\n");
+
+        await registrarAuditoria({
+          userId,
+          origem: "chatbot",
+          pergunta: ultimaPergunta,
+          fonte: fontes.suficiente ? "base-fontes" : "ia",
+          ...(base.match ? { qaId: base.match.id } : {}),
+          trechos: fontes.trechos,
+          nivelRisco: fontes.nivelRisco,
+          exigeAdvogado: fontes.exigeAdvogado,
+        });
 
 
 
