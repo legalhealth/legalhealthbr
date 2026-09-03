@@ -486,6 +486,45 @@ export type Database = {
           },
         ]
       }
+      legal_ingest_runs: {
+        Row: {
+          chunks: number
+          created_at: string
+          executado_por: string | null
+          id: string
+          mensagem: string | null
+          official_url: string | null
+          resultado: string
+          source_id: string
+          tamanho_texto: number
+          version: number | null
+        }
+        Insert: {
+          chunks?: number
+          created_at?: string
+          executado_por?: string | null
+          id?: string
+          mensagem?: string | null
+          official_url?: string | null
+          resultado?: string
+          source_id: string
+          tamanho_texto?: number
+          version?: number | null
+        }
+        Update: {
+          chunks?: number
+          created_at?: string
+          executado_por?: string | null
+          id?: string
+          mensagem?: string | null
+          official_url?: string | null
+          resultado?: string
+          source_id?: string
+          tamanho_texto?: number
+          version?: number | null
+        }
+        Relationships: []
+      }
       legal_qa: {
         Row: {
           busca: unknown

@@ -150,9 +150,14 @@ export const Route = createFileRoute("/api/ai-chat")({
         await supabase.from("ai_usage").insert({ user_id: userId, endpoint: "ai-chat" });
 
         // Fundamentação obrigatória: fontes oficiais vigentes da base jurídica.
-        const { contextoDasFontes, recuperarFontes, registrarAuditoria } = await import(
-          "@/lib/legal-sources.server"
-        );
+        const {
+          contextoDasFontes,
+          recuperarFontes,
+          registrarAuditoria,
+          respostaDasFontes,
+          rodapeDeFontes,
+        } = await import("@/lib/legal-sources.server");
+        const { sseFromText } = await import("@/lib/legal-qa.server");
         const perguntaAtual =
           [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
         const fontes = await recuperarFontes(perguntaAtual);
@@ -167,6 +172,13 @@ export const Route = createFileRoute("/api/ai-chat")({
           nivelRisco: fontes.nivelRisco,
           exigeAdvogado: fontes.exigeAdvogado,
         });
+
+        /** Sem IA disponível, responde com o texto das normas recuperadas. */
+        const responderPelasFontes = (motivo: string) => {
+          if (!fontes.suficiente) return null;
+          console.warn("ai-chat: fallback pelas fontes", motivo);
+          return sseFromText(respostaDasFontes(fontes) + rodapeDeFontes(fontes));
+        };
 
         let upstream: Response;
         try {
@@ -193,30 +205,39 @@ export const Route = createFileRoute("/api/ai-chat")({
             }),
           });
         } catch {
-          return jsonError(
-            "Falha de rede ao consultar a IA. Verifique sua conexão e tente novamente.",
-            502,
+          return (
+            responderPelasFontes("falha de rede") ??
+            jsonError(
+              "Falha de rede ao consultar a IA. Verifique sua conexão e tente novamente.",
+              502,
+            )
           );
         }
 
         if (upstream.status === 429) {
-          return jsonError(
-            "O serviço de IA está com muitas requisições neste momento. Aguarde alguns segundos e tente novamente.",
-            429,
+          return (
+            responderPelasFontes("429") ??
+            jsonError(
+              "O serviço de IA está com muitas requisições neste momento. Aguarde alguns segundos e tente novamente.",
+              429,
+            )
           );
         }
         if (upstream.status === 402) {
-          return jsonError(
-            "Os créditos de IA do projeto foram esgotados. Recarregue para continuar usando o assistente.",
-            402,
+          return (
+            responderPelasFontes("402") ??
+            jsonError(
+              "Os créditos de IA do projeto foram esgotados. Recarregue para continuar usando o assistente.",
+              402,
+            )
           );
         }
         if (!upstream.ok || !upstream.body) {
           const detail = await upstream.text().catch(() => "");
           console.error("ai-chat upstream error", upstream.status, detail);
-          return jsonError(
-            "A IA não conseguiu responder agora. Tente novamente em instantes.",
-            502,
+          return (
+            responderPelasFontes(`upstream ${upstream.status}`) ??
+            jsonError("A IA não conseguiu responder agora. Tente novamente em instantes.", 502)
           );
         }
 

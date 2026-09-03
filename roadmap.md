@@ -32,3 +32,9 @@
 - [ ] Suíte de 100 casos jurídicos de validação
 - [ ] Painel do advogado (`/advogado`) e painel `/admin/base-juridica`
 
+
+## Pipeline de ingestão (concluído)
+- Catálogo curado de 12 fontes oficiais em `src/lib/legal-ingest.server.ts` (9 HTML automáticas + 3 do CFM em PDF, com curadoria manual).
+- Coleta idempotente: compara o texto oficial com o indexado, cria nova versão só quando há alteração e preserva a anterior.
+- Painel admin em /admin/fontes (`src/components/admin/painel-ingestao.tsx`) com histórico em `legal_ingest_runs`.
+- Pendências: extração de PDFs do CFM, painel do advogado /advogado, suíte de 100 casos.

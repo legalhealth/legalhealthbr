@@ -165,6 +165,30 @@ export function rodapeDeFontes(rec: RecuperacaoJuridica): string {
   return `\n\n${bloco}`;
 }
 
+/**
+ * Compõe uma resposta fundamentada apenas com os trechos oficiais recuperados,
+ * sem chamar o modelo externo. Usada quando a IA está indisponível (créditos
+ * esgotados, limite de requisições ou falha) e a base cobre o tema.
+ */
+export function respostaDasFontes(rec: RecuperacaoJuridica): string {
+  if (rec.trechos.length === 0) return SEM_FUNDAMENTO;
+
+  const blocos = rec.trechos.slice(0, 3).map((t) => {
+    const norma = t.number ? `${t.title} (${t.number})` : t.title;
+    const local = t.artigo ?? t.secao ?? "";
+    const texto = t.texto.length > 900 ? `${t.texto.slice(0, 900)}…` : t.texto;
+    return `**${norma}${local ? ` — ${local}` : ""}**\n${texto}`;
+  });
+
+  return [
+    "**Fundamentação encontrada na base jurídica da Legal Health** (texto das normas oficiais vigentes, sem interpretação automática):",
+    "",
+    blocos.join("\n\n"),
+    "",
+    "A leitura interpretativa deste conteúdo aplicado ao seu caso concreto exige análise de advogado. Você pode enviar o caso pela área de Revisões.",
+  ].join("\n");
+}
+
 /** Resposta padrão quando a base não tem fundamento suficiente. */
 export const SEM_FUNDAMENTO =
   "Não encontrei na base jurídica da Legal Health fonte oficial vigente suficiente para responder com segurança a essa pergunta. Para não gerar orientação sem fundamento verificável, recomendo avaliação de um advogado — você pode enviar o caso pela área de Revisões.";

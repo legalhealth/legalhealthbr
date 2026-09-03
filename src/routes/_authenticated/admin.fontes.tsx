@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, BadgeCheck, ExternalLink, History, ShieldOff } from "lucide-react";
 import { toast } from "sonner";
 
+import { PainelIngestao } from "@/components/admin/painel-ingestao";
 import { PageShell } from "@/components/layout/page-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -132,7 +133,10 @@ function Page() {
         </div>
       )}
 
+      <PainelIngestao />
+
       <h2 className="mt-10 text-sm tracking-[0.2em] text-primary uppercase">
+
         Auditoria de respostas
       </h2>
       <div className="mt-4 space-y-2">
