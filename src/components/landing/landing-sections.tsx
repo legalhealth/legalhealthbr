@@ -499,9 +499,10 @@ export function Beneficios() {
       produto: "Uso dos recursos liberados no plano de embaixador.",
     },
   ];
+  const ref = useVistoUmaVez("benefits_view", "beneficios");
   return (
-    <section className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
-      <SectionTitle eyebrow="Benefícios" title="Concretos, sem exagero." />
+    <section ref={ref} className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
+      <SectionTitle eyebrow="Benefícios" title="O que o embaixador recebe." />
       <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {cards.map((c) => (
           <div key={c.titulo} className="rounded-2xl border border-border bg-card p-6">
@@ -523,6 +524,94 @@ export function Beneficios() {
           </div>
         ))}
       </div>
+
+      <div className="mt-10 overflow-x-auto rounded-2xl border border-border">
+        <table className="w-full min-w-[42rem] border-collapse text-left text-sm">
+          <caption className="sr-only">
+            Benefícios do programa de Embaixadores, situação atual e observações
+          </caption>
+          <thead>
+            <tr className="border-b border-border bg-card/60">
+              <th scope="col" className="px-5 py-3 text-xs uppercase tracking-[0.14em] text-subtle">
+                Benefício
+              </th>
+              <th scope="col" className="px-5 py-3 text-xs uppercase tracking-[0.14em] text-subtle">
+                Situação
+              </th>
+              <th scope="col" className="px-5 py-3 text-xs uppercase tracking-[0.14em] text-subtle">
+                Observação
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {TABELA_BENEFICIOS.map((linha) => (
+              <tr key={linha.beneficio} className="border-b border-border/70 last:border-0">
+                <th scope="row" className="px-5 py-4 font-medium text-foreground">
+                  {linha.beneficio}
+                </th>
+                <td className="px-5 py-4">
+                  <SituacaoTag situacao={linha.situacao} />
+                </td>
+                <td className="px-5 py-4 leading-relaxed text-muted-foreground">
+                  {linha.observacao}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-4 text-xs leading-relaxed text-subtle">
+        Condições comerciais ainda em definição serão informadas no regulamento antes da
+        participação. Nenhum benefício futuro é apresentado como garantido.
+      </p>
+    </section>
+  );
+}
+
+/* --------------------------- Responsabilidades --------------------------- */
+
+export function Responsabilidades() {
+  return (
+    <section className="border-y border-border bg-card/30">
+      <div className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
+        <SectionTitle eyebrow="Compromissos" title="O que se espera do embaixador." />
+        <ul className="mt-10 grid gap-3 md:grid-cols-2">
+          {RESPONSABILIDADES.map((item) => (
+            <li
+              key={item}
+              className="flex items-start gap-3 rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed text-muted-foreground"
+            >
+              <ClipboardList className="mt-0.5 h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------- Limites ------------------------------- */
+
+export function Limites() {
+  return (
+    <section className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
+      <SectionTitle eyebrow="Transparência" title="Conheça os limites antes de participar." />
+      <ul className="mt-10 grid gap-3 md:grid-cols-2">
+        {LIMITES.map((item) => (
+          <li
+            key={item}
+            className="flex items-start gap-3 rounded-2xl border border-warning/25 bg-card p-5 text-sm leading-relaxed text-muted-foreground"
+          >
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
+            {item}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-6 text-xs leading-relaxed text-subtle">
+        Não exibimos depoimentos, selos, número de usuários ou logos de parceiros: nada será
+        apresentado como prova sem autorização e comprovação.
+      </p>
     </section>
   );
 }
