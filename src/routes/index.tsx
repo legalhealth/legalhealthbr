@@ -11,9 +11,11 @@ import {
   CtaFinal,
   FaqSection,
   Hero,
+  Limites,
   Plataforma,
   Problema,
   QuemPode,
+  Responsabilidades,
   SerEmbaixador,
   TrustBar,
   Vantagens,
@@ -70,7 +72,9 @@ function LandingPage() {
         <Vantagens />
         <Beneficios />
         <ComoFunciona />
+        <Responsabilidades />
         <QuemPode />
+        <Limites />
 
         <section id="candidatura" className="scroll-mt-20 border-t border-border bg-card/30">
           <div className="mx-auto max-w-3xl px-5 py-16 md:px-8 md:py-20">

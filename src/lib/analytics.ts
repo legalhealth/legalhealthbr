@@ -8,11 +8,14 @@ export type ConversionEvent =
   | "landing_view"
   | "hero_cta_click"
   | "platform_cta_click"
+  | "benefits_view"
   | "ambassador_section_view"
   | "application_start"
+  | "application_field_error"
   | "application_submit"
   | "faq_open"
   | "login_click"
+  | "diagnostic_cta_click"
   | "diagnostic_start";
 
 type SafeProps = Record<string, string | number | boolean>;

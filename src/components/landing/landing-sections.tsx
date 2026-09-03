@@ -22,8 +22,43 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { FAQ, FASES, SITUACAO_LABEL, type SituacaoBeneficio } from "@/lib/embaixadores";
+import {
+  FAQ,
+  FAQ_EXTRA,
+  FASES,
+  LIMITES,
+  RESPONSABILIDADES,
+  SITUACAO_LABEL,
+  TABELA_BENEFICIOS,
+  type SituacaoBeneficio,
+} from "@/lib/embaixadores";
 import { track } from "@/lib/analytics";
+
+/** Dispara um evento de analytics uma única vez quando a seção entra na viewport. */
+function useVistoUmaVez(evento: "benefits_view" | "ambassador_section_view", secao: string) {
+  const ref = useRef<HTMLElement | null>(null);
+  const visto = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && !visto.current) {
+            visto.current = true;
+            track(evento, { secao });
+          }
+        }
+      },
+      { threshold: 0.3 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [evento, secao]);
+
+  return ref;
+}
 
 function SituacaoTag({ situacao }: { situacao: SituacaoBeneficio }) {
   const tone =
@@ -90,10 +125,7 @@ export function Hero() {
               variant="outline"
               className="h-12 rounded-xl border-border px-6 text-[0.95rem] hover:bg-accent"
             >
-              <a
-                href="#plataforma"
-                onClick={() => track("platform_cta_click", { origem: "hero" })}
-              >
+              <a href="#plataforma" onClick={() => track("platform_cta_click", { origem: "hero" })}>
                 Conhecer a plataforma
               </a>
             </Button>
@@ -182,22 +214,41 @@ function HeroComposicao() {
   );
 }
 
-/* ------------------------------- Barra confiança ------------------------------- */
+/* --------------------------- Clareza imediata (3 benefícios) --------------------------- */
 
 export function TrustBar() {
-  const itens = [
-    "Experiência de 3 meses",
-    "Diagnóstico preventivo",
-    "Feedback direto com a equipe",
-    "Sem promessa de proteção absoluta",
+  const itens: { icon: typeof ShieldCheck; texto: string; situacao: SituacaoBeneficio }[] = [
+    {
+      icon: BadgeCheck,
+      texto: "Experimente a plataforma por três meses",
+      situacao: "piloto",
+    },
+    {
+      icon: Gauge,
+      texto: "Conheça seu ponto de partida preventivo",
+      situacao: "disponivel",
+    },
+    {
+      icon: MessagesSquare,
+      texto: "Envie feedback diretamente à equipe",
+      situacao: "piloto",
+    },
   ];
   return (
     <section className="border-b border-border bg-card/40">
-      <ul className="mx-auto grid max-w-7xl gap-3 px-5 py-6 text-center text-xs text-muted-foreground md:grid-cols-4 md:px-8">
-        {itens.map((i) => (
-          <li key={i} className="flex items-center justify-center gap-2">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
-            {i}
+      <ul className="mx-auto grid max-w-7xl gap-4 px-5 py-8 md:grid-cols-3 md:px-8">
+        {itens.map(({ icon: Icon, texto, situacao }) => (
+          <li
+            key={texto}
+            className="flex items-start gap-3 rounded-2xl border border-border bg-card p-5"
+          >
+            <Icon className="mt-0.5 h-5 w-5 shrink-0 text-gold" aria-hidden="true" />
+            <div className="min-w-0">
+              <p className="text-sm leading-relaxed text-foreground">{texto}</p>
+              <p className="mt-2">
+                <SituacaoTag situacao={situacao} />
+              </p>
+            </div>
           </li>
         ))}
       </ul>
@@ -252,61 +303,81 @@ export function Problema() {
 /* ------------------------------- A plataforma ------------------------------- */
 
 export function Plataforma() {
-  const recursos = [
+  const recursos: {
+    icon: typeof Gauge;
+    titulo: string;
+    beneficio: string;
+    situacao: SituacaoBeneficio;
+  }[] = [
     {
       icon: Gauge,
       titulo: "Juriscore®",
-      texto:
-        "Diagnóstico de 15 perguntas em cinco pilares, com pontuação e leitura dos pontos de atenção.",
+      beneficio:
+        "Diagnóstico preventivo em 15 perguntas e cinco pilares: você vê onde está o maior ponto de atenção.",
+      situacao: "disponivel",
     },
     {
       icon: MessagesSquare,
-      titulo: "Assistente com base própria",
-      texto:
-        "Respostas citando norma, artigo, órgão emissor, vigência e link oficial das fontes indexadas.",
+      titulo: "Assistente de IA",
+      beneficio:
+        "Apoio contextualizado com limites claros e fontes oficiais identificadas quando disponíveis.",
+      situacao: "disponivel",
     },
     {
       icon: ClipboardList,
-      titulo: "Plano de ação",
-      texto: "Prioridades por risco e prazo, geradas a partir do seu diagnóstico.",
+      titulo: "Plano de Ação",
+      beneficio: "Prioridades organizadas por risco e prazo a partir do seu diagnóstico.",
+      situacao: "disponivel",
     },
     {
       icon: FileSearch,
       titulo: "Leitura de documentos",
-      texto: "Anexe uma intimação ou contrato e receba a leitura estruturada do conteúdo.",
+      beneficio:
+        "Leitura assistida de uma intimação ou contrato, sem substituir a revisão jurídica.",
+      situacao: "piloto",
     },
     {
       icon: BookOpen,
       titulo: "Biblioteca",
-      texto: "Modelos, protocolos e checklists para revisar rotinas do consultório ou clínica.",
+      beneficio: "Modelos, protocolos e checklists para revisar rotinas do consultório ou clínica.",
+      situacao: "disponivel",
     },
     {
       icon: Users,
-      titulo: "Encaminhamento ao advogado",
-      texto: "Envio organizado dos anexos e do contexto, com comprovante do que foi encaminhado.",
+      titulo: "Envio ao advogado",
+      beneficio:
+        "Encaminhamento organizado dos anexos e do contexto, com comprovante do que foi enviado.",
+      situacao: "piloto",
     },
   ];
   return (
     <section id="plataforma" className="scroll-mt-20 border-y border-border bg-card/30">
       <div className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
-        <SectionTitle eyebrow="A plataforma" title="O que você vai usar durante a experiência." />
+        <SectionTitle eyebrow="A plataforma" title="Conheça o que a Legal Health organiza." />
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {recursos.map(({ icon: Icon, titulo, texto }) => (
+          {recursos.map(({ icon: Icon, titulo, beneficio, situacao }) => (
             <div key={titulo} className="rounded-2xl border border-border bg-card p-6">
-              <Icon className="h-5 w-5 text-gold" aria-hidden="true" />
+              <div className="flex items-start justify-between gap-3">
+                <Icon className="h-5 w-5 text-gold" aria-hidden="true" />
+                <SituacaoTag situacao={situacao} />
+              </div>
               <h3 className="mt-4 text-[0.95rem] font-medium text-foreground">{titulo}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{texto}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{beneficio}</p>
             </div>
           ))}
         </div>
-        <div className="mt-8">
+        <p className="mt-8 max-w-2xl text-xs leading-relaxed text-subtle">
+          Fontes oficiais identificadas, com revisão profissional quando aplicável. As respostas
+          indicam norma, órgão emissor e link oficial para que você possa conferir na fonte.
+        </p>
+        <div className="mt-6">
           <Link
             to="/auth"
-            onClick={() => track("diagnostic_start", { origem: "plataforma" })}
-            className="inline-flex items-center gap-2 text-sm text-gold hover:text-gold-light"
+            onClick={() => track("diagnostic_cta_click", { origem: "plataforma" })}
+            className="inline-flex items-center gap-2 text-sm text-gold underline underline-offset-4 hover:text-gold-light"
           >
             Criar conta e iniciar o diagnóstico
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>
       </div>
@@ -317,32 +388,14 @@ export function Plataforma() {
 /* --------------------------- O que é ser embaixador --------------------------- */
 
 export function SerEmbaixador() {
-  const ref = useRef<HTMLElement | null>(null);
-  const visto = useRef(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting && !visto.current) {
-            visto.current = true;
-            track("ambassador_section_view", { secao: "ser-embaixador" });
-          }
-        }
-      },
-      { threshold: 0.35 },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
+  const ref = useVistoUmaVez("ambassador_section_view", "ser-embaixador");
 
   const blocos = [
     {
       icon: Compass,
       titulo: "Experimente",
-      texto: "Use os recursos disponíveis e conheça o diagnóstico preventivo na sua própria rotina.",
+      texto:
+        "Use os recursos disponíveis e conheça o diagnóstico preventivo na sua própria rotina.",
     },
     {
       icon: Lightbulb,
@@ -443,9 +496,10 @@ export function Beneficios() {
       produto: "Uso dos recursos liberados no plano de embaixador.",
     },
   ];
+  const ref = useVistoUmaVez("benefits_view", "beneficios");
   return (
-    <section className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
-      <SectionTitle eyebrow="Benefícios" title="Concretos, sem exagero." />
+    <section ref={ref} className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
+      <SectionTitle eyebrow="Benefícios" title="O que o embaixador recebe." />
       <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {cards.map((c) => (
           <div key={c.titulo} className="rounded-2xl border border-border bg-card p-6">
@@ -467,6 +521,94 @@ export function Beneficios() {
           </div>
         ))}
       </div>
+
+      <div className="mt-10 overflow-x-auto rounded-2xl border border-border">
+        <table className="w-full min-w-[42rem] border-collapse text-left text-sm">
+          <caption className="sr-only">
+            Benefícios do programa de Embaixadores, situação atual e observações
+          </caption>
+          <thead>
+            <tr className="border-b border-border bg-card/60">
+              <th scope="col" className="px-5 py-3 text-xs uppercase tracking-[0.14em] text-subtle">
+                Benefício
+              </th>
+              <th scope="col" className="px-5 py-3 text-xs uppercase tracking-[0.14em] text-subtle">
+                Situação
+              </th>
+              <th scope="col" className="px-5 py-3 text-xs uppercase tracking-[0.14em] text-subtle">
+                Observação
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {TABELA_BENEFICIOS.map((linha) => (
+              <tr key={linha.beneficio} className="border-b border-border/70 last:border-0">
+                <th scope="row" className="px-5 py-4 font-medium text-foreground">
+                  {linha.beneficio}
+                </th>
+                <td className="px-5 py-4">
+                  <SituacaoTag situacao={linha.situacao} />
+                </td>
+                <td className="px-5 py-4 leading-relaxed text-muted-foreground">
+                  {linha.observacao}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-4 text-xs leading-relaxed text-subtle">
+        Condições comerciais ainda em definição serão informadas no regulamento antes da
+        participação. Nenhum benefício futuro é apresentado como garantido.
+      </p>
+    </section>
+  );
+}
+
+/* --------------------------- Responsabilidades --------------------------- */
+
+export function Responsabilidades() {
+  return (
+    <section className="border-y border-border bg-card/30">
+      <div className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
+        <SectionTitle eyebrow="Compromissos" title="O que se espera do embaixador." />
+        <ul className="mt-10 grid gap-3 md:grid-cols-2">
+          {RESPONSABILIDADES.map((item) => (
+            <li
+              key={item}
+              className="flex items-start gap-3 rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed text-muted-foreground"
+            >
+              <ClipboardList className="mt-0.5 h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------- Limites ------------------------------- */
+
+export function Limites() {
+  return (
+    <section className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
+      <SectionTitle eyebrow="Transparência" title="Conheça os limites antes de participar." />
+      <ul className="mt-10 grid gap-3 md:grid-cols-2">
+        {LIMITES.map((item) => (
+          <li
+            key={item}
+            className="flex items-start gap-3 rounded-2xl border border-warning/25 bg-card p-5 text-sm leading-relaxed text-muted-foreground"
+          >
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
+            {item}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-6 text-xs leading-relaxed text-subtle">
+        Não exibimos depoimentos, selos, número de usuários ou logos de parceiros: nada será
+        apresentado como prova sem autorização e comprovação.
+      </p>
     </section>
   );
 }
@@ -545,7 +687,10 @@ export function QuemPode() {
         <h3 className="text-[0.95rem] font-medium text-foreground">Critérios transparentes</h3>
         <ul className="mt-4 space-y-2">
           {criterios.map((c) => (
-            <li key={c} className="flex items-start gap-3 text-sm leading-relaxed text-muted-foreground">
+            <li
+              key={c}
+              className="flex items-start gap-3 text-sm leading-relaxed text-muted-foreground"
+            >
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
               {c}
             </li>
@@ -574,7 +719,7 @@ export function FaqSection() {
           }}
           className="mt-8"
         >
-          {FAQ.map((item, i) => (
+          {[...FAQ, ...FAQ_EXTRA].map((item, i) => (
             <AccordionItem key={item.pergunta} value={`faq-${i + 1}`} className="border-border">
               <AccordionTrigger className="text-left text-[0.95rem] text-foreground hover:text-gold">
                 {item.pergunta}

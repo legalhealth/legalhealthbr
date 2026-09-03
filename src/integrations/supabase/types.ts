@@ -189,7 +189,7 @@ export type Database = {
       ambassador_applications: {
         Row: {
           aceite_regulamento: boolean
-          cidade: string
+          cidade: string | null
           ciencia_nao_substitui_advogado: boolean
           comunidade_tamanho: string | null
           consentimento_contato: boolean
@@ -202,11 +202,11 @@ export type Database = {
           nome: string
           profissao: string
           status: string
-          tipo_atuacao: string
+          tipo_atuacao: string | null
         }
         Insert: {
           aceite_regulamento?: boolean
-          cidade: string
+          cidade?: string | null
           ciencia_nao_substitui_advogado?: boolean
           comunidade_tamanho?: string | null
           consentimento_contato?: boolean
@@ -219,11 +219,11 @@ export type Database = {
           nome: string
           profissao: string
           status?: string
-          tipo_atuacao: string
+          tipo_atuacao?: string | null
         }
         Update: {
           aceite_regulamento?: boolean
-          cidade?: string
+          cidade?: string | null
           ciencia_nao_substitui_advogado?: boolean
           comunidade_tamanho?: string | null
           consentimento_contato?: boolean
@@ -236,7 +236,7 @@ export type Database = {
           nome?: string
           profissao?: string
           status?: string
-          tipo_atuacao?: string
+          tipo_atuacao?: string | null
         }
         Relationships: []
       }
