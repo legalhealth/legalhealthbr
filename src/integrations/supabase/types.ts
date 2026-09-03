@@ -577,6 +577,47 @@ export type Database = {
           },
         ]
       }
+      revisao_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          first_opened_at: string | null
+          id: string
+          opens: number
+          revisao_id: string
+          revoked_at: string | null
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          first_opened_at?: string | null
+          id?: string
+          opens?: number
+          revisao_id: string
+          revoked_at?: string | null
+          token: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          first_opened_at?: string | null
+          id?: string
+          opens?: number
+          revisao_id?: string
+          revoked_at?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revisao_tokens_revisao_id_fkey"
+            columns: ["revisao_id"]
+            isOneToOne: false
+            referencedRelation: "revisoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       revisoes: {
         Row: {
           advogado_email: string
@@ -589,6 +630,8 @@ export type Database = {
           enviado_em: string
           id: string
           mensagem: string | null
+          parecer: string | null
+          parecer_em: string | null
           status: string
           updated_at: string
           user_id: string
@@ -604,6 +647,8 @@ export type Database = {
           enviado_em?: string
           id?: string
           mensagem?: string | null
+          parecer?: string | null
+          parecer_em?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -619,6 +664,8 @@ export type Database = {
           enviado_em?: string
           id?: string
           mensagem?: string | null
+          parecer?: string | null
+          parecer_em?: string | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -659,6 +706,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_user_email: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
