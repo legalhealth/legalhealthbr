@@ -206,6 +206,7 @@ function Page() {
       setPendingUser(null);
       setDraft("");
       setStatus("ready");
+      sendingRef.current = false;
     }
   };
 
