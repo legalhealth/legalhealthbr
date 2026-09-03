@@ -1,5 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, BadgeCheck, ClipboardList, Gauge, MessagesSquare } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  ClipboardList,
+  Gauge,
+  MessagesSquare,
+  ShieldCheck,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { SITUACAO_LABEL, type SituacaoBeneficio } from "@/lib/embaixadores";
