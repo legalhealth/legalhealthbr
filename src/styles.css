@@ -171,6 +171,13 @@
     transition-timing-function: var(--ease-lux);
     transition-duration: 280ms;
   }
+
+  /* foco sempre visível para navegação por teclado */
+  :focus-visible {
+    outline: 2px solid var(--gold-light);
+    outline-offset: 2px;
+    border-radius: 0.35rem;
+  }
 }
 
 @utility wordmark {
