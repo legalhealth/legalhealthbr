@@ -39,3 +39,9 @@
 - Painel admin em /admin/fontes (`src/components/admin/painel-ingestao.tsx`) com histórico em `legal_ingest_runs`.
 - Resoluções CFM 2.314/2022, 2.336/2023 e 2.217/2018 curadas em `src/lib/legal-curadoria-cfm.server.ts` e indexadas (152 trechos vigentes, versão 2, revisor registrado).
 - Pendências: painel do advogado /advogado, suíte de 100 casos.
+
+## Atualização automática da base jurídica (concluída)
+- Rotina diária (cron do banco, 06:10 UTC) chama `/api/public/hooks/base-juridica-sync`.
+- Reconfere as 12 fontes oficiais, cria nova versão quando o texto muda (versão anterior preservada como `alterada`).
+- Detecta nota de revogação/suspensão no cabeçalho oficial → fonte marcada `em_revisao` para triagem humana.
+- Alertas gravados em `legal_change_alerts`, exibidos em `/admin/fontes` e enviados por e-mail aos administradores (template `base-juridica-alerta`).
