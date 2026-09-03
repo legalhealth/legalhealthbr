@@ -311,6 +311,27 @@ export function detectarRevogacao(texto: string): string | null {
   return trecho;
 }
 
+/** Texto legível a partir do HTML oficial (sem dependências externas). */
+export function htmlParaTexto(html: string): string {
+  let t = html.replace(/<(script|style|noscript)[^>]*>[\s\S]*?<\/\1>/gi, " ");
+  t = t.replace(/<br[^>]*>|<\/p>|<\/div>|<\/tr>|<\/h[1-6]>/gi, "\n");
+  t = t.replace(/<[^>]+>/g, "");
+  t = t
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#(\d+);/g, (_, d: string) => String.fromCharCode(Number(d)))
+    .replace(/&ordf;/gi, "ª")
+    .replace(/&ordm;/gi, "º")
+    .replace(/&sect;/gi, "§");
+  t = t.replace(/[ \t\u00a0]+/g, " ");
+  t = t.replace(/\n\s*\n+/g, "\n");
+  return t.trim();
+}
+
+
 const ARTIGO_RE = /(?:^|\n)\s*(Art\.\s?\d+(?:[ºo°]|-[A-Z])?)/g;
 
 export type TrechoColetado = { artigo: string; texto: string };
