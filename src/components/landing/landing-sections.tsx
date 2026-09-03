@@ -719,7 +719,7 @@ export function FaqSection() {
           }}
           className="mt-8"
         >
-          {FAQ.map((item, i) => (
+          {[...FAQ, ...FAQ_EXTRA].map((item, i) => (
             <AccordionItem key={item.pergunta} value={`faq-${i + 1}`} className="border-border">
               <AccordionTrigger className="text-left text-[0.95rem] text-foreground hover:text-gold">
                 {item.pergunta}

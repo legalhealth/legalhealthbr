@@ -44,21 +44,30 @@ export function CandidaturaForm() {
     track("application_start", { secao: "candidatura" });
   };
 
+  /** Registra o erro visível e o evento de analytics, sem enviar o conteúdo digitado. */
+  const falhaDeCampo = (campo: string, mensagem: string) => {
+    setErro(mensagem);
+    track("application_field_error", { id: campo, secao: "candidatura" });
+  };
+
   const enviar = async (e: React.FormEvent) => {
     e.preventDefault();
     if (estado === "enviando") return;
     setErro(null);
 
-    if (!profissao || !estadoUf || !tipoAtuacao) {
-      setErro("Selecione profissão, estado e tipo de atuação.");
+    if (!profissao || !estadoUf) {
+      falhaDeCampo("obrigatorios", "Selecione sua profissão e o estado onde atua.");
       return;
     }
     if (motivo.trim().length < 10) {
-      setErro("Conte em poucas linhas por que deseja participar (mínimo de 10 caracteres).");
+      falhaDeCampo("motivo", "Conte em poucas linhas por que deseja participar (mínimo de 10 caracteres).");
       return;
     }
     if (!aceite || !ciencia) {
-      setErro("É necessário aceitar o regulamento e a ciência sobre os limites da plataforma.");
+      falhaDeCampo(
+        "consentimento",
+        "É necessário aceitar o regulamento e a ciência sobre os limites da plataforma.",
+      );
       return;
     }
 
@@ -68,8 +77,8 @@ export function CandidaturaForm() {
       email: email.trim().toLowerCase(),
       profissao,
       estado: estadoUf,
-      cidade: cidade.trim(),
-      tipo_atuacao: tipoAtuacao,
+      cidade: cidade.trim() || null,
+      tipo_atuacao: tipoAtuacao || null,
       link_profissional: link.trim() || null,
       comunidade_tamanho: comunidade.trim() || null,
       motivo: motivo.trim(),
@@ -160,7 +169,9 @@ export function CandidaturaForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="tipo">Tipo de atuação</Label>
+          <Label htmlFor="tipo">
+            Tipo de atuação <span className="text-subtle">(opcional)</span>
+          </Label>
           <Select value={tipoAtuacao} onValueChange={setTipoAtuacao}>
             <SelectTrigger id="tipo" aria-label="Tipo de atuação">
               <SelectValue placeholder="Selecione" />
@@ -192,12 +203,13 @@ export function CandidaturaForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="cidade">Cidade</Label>
+          <Label htmlFor="cidade">
+            Cidade <span className="text-subtle">(opcional)</span>
+          </Label>
           <Input
             id="cidade"
             value={cidade}
             onChange={(e) => setCidade(e.target.value)}
-            required
             maxLength={80}
           />
         </div>
@@ -297,6 +309,7 @@ export function CandidaturaForm() {
       {erro && (
         <div
           role="alert"
+          aria-live="assertive"
           className="mt-5 flex gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-foreground"
         >
           <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
