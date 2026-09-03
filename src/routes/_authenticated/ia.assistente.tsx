@@ -83,6 +83,7 @@ function Page() {
   const [input, setInput] = useState(q ?? "");
   const [status, setStatus] = useState<"ready" | "submitted" | "streaming">("ready");
   const [pendingUser, setPendingUser] = useState<string | null>(null);
+  const sendingRef = useRef(false);
   const [draft, setDraft] = useState("");
   const [attachments, setAttachments] = useState<ChatAttachment[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
