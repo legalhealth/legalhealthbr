@@ -118,13 +118,25 @@ export const Route = createFileRoute("/api/public/ai-chatbot")({
         // Base própria primeiro: respostas cobertas não dependem de créditos de IA.
         const { buscarNaBase, contextoDaBase, registrarLacuna, registrarUsoBase, respostaDaBase } =
           await import("@/lib/legal-qa.server");
+        const { contextoDasFontes, recuperarFontes, registrarAuditoria, rodapeDeFontes } =
+          await import("@/lib/legal-sources.server");
 
         const perguntaAtual = lastUser?.content ?? "";
         const base = await buscarNaBase(perguntaAtual);
+        const fontes = await recuperarFontes(perguntaAtual);
 
         if (base.confianca === "alta" && base.match) {
-          const answer = respostaDaBase(base.match);
+          const answer = respostaDaBase(base.match) + rodapeDeFontes(fontes);
           await registrarUsoBase(base.match.id);
+          await registrarAuditoria({
+            origem: "chatbot_publico",
+            pergunta: perguntaAtual,
+            fonte: "base-propria",
+            qaId: base.match.id,
+            trechos: fontes.trechos,
+            nivelRisco: fontes.nivelRisco,
+            exigeAdvogado: fontes.exigeAdvogado,
+          });
           await supabaseAdmin
             .from("chatbot_public_messages")
             .insert({ session_id: sessionId, role: "assistant", content: answer });
@@ -133,7 +145,19 @@ export const Route = createFileRoute("/api/public/ai-chatbot")({
         if (base.confianca === "nenhuma" && perguntaAtual.trim().length >= 6) {
           await registrarLacuna(perguntaAtual, "chatbot_publico");
         }
-        const contextoBase = base.match ? contextoDaBase(base.match) : "";
+        const contextoBase = [base.match ? contextoDaBase(base.match) : "", contextoDasFontes(fontes)]
+          .filter(Boolean)
+          .join("\n\n");
+
+        await registrarAuditoria({
+          origem: "chatbot_publico",
+          pergunta: perguntaAtual,
+          fonte: fontes.suficiente ? "base-fontes" : "ia",
+          ...(base.match ? { qaId: base.match.id } : {}),
+          trechos: fontes.trechos,
+          nivelRisco: fontes.nivelRisco,
+          exigeAdvogado: fontes.exigeAdvogado,
+        });
 
         let upstream: Response;
 
@@ -198,7 +222,7 @@ export const Route = createFileRoute("/api/public/ai-chatbot")({
           .from("chatbot_public_messages")
           .insert({ session_id: sessionId, role: "assistant", content: answer });
 
-        return jsonResponse({ answer });
+        return jsonResponse({ answer: answer + rodapeDeFontes(fontes) });
       },
     },
   },
