@@ -65,3 +65,12 @@
 - Analytics: `benefits_view`, `application_field_error`, `diagnostic_cta_click` adicionados.
 - Verificado: menu, FAQ, tabela, envio real (com sucesso e erro), zero erro de console, 200 em /, /auth, /embaixadores, /termos, /privacidade, /inicio.
 - Pendente: Lighthouse mobile/desktop após publicação, teste com 10 profissionais, regulamento oficial do programa, painel admin de candidaturas.
+
+## Lighthouse no pipeline (concluído)
+- `bun run lighthouse` mede as rotas públicas (/, /embaixadores, /auth) em mobile e desktop contra `BASE_URL` (padrão localhost:8080).
+- `bun run lighthouse:build` faz o build de produção, sobe o worker com wrangler em 4173 e mede — é o número que vale (o dev server distorce a performance).
+- `bun run lighthouse:prod` mede o site publicado; `lighthouse:mobile` / `lighthouse:desktop` restringem o formato.
+- Metas em `scripts/lighthouse.config.mjs`; abaixo delas o comando sai com código 1 (pronto para CI). `--sem-metas` só mede.
+- Relatórios HTML + JSON e `resumo.json` em `.lighthouse/` (fora do versionamento).
+- Linha de base do build local: mobile perf 38-51 / a11y 92-94; desktop perf 84 / a11y 94. SEO 100, boas práticas 96.
+- Pendências apontadas pelo relatório: 404 KiB de JS não usado (perf mobile), contraste de cor, links distinguíveis só por cor e um rótulo acessível divergente.
