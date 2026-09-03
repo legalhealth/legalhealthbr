@@ -140,7 +140,17 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   const location = useLocation();
-  const isAuthRoute = location.pathname === "/auth";
+  // Rotas públicas trazem o próprio cabeçalho/rodapé: não usam o chrome do app.
+  const path = location.pathname.replace(/\/$/, "") || "/";
+  const isPublicChrome =
+    path === "/" ||
+    path === "/auth" ||
+    path === "/embaixadores" ||
+    path === "/termos" ||
+    path === "/privacidade" ||
+    path === "/reset-password" ||
+    path.startsWith("/revisao");
+  const isAuthRoute = isPublicChrome;
 
   useEffect(() => {
     const {
