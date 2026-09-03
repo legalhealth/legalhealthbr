@@ -119,9 +119,14 @@ export const Route = createFileRoute("/api/ai-chatbot")({
 
         await supabase.from("ai_usage").insert({ user_id: userId, endpoint: "ai-chatbot" });
 
-        const system = contexto
-          ? `${systemPromptFor("chatbot")}\n\nContexto do usuário atual:\n${contexto}`
-          : systemPromptFor("chatbot");
+        const system = [
+          systemPromptFor("chatbot"),
+          contexto ? `Contexto do usuário atual:\n${contexto}` : "",
+          contextoBase,
+        ]
+          .filter(Boolean)
+          .join("\n\n");
+
 
         let upstream: Response;
         try {
