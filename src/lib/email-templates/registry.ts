@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 
+import { template as baseJuridicaAlertaTemplate } from './base-juridica-alerta'
 import { template as revisaoAdvogadoTemplate } from './revisao-advogado'
 import { template as revisaoFalhaTemplate } from './revisao-falha'
 import { template as revisaoParecerTemplate } from './revisao-parecer'
@@ -23,6 +24,7 @@ export interface TemplateEntry {
  *   // then add to TEMPLATES: 'welcome': welcomeTemplate
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
+  'base-juridica-alerta': baseJuridicaAlertaTemplate,
   'revisao-advogado': revisaoAdvogadoTemplate,
   'revisao-falha': revisaoFalhaTemplate,
   'revisao-parecer': revisaoParecerTemplate,
