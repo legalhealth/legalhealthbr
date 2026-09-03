@@ -14,12 +14,19 @@ export const Route = createFileRoute("/api/public/hooks/base-juridica-sync")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        // Autenticação do chamador: o cron do banco envia a chave publicável do
+        // projeto em `apikey`; um segredo dedicado (LEGAL_SYNC_SECRET), quando
+        // configurado, também é aceito para disparos manuais.
+        const apiKey = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["SUPABASE_ANON_KEY"];
         const segredo = process.env["LEGAL_SYNC_SECRET"];
         const enviado =
+          request.headers.get("apikey") ??
           request.headers.get("x-legal-sync-secret") ??
           request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
           "";
-        if (!segredo || enviado !== segredo) {
+        const autorizado =
+          (!!apiKey && enviado === apiKey) || (!!segredo && enviado === segredo);
+        if (!autorizado) {
           return new Response(JSON.stringify({ error: "unauthorized" }), {
             status: 401,
             headers: { "content-type": "application/json" },
@@ -63,22 +70,19 @@ export const Route = createFileRoute("/api/public/hooks/base-juridica-sync")({
               .maybeSingle();
 
             if (fonteRow?.id) {
+              // Marca para triagem humana, sem retirar a norma do ar por conta
+              // própria: a baixa definitiva é decisão da curadoria jurídica.
               await supabaseAdmin
                 .from("legal_sources")
-                .update({ status: "revogada", last_checked_at: new Date().toISOString() })
+                .update({ status: "em_revisao", last_checked_at: new Date().toISOString() })
                 .eq("id", fonteRow.id);
-              await supabaseAdmin
-                .from("legal_source_versions")
-                .update({ status: "revogada", published: false })
-                .eq("source_uuid", fonteRow.id)
-                .eq("status", "vigente");
             }
 
             alertas.push({
               ...comum,
               tipo: "revogada",
               version: r.version,
-              mensagem: `O texto oficial indica revogação/suspensão: "${r.revogacao}". A norma foi bloqueada da recuperação vigente e aguarda confirmação da curadoria jurídica.`,
+              mensagem: `O texto oficial indica revogação/suspensão: "${r.revogacao}". A fonte foi marcada como "em revisão" e aguarda confirmação da curadoria jurídica antes da baixa definitiva.`,
             });
             continue;
           }

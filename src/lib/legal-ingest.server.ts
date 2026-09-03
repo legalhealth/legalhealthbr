@@ -297,11 +297,18 @@ export type ResultadoIngestao = {
  * dependendo de confirmação da curadoria jurídica.
  */
 export function detectarRevogacao(texto: string): string | null {
-  const cabecalho = texto.slice(0, 4000).replace(/\s+/g, " ");
+  // Só o cabeçalho da própria norma traz a nota de revogação em linha isolada.
+  // Referências a outras leis ("Revogado pela Lei nº 12..." dentro do corpo, ou
+  // notas de revogação de artigos) não valem como revogação da norma inteira.
+  const cabecalho = texto.slice(0, 1500);
   const re =
-    /((?:Revogad[ao]|Suspens[ao])(?:\s+integralmente)?\s+(?:pel[ao]|por)\s+[^.;)]{5,140})/i;
+    /(?:^|\n)\s*\(?\s*((?:Revogad[ao]|Suspens[ao])(?:\s+integralmente)?\s+(?:pel[ao]|por)\s+[^\n.;)]{5,140})/i;
   const m = re.exec(cabecalho);
-  return m ? m[1]!.trim() : null;
+  if (!m) return null;
+  const trecho = m[1]!.trim();
+  // Exige menção a um ato normativo completo (Lei, Decreto, Medida, Resolução).
+  if (!/\b(Lei|Decreto|Medida Provisória|Resolução|Emenda)\b/i.test(trecho)) return null;
+  return trecho;
 }
 
 /** Texto legível a partir do HTML oficial (sem dependências externas). */
@@ -323,6 +330,7 @@ export function htmlParaTexto(html: string): string {
   t = t.replace(/\n\s*\n+/g, "\n");
   return t.trim();
 }
+
 
 const ARTIGO_RE = /(?:^|\n)\s*(Art\.\s?\d+(?:[ºo°]|-[A-Z])?)/g;
 
