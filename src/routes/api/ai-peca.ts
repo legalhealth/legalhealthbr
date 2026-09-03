@@ -10,29 +10,70 @@ import {
 } from "@/lib/ai-gateway.server";
 import { systemPromptFor } from "@/lib/ai-prompts.server";
 
-const FIELDS = [
-  ["tipo", "Tipo de peça"],
-  ["cliente", "Cliente representado"],
-  ["contraria", "Parte contrária"],
-  ["orgao", "Órgão de destino"],
-  ["fatos", "Fatos do caso"],
-  ["objetivo", "Objetivo e pedidos"],
-  ["provas", "Provas disponíveis"],
-  ["contexto", "Contexto de conformidade (Juriscore®)"],
-] as const;
+type DocPayload = {
+  nome?: unknown;
+  tipo_documento?: unknown;
+  partes?: unknown;
+  prazos?: unknown;
+  pontos?: unknown;
+  transcricao?: unknown;
+};
+
+function str(value: unknown, max = 8000): string {
+  return typeof value === "string" ? value.trim().slice(0, max) : "";
+}
+
+function list(value: unknown, max = 30): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
+    .map((v) => v.trim().slice(0, 4000))
+    .slice(0, max);
+}
+
+function docBlocks(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.slice(0, 8).map((item, index) => {
+    const d = (item ?? {}) as DocPayload;
+    const partes = list(d.partes);
+    const prazos = list(d.prazos);
+    const pontos = list(d.pontos);
+    const transcricao = list(d.transcricao, 60);
+    return [
+      `--- DOCUMENTO ${index + 1}: ${str(d.nome, 200) || "documento anexado"} ---`,
+      `Tipo identificado na leitura: ${str(d.tipo_documento, 200) || "[NÃO IDENTIFICADO]"}`,
+      partes.length > 0 ? `Partes envolvidas: ${partes.join("; ")}` : "",
+      prazos.length > 0 ? `Prazos detectados: ${prazos.join("; ")}` : "",
+      pontos.length > 0 ? `Pontos críticos:\n${pontos.map((p) => `- ${p}`).join("\n")}` : "",
+      transcricao.length > 0
+        ? `Conteúdo extraído do documento:\n${transcricao.join("\n")}`
+        : "Conteúdo extraído do documento: [ILEGÍVEL OU NÃO EXTRAÍDO]",
+    ]
+      .filter(Boolean)
+      .join("\n");
+  });
+}
 
 function buildUserPrompt(body: Record<string, unknown>): string {
-  const lines = FIELDS.map(([key, label]) => {
-    const raw = typeof body[key] === "string" ? (body[key] as string).trim().slice(0, 8000) : "";
-    return `${label}: ${raw || "[NÃO INFORMADO]"}`;
-  });
+  const tipo = str(body["tipo"], 200);
+  const complemento = str(body["complemento"]);
+  const contexto = str(body["contexto"]);
   return [
-    "Redija a peça completa com base nos dados abaixo.",
+    "Leia os documentos abaixo, identifique a medida jurídica cabível e redija a defesa técnica completa.",
     "",
-    ...lines,
+    tipo
+      ? `Tipo de peça definido pelo usuário (respeite): ${tipo}`
+      : "Tipo de peça: NÃO INFORMADO — identifique você mesmo a peça cabível e o órgão de destino a partir dos documentos.",
+    "",
+    ...docBlocks(body["documentos"]),
+    "",
+    complemento ? `Informações adicionais do profissional:\n${complemento}` : "",
+    contexto ? `Contexto de conformidade (Juriscore®):\n${contexto}` : "",
     "",
     "Entregue apenas o texto da peça, pronto para revisão do advogado responsável.",
-  ].join("\n");
+  ]
+    .filter((line) => line !== undefined)
+    .join("\n");
 }
 
 export const Route = createFileRoute("/api/ai-peca")({
@@ -50,9 +91,13 @@ export const Route = createFileRoute("/api/ai-peca")({
           return jsonError("Requisição inválida.", 400);
         }
 
-        const fatos = typeof body["fatos"] === "string" ? body["fatos"].trim() : "";
-        if (fatos.length < 20) {
-          return jsonError("Descreva os fatos do caso com mais detalhes.", 400);
+        const blocks = docBlocks(body["documentos"]);
+        const complemento = str(body["complemento"]);
+        if (blocks.length === 0 && complemento.length < 20) {
+          return jsonError(
+            "Anexe o documento que originou o caso ou descreva o caso com mais detalhes.",
+            400,
+          );
         }
 
         let upstream: Response;
