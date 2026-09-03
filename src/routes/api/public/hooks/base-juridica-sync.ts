@@ -14,12 +14,19 @@ export const Route = createFileRoute("/api/public/hooks/base-juridica-sync")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        // Autenticação do chamador: o cron do banco envia a chave publicável do
+        // projeto em `apikey`; um segredo dedicado (LEGAL_SYNC_SECRET), quando
+        // configurado, também é aceito para disparos manuais.
+        const apiKey = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["SUPABASE_ANON_KEY"];
         const segredo = process.env["LEGAL_SYNC_SECRET"];
         const enviado =
+          request.headers.get("apikey") ??
           request.headers.get("x-legal-sync-secret") ??
           request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
           "";
-        if (!segredo || enviado !== segredo) {
+        const autorizado =
+          (!!apiKey && enviado === apiKey) || (!!segredo && enviado === segredo);
+        if (!autorizado) {
           return new Response(JSON.stringify({ error: "unauthorized" }), {
             status: 401,
             headers: { "content-type": "application/json" },
