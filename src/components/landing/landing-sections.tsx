@@ -182,22 +182,41 @@ function HeroComposicao() {
   );
 }
 
-/* ------------------------------- Barra confiança ------------------------------- */
+/* --------------------------- Clareza imediata (3 benefícios) --------------------------- */
 
 export function TrustBar() {
-  const itens = [
-    "Experiência de 3 meses",
-    "Diagnóstico preventivo",
-    "Feedback direto com a equipe",
-    "Sem promessa de proteção absoluta",
+  const itens: { icon: typeof ShieldCheck; texto: string; situacao: SituacaoBeneficio }[] = [
+    {
+      icon: BadgeCheck,
+      texto: "Experimente a plataforma por três meses",
+      situacao: "piloto",
+    },
+    {
+      icon: Gauge,
+      texto: "Conheça seu ponto de partida preventivo",
+      situacao: "disponivel",
+    },
+    {
+      icon: MessagesSquare,
+      texto: "Envie feedback diretamente à equipe",
+      situacao: "piloto",
+    },
   ];
   return (
     <section className="border-b border-border bg-card/40">
-      <ul className="mx-auto grid max-w-7xl gap-3 px-5 py-6 text-center text-xs text-muted-foreground md:grid-cols-4 md:px-8">
-        {itens.map((i) => (
-          <li key={i} className="flex items-center justify-center gap-2">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
-            {i}
+      <ul className="mx-auto grid max-w-7xl gap-4 px-5 py-8 md:grid-cols-3 md:px-8">
+        {itens.map(({ icon: Icon, texto, situacao }) => (
+          <li
+            key={texto}
+            className="flex items-start gap-3 rounded-2xl border border-border bg-card p-5"
+          >
+            <Icon className="mt-0.5 h-5 w-5 shrink-0 text-gold" aria-hidden="true" />
+            <div className="min-w-0">
+              <p className="text-sm leading-relaxed text-foreground">{texto}</p>
+              <p className="mt-2">
+                <SituacaoTag situacao={situacao} />
+              </p>
+            </div>
           </li>
         ))}
       </ul>
