@@ -180,6 +180,7 @@ function Page() {
   };
 
   const handleAnalyze = () => {
+    if (loading) return;
     if (texto.trim().length < 20) {
       toast.error("Cole o conteúdo da intimação ou reclamação para analisar.");
       return;
