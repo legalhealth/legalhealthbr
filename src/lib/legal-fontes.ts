@@ -132,8 +132,10 @@ export function useAtualizarFonte() {
       marcarConferida?: boolean;
     }) => {
       const { id, marcarConferida, ...campos } = input;
-      const payload: Record<string, unknown> = { ...campos };
-      if (marcarConferida) payload.last_checked_at = new Date().toISOString();
+      const payload = {
+        ...campos,
+        ...(marcarConferida ? { last_checked_at: new Date().toISOString() } : {}),
+      };
       const { error } = await supabase.from("legal_sources").update(payload).eq("id", id);
       if (error) throw error;
     },
