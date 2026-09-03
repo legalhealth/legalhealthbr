@@ -118,8 +118,13 @@ export const Route = createFileRoute("/api/public/ai-chatbot")({
         // Base própria primeiro: respostas cobertas não dependem de créditos de IA.
         const { buscarNaBase, contextoDaBase, registrarLacuna, registrarUsoBase, respostaDaBase } =
           await import("@/lib/legal-qa.server");
-        const { contextoDasFontes, recuperarFontes, registrarAuditoria, rodapeDeFontes } =
-          await import("@/lib/legal-sources.server");
+        const {
+          contextoDasFontes,
+          recuperarFontes,
+          registrarAuditoria,
+          respostaDasFontes,
+          rodapeDeFontes,
+        } = await import("@/lib/legal-sources.server");
 
         const perguntaAtual = lastUser?.content ?? "";
         const base = await buscarNaBase(perguntaAtual);
@@ -159,6 +164,17 @@ export const Route = createFileRoute("/api/public/ai-chatbot")({
           exigeAdvogado: fontes.exigeAdvogado,
         });
 
+        /** Resposta fundamentada só com as fontes oficiais, sem créditos de IA. */
+        const responderPelasFontes = async (motivo: string) => {
+          if (!fontes.suficiente) return null;
+          const answer = respostaDasFontes(fontes) + rodapeDeFontes(fontes);
+          await supabaseAdmin
+            .from("chatbot_public_messages")
+            .insert({ session_id: sessionId, role: "assistant", content: answer });
+          console.warn("public chatbot: fallback pelas fontes", motivo);
+          return jsonResponse({ answer, fonte: "base-fontes" });
+        };
+
         let upstream: Response;
 
         try {
@@ -172,7 +188,7 @@ export const Route = createFileRoute("/api/public/ai-chatbot")({
             },
             body: JSON.stringify({
               model: "google/gemini-3.7-flash",
-              max_tokens: 600,
+              max_tokens: 1400,
               messages: [
                 {
                   role: "system",
@@ -186,28 +202,46 @@ export const Route = createFileRoute("/api/public/ai-chatbot")({
             }),
           });
         } catch {
-          return jsonResponse({ error: "Falha de rede ao consultar a IA." }, 502);
+          return (
+            (await responderPelasFontes("falha de rede")) ??
+            jsonResponse({ error: "Falha de rede ao consultar a IA." }, 502)
+          );
         }
 
         if (upstream.status === 429) {
-          return jsonResponse(
-            { error: "Muitas requisições agora. Aguarde alguns segundos e tente novamente." },
-            429,
+          return (
+            (await responderPelasFontes("429")) ??
+            jsonResponse(
+              { error: "Muitas requisições agora. Aguarde alguns segundos e tente novamente." },
+              429,
+            )
           );
         }
         if (upstream.status === 402) {
-          return jsonResponse(
-            { error: "Os créditos de IA da plataforma foram esgotados. Tente novamente mais tarde." },
-            402,
+          return (
+            (await responderPelasFontes("402")) ??
+            jsonResponse(
+              {
+                error:
+                  "Os créditos de IA da plataforma foram esgotados. Tente novamente mais tarde.",
+              },
+              402,
+            )
           );
         }
         if (upstream.status === 403) {
-          return jsonResponse({ error: "O serviço de IA está indisponível neste momento." }, 403);
+          return (
+            (await responderPelasFontes("403")) ??
+            jsonResponse({ error: "O serviço de IA está indisponível neste momento." }, 403)
+          );
         }
         if (!upstream.ok) {
           const detail = await upstream.text().catch(() => "");
           console.error("public chatbot upstream error", upstream.status, detail);
-          return jsonResponse({ error: "A IA não conseguiu responder agora." }, 502);
+          return (
+            (await responderPelasFontes(`upstream ${upstream.status}`)) ??
+            jsonResponse({ error: "A IA não conseguiu responder agora." }, 502)
+          );
         }
 
         const payload = (await upstream.json()) as {
@@ -215,7 +249,10 @@ export const Route = createFileRoute("/api/public/ai-chatbot")({
         };
         const answer = payload.choices?.[0]?.message?.content?.trim() ?? "";
         if (!answer) {
-          return jsonResponse({ error: "A IA não retornou conteúdo. Tente novamente." }, 502);
+          return (
+            (await responderPelasFontes("resposta vazia")) ??
+            jsonResponse({ error: "A IA não retornou conteúdo. Tente novamente." }, 502)
+          );
         }
 
         await supabaseAdmin
