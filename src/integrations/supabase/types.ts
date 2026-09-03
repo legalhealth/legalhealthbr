@@ -401,6 +401,48 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_change_alerts: {
+        Row: {
+          created_at: string
+          id: string
+          mensagem: string
+          notified_at: string | null
+          official_url: string | null
+          read_at: string | null
+          source_id: string
+          tipo: string
+          title: string
+          updated_at: string
+          version: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mensagem: string
+          notified_at?: string | null
+          official_url?: string | null
+          read_at?: string | null
+          source_id: string
+          tipo: string
+          title: string
+          updated_at?: string
+          version?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mensagem?: string
+          notified_at?: string | null
+          official_url?: string | null
+          read_at?: string | null
+          source_id?: string
+          tipo?: string
+          title?: string
+          updated_at?: string
+          version?: number | null
+        }
+        Relationships: []
+      }
       legal_chunks: {
         Row: {
           artigo: string | null
