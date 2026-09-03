@@ -42,7 +42,10 @@ const rotasSelecionadas = flag("rotas")
         const conhecida = ROTAS.find((r) => r.caminho === caminho);
         return {
           caminho,
-          nome: conhecida?.nome ?? caminho.replace(/^\//, "").replace(/[^\w]+/g, "-") || "raiz",
+          nome:
+            conhecida?.nome ||
+            caminho.replace(/^\//, "").replace(/[^\w]+/g, "-") ||
+            "raiz",
         };
       })
   : ROTAS;
