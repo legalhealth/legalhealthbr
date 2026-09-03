@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2, Loader2, ShieldAlert } from "lucide-react";
 
@@ -24,6 +24,9 @@ export function CandidaturaForm() {
   const [estado, setEstado] = useState<Estado>("idle");
   const [erro, setErro] = useState<string | null>(null);
   const [iniciado, setIniciado] = useState(false);
+  const [armadilha, setArmadilha] = useState("");
+  const abertoEm = useRef(Date.now());
+  const enviando = useRef(false);
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -52,8 +55,17 @@ export function CandidaturaForm() {
 
   const enviar = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (estado === "enviando") return;
+    if (estado === "enviando" || enviando.current) return;
     setErro(null);
+
+    // Anti-spam simples: armadilha preenchida ou envio em menos de 3 segundos.
+    if (armadilha.trim() !== "" || Date.now() - abertoEm.current < 3000) {
+      falhaDeCampo(
+        "antispam",
+        "Não conseguimos validar o envio. Revise os campos e tente novamente em alguns segundos.",
+      );
+      return;
+    }
 
     if (!profissao || !estadoUf) {
       falhaDeCampo("obrigatorios", "Selecione sua profissão e o estado onde atua.");
@@ -74,6 +86,7 @@ export function CandidaturaForm() {
       return;
     }
 
+    enviando.current = true;
     setEstado("enviando");
     const { error } = await supabase.from("ambassador_applications").insert({
       nome: nome.trim(),
@@ -90,6 +103,7 @@ export function CandidaturaForm() {
       consentimento_contato: contato,
     });
 
+    enviando.current = false;
     if (error) {
       setEstado("erro");
       setErro(
@@ -106,7 +120,7 @@ export function CandidaturaForm() {
 
   if (estado === "ok") {
     return (
-      <div className="glass-card rounded-2xl p-8 text-center">
+      <div className="glass-card rounded-2xl p-8 text-center" role="status" aria-live="polite">
         <CheckCircle2 className="mx-auto h-8 w-8 text-success" />
         <h3 className="mt-4 font-display text-2xl text-foreground">Candidatura recebida</h3>
         <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
@@ -128,7 +142,24 @@ export function CandidaturaForm() {
   }
 
   return (
-    <form onSubmit={enviar} onFocus={marcarInicio} className="glass-card rounded-2xl p-6 md:p-8">
+    <form
+      method="post"
+      onSubmit={enviar}
+      onFocus={marcarInicio}
+      className="glass-card rounded-2xl p-6 md:p-8"
+    >
+      {/* Armadilha anti-spam: invisível para pessoas, preenchida por robôs. */}
+      <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+        <label htmlFor="assunto-extra">Não preencha este campo</label>
+        <input
+          id="assunto-extra"
+          name="assunto-extra"
+          tabIndex={-1}
+          autoComplete="off"
+          value={armadilha}
+          onChange={(e) => setArmadilha(e.target.value)}
+        />
+      </div>
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="nome">Nome</Label>
@@ -158,7 +189,7 @@ export function CandidaturaForm() {
         <div className="space-y-2">
           <Label htmlFor="profissao">Profissão</Label>
           <Select value={profissao} onValueChange={setProfissao}>
-            <SelectTrigger id="profissao" aria-label="Profissão">
+            <SelectTrigger id="profissao">
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
             <SelectContent>
@@ -176,7 +207,7 @@ export function CandidaturaForm() {
             Tipo de atuação <span className="text-subtle">(opcional)</span>
           </Label>
           <Select value={tipoAtuacao} onValueChange={setTipoAtuacao}>
-            <SelectTrigger id="tipo" aria-label="Tipo de atuação">
+            <SelectTrigger id="tipo">
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
             <SelectContent>
@@ -192,7 +223,7 @@ export function CandidaturaForm() {
         <div className="space-y-2">
           <Label htmlFor="uf">Estado</Label>
           <Select value={estadoUf} onValueChange={setEstadoUf}>
-            <SelectTrigger id="uf" aria-label="Estado">
+            <SelectTrigger id="uf">
               <SelectValue placeholder="UF" />
             </SelectTrigger>
             <SelectContent>
@@ -261,27 +292,33 @@ export function CandidaturaForm() {
       </div>
 
       <div className="mt-6 space-y-3">
-        <label className="flex items-start gap-3 text-sm text-muted-foreground">
+        <label
+          htmlFor="aceite"
+          className="flex items-start gap-3 text-sm text-muted-foreground"
+        >
           <Checkbox
+            id="aceite"
             checked={aceite}
             onCheckedChange={(v) => setAceite(v === true)}
-            aria-label="Aceito o regulamento do programa"
             className="mt-0.5"
           />
           <span>
             Li e aceito o regulamento do programa e os{" "}
-            <Link to="/termos" className="text-gold hover:text-gold-light">
+            <Link to="/termos" className="text-gold underline underline-offset-4 hover:text-gold-light">
               Termos de Uso
             </Link>
             .
           </span>
         </label>
 
-        <label className="flex items-start gap-3 text-sm text-muted-foreground">
+        <label
+          htmlFor="ciencia"
+          className="flex items-start gap-3 text-sm text-muted-foreground"
+        >
           <Checkbox
+            id="ciencia"
             checked={ciencia}
             onCheckedChange={(v) => setCiencia(v === true)}
-            aria-label="Tenho ciência de que a plataforma não substitui advogado"
             className="mt-0.5"
           />
           <span>
@@ -290,17 +327,20 @@ export function CandidaturaForm() {
           </span>
         </label>
 
-        <label className="flex items-start gap-3 text-sm text-muted-foreground">
+        <label
+          htmlFor="contato"
+          className="flex items-start gap-3 text-sm text-muted-foreground"
+        >
           <Checkbox
+            id="contato"
             checked={contato}
             onCheckedChange={(v) => setContato(v === true)}
-            aria-label="Consinto em receber contato sobre o programa"
             className="mt-0.5"
           />
           <span>
             Consinto em receber contato sobre o programa de Embaixadores. Posso revogar a qualquer
             momento pelo{" "}
-            <Link to="/privacidade" hash="canal" className="text-gold hover:text-gold-light">
+            <Link to="/privacidade" hash="canal" className="text-gold underline underline-offset-4 hover:text-gold-light">
               canal de privacidade
             </Link>
             .
