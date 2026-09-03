@@ -1,4 +1,7 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Database } from "@/integrations/supabase/types";
+
+type ChunkRow = Database["public"]["Functions"]["match_legal_chunks"]["Returns"][number];
 
 /** Abaixo disso o trecho não entra na fundamentação da resposta. */
 const LIMIAR_TRECHO = 0.3;
@@ -56,7 +59,7 @@ export async function recuperarFontes(
   const { data, error } = await supabaseAdmin.rpc("match_legal_chunks", {
     consulta: texto.slice(0, 600),
     limite: opcoes.limite ?? 4,
-    pilar_in: opcoes.pilar ?? null,
+    pilar_in: opcoes.pilar ?? undefined,
     autoridade_max: 4,
   });
 
@@ -66,22 +69,22 @@ export async function recuperarFontes(
   }
 
   const trechos: TrechoFonte[] = (Array.isArray(data) ? data : [])
-    .map((row: Record<string, unknown>) => ({
+    .map((row: ChunkRow) => ({
       chunkId: String(row.chunk_id),
       versionId: String(row.version_id),
       sourceId: String(row.source_id),
       title: String(row.title),
       issuingBody: String(row.issuing_body),
-      number: (row.number as string | null) ?? null,
-      officialUrl: (row.official_url as string | null) ?? null,
+      number: row.number ?? null,
+      officialUrl: row.official_url ?? null,
       authorityLevel: Number(row.authority_level ?? 5),
-      artigo: (row.artigo as string | null) ?? null,
-      secao: (row.secao as string | null) ?? null,
+      artigo: row.artigo ?? null,
+      secao: row.secao ?? null,
       texto: String(row.texto),
-      pilar: (row.pilar as string | null) ?? null,
-      nivelRisco: ((row.nivel_risco as NivelRisco) ?? "medio") as NivelRisco,
+      pilar: row.pilar ?? null,
+      nivelRisco: (row.nivel_risco ?? "medio") as NivelRisco,
       exigeAdvogado: Boolean(row.exige_advogado),
-      effectiveFrom: (row.effective_from as string | null) ?? null,
+      effectiveFrom: row.effective_from ?? null,
       version: Number(row.version ?? 1),
       score: Number(row.score ?? 0),
     }))
@@ -180,11 +183,11 @@ export async function registrarAuditoria(input: {
 }): Promise<void> {
   const trechos = input.trechos ?? [];
   const { error } = await supabaseAdmin.rpc("registrar_auditoria_resposta", {
-    user_id_in: input.userId ?? null,
+    user_id_in: input.userId ?? undefined,
     origem_in: input.origem,
     pergunta_in: input.pergunta.slice(0, 1000),
     fonte_in: input.fonte,
-    qa_id_in: input.qaId ?? null,
+    qa_id_in: input.qaId ?? undefined,
     version_ids_in: Array.from(new Set(trechos.map((t) => t.versionId))),
     citacoes_in: trechos.map((t) => ({
       source_id: t.sourceId,
@@ -192,7 +195,7 @@ export async function registrarAuditoria(input: {
       artigo: t.artigo,
       citacao: citacao(t),
     })),
-    nivel_risco_in: input.nivelRisco ?? null,
+    nivel_risco_in: input.nivelRisco ?? undefined,
     exige_advogado_in: input.exigeAdvogado ?? false,
   });
   if (error) console.error("auditoria de resposta: falha ao registrar", error);
