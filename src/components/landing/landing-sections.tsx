@@ -22,8 +22,43 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { FAQ, FASES, SITUACAO_LABEL, type SituacaoBeneficio } from "@/lib/embaixadores";
+import {
+  FAQ,
+  FAQ_EXTRA,
+  FASES,
+  LIMITES,
+  RESPONSABILIDADES,
+  SITUACAO_LABEL,
+  TABELA_BENEFICIOS,
+  type SituacaoBeneficio,
+} from "@/lib/embaixadores";
 import { track } from "@/lib/analytics";
+
+/** Dispara um evento de analytics uma única vez quando a seção entra na viewport. */
+function useVistoUmaVez(evento: "benefits_view" | "ambassador_section_view", secao: string) {
+  const ref = useRef<HTMLElement | null>(null);
+  const visto = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && !visto.current) {
+            visto.current = true;
+            track(evento, { secao });
+          }
+        }
+      },
+      { threshold: 0.3 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [evento, secao]);
+
+  return ref;
+}
 
 function SituacaoTag({ situacao }: { situacao: SituacaoBeneficio }) {
   const tone =
