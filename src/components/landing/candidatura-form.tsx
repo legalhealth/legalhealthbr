@@ -41,6 +41,12 @@ export function CandidaturaForm() {
   const [ciencia, setCiencia] = useState(false);
   const [contato, setContato] = useState(false);
 
+  // O formulário só é montado quando entra em cena, então a montagem indica
+  // que a pessoa efetivamente chegou à etapa de candidatura.
+  useEffect(() => {
+    track("application_form_view", { secao: "candidatura" });
+  }, []);
+
   const marcarInicio = () => {
     if (iniciado) return;
     setIniciado(true);
