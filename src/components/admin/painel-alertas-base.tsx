@@ -55,8 +55,8 @@ export function PainelAlertasBase() {
         <Skeleton className="mt-6 h-24 w-full rounded-xl" />
       ) : (alertas.data ?? []).length === 0 ? (
         <p className="mt-6 text-sm text-[#6B7280]">
-          Nenhuma mudança detectada até agora — todas as normas conferidas seguem idênticas ao
-          texto oficial.
+          Nenhuma mudança detectada até agora — todas as normas conferidas seguem idênticas ao texto
+          oficial.
         </p>
       ) : (
         <ul className="mt-6 space-y-3">
