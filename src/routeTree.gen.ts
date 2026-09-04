@@ -38,6 +38,7 @@ import { Route as RevisaoTokenRouteImport } from './routes/revisao.$token'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as AuthenticatedAdminFontesRouteImport } from './routes/_authenticated/admin.fontes'
+import { Route as AuthenticatedAdminFunilRouteImport } from './routes/_authenticated/admin.funil'
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia.index'
 import { Route as AuthenticatedIaAssistenteRouteImport } from './routes/_authenticated/ia.assistente'
 import { Route as AuthenticatedIaDocumentosRouteImport } from './routes/_authenticated/ia.documentos'
@@ -46,6 +47,7 @@ import { Route as AuthenticatedIaPecaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedIaRevisoesRouteImport } from './routes/_authenticated/ia.revisoes'
 import { Route as AuthenticatedIaRiscoRouteImport } from './routes/_authenticated/ia.risco'
 import { Route as ApiPublicAiChatbotRouteImport } from './routes/api/public/ai-chatbot'
+import { Route as ApiPublicLandingEventRouteImport } from './routes/api/public/landing-event'
 import { Route as ApiPublicHooksBaseJuridicaSyncRouteImport } from './routes/api/public/hooks/base-juridica-sync'
 import { Route as ApiPublicHooksPlanRemindersRouteImport } from './routes/api/public/hooks/plan-reminders'
 import { Route as ApiPublicRevisaoTokenRouteImport } from './routes/api/public/revisao.$token'
@@ -201,6 +203,11 @@ const AuthenticatedAdminFontesRoute =
     path: '/admin/fontes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminFunilRoute = AuthenticatedAdminFunilRouteImport.update({
+  id: '/admin/funil',
+  path: '/admin/funil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedIaIndexRoute = AuthenticatedIaIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -242,6 +249,11 @@ const AuthenticatedIaRiscoRoute = AuthenticatedIaRiscoRouteImport.update({
 const ApiPublicAiChatbotRoute = ApiPublicAiChatbotRouteImport.update({
   id: '/api/public/ai-chatbot',
   path: '/api/public/ai-chatbot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicLandingEventRoute = ApiPublicLandingEventRouteImport.update({
+  id: '/api/public/landing-event',
+  path: '/api/public/landing-event',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicHooksBaseJuridicaSyncRoute =
@@ -307,6 +319,7 @@ export interface FileRoutesByFullPath {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/fontes': typeof AuthenticatedAdminFontesRoute
+  '/admin/funil': typeof AuthenticatedAdminFunilRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/ia/historico': typeof AuthenticatedIaHistoricoRoute
@@ -314,6 +327,7 @@ export interface FileRoutesByFullPath {
   '/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
+  '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -350,6 +364,7 @@ export interface FileRoutesByTo {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/fontes': typeof AuthenticatedAdminFontesRoute
+  '/admin/funil': typeof AuthenticatedAdminFunilRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/ia/historico': typeof AuthenticatedIaHistoricoRoute
@@ -357,6 +372,7 @@ export interface FileRoutesByTo {
   '/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
+  '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/ia': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -396,6 +412,7 @@ export interface FileRoutesById {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/fontes': typeof AuthenticatedAdminFontesRoute
+  '/_authenticated/admin/funil': typeof AuthenticatedAdminFunilRoute
   '/_authenticated/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/_authenticated/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/_authenticated/ia/historico': typeof AuthenticatedIaHistoricoRoute
@@ -403,6 +420,7 @@ export interface FileRoutesById {
   '/_authenticated/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/_authenticated/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
+  '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -442,6 +460,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/fontes'
+    | '/admin/funil'
     | '/ia/assistente'
     | '/ia/documentos'
     | '/ia/historico'
@@ -449,6 +468,7 @@ export interface FileRouteTypes {
     | '/ia/revisoes'
     | '/ia/risco'
     | '/api/public/ai-chatbot'
+    | '/api/public/landing-event'
     | '/ia/'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
@@ -485,6 +505,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/fontes'
+    | '/admin/funil'
     | '/ia/assistente'
     | '/ia/documentos'
     | '/ia/historico'
@@ -492,6 +513,7 @@ export interface FileRouteTypes {
     | '/ia/revisoes'
     | '/ia/risco'
     | '/api/public/ai-chatbot'
+    | '/api/public/landing-event'
     | '/ia'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
@@ -530,6 +552,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/fontes'
+    | '/_authenticated/admin/funil'
     | '/_authenticated/ia/assistente'
     | '/_authenticated/ia/documentos'
     | '/_authenticated/ia/historico'
@@ -537,6 +560,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ia/revisoes'
     | '/_authenticated/ia/risco'
     | '/api/public/ai-chatbot'
+    | '/api/public/landing-event'
     | '/_authenticated/ia/'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
@@ -569,6 +593,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicAiChatbotRoute: typeof ApiPublicAiChatbotRoute
+  ApiPublicLandingEventRoute: typeof ApiPublicLandingEventRoute
   ApiPublicHooksBaseJuridicaSyncRoute: typeof ApiPublicHooksBaseJuridicaSyncRoute
   ApiPublicHooksPlanRemindersRoute: typeof ApiPublicHooksPlanRemindersRoute
   ApiPublicRevisaoTokenRoute: typeof ApiPublicRevisaoTokenRoute
@@ -782,6 +807,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminFontesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/funil': {
+      id: '/_authenticated/admin/funil'
+      path: '/admin/funil'
+      fullPath: '/admin/funil'
+      preLoaderRoute: typeof AuthenticatedAdminFunilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ia/': {
       id: '/_authenticated/ia/'
       path: '/'
@@ -836,6 +868,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/ai-chatbot'
       fullPath: '/api/public/ai-chatbot'
       preLoaderRoute: typeof ApiPublicAiChatbotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/landing-event': {
+      id: '/api/public/landing-event'
+      path: '/api/public/landing-event'
+      fullPath: '/api/public/landing-event'
+      preLoaderRoute: typeof ApiPublicLandingEventRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/base-juridica-sync': {
@@ -916,6 +955,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedPlanoRoute: typeof AuthenticatedPlanoRoute
   AuthenticatedAdminFontesRoute: typeof AuthenticatedAdminFontesRoute
+  AuthenticatedAdminFunilRoute: typeof AuthenticatedAdminFunilRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -927,6 +967,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedPlanoRoute: AuthenticatedPlanoRoute,
   AuthenticatedAdminFontesRoute: AuthenticatedAdminFontesRoute,
+  AuthenticatedAdminFunilRoute: AuthenticatedAdminFunilRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -956,6 +997,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicAiChatbotRoute: ApiPublicAiChatbotRoute,
+  ApiPublicLandingEventRoute: ApiPublicLandingEventRoute,
   ApiPublicHooksBaseJuridicaSyncRoute: ApiPublicHooksBaseJuridicaSyncRoute,
   ApiPublicHooksPlanRemindersRoute: ApiPublicHooksPlanRemindersRoute,
   ApiPublicRevisaoTokenRoute: ApiPublicRevisaoTokenRoute,
