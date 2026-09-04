@@ -80,8 +80,28 @@ function persistir(event: ConversionEvent, props: SafeProps) {
   }
 }
 
+/** Etapas de alcance: contam uma vez por sessão, sem inflar o funil. */
+const UMA_VEZ = new Set<ConversionEvent>([
+  "landing_view",
+  "application_form_view",
+  "application_start",
+]);
+
+const jaRegistrado = new Set<string>();
+
 export function track(event: ConversionEvent, props?: SafeProps) {
   if (typeof window === "undefined") return;
+  if (UMA_VEZ.has(event)) {
+    const marca = `${STORAGE_KEY}:${event}`;
+    if (jaRegistrado.has(marca)) return;
+    jaRegistrado.add(marca);
+    try {
+      if (sessionStorage.getItem(marca)) return;
+      sessionStorage.setItem(marca, "1");
+    } catch {
+      // sem sessionStorage, o guarda em memória já evita repetição na página
+    }
+  }
   const limpo = sanitize(props);
   const payload = { event, ...limpo };
   const w = window as unknown as { dataLayer?: unknown[] };
