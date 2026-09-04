@@ -344,6 +344,51 @@ export type Database = {
         }
         Relationships: []
       }
+      device_login_requests: {
+        Row: {
+          approved_at: string | null
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          ip_hash: string | null
+          session_token_hash: string | null
+          status: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string | null
+          verifier_hash: string
+        }
+        Insert: {
+          approved_at?: string | null
+          code: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          ip_hash?: string | null
+          session_token_hash?: string | null
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+          verifier_hash: string
+        }
+        Update: {
+          approved_at?: string | null
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_hash?: string | null
+          session_token_hash?: string | null
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+          verifier_hash?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           analisado_em: string | null
