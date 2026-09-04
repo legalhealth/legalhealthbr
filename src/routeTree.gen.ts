@@ -46,6 +46,7 @@ import { Route as AuthenticatedIaPecaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedIaRevisoesRouteImport } from './routes/_authenticated/ia.revisoes'
 import { Route as AuthenticatedIaRiscoRouteImport } from './routes/_authenticated/ia.risco'
 import { Route as ApiPublicAiChatbotRouteImport } from './routes/api/public/ai-chatbot'
+import { Route as ApiPublicLandingEventRouteImport } from './routes/api/public/landing-event'
 import { Route as ApiPublicHooksBaseJuridicaSyncRouteImport } from './routes/api/public/hooks/base-juridica-sync'
 import { Route as ApiPublicHooksPlanRemindersRouteImport } from './routes/api/public/hooks/plan-reminders'
 import { Route as ApiPublicRevisaoTokenRouteImport } from './routes/api/public/revisao.$token'
@@ -244,6 +245,11 @@ const ApiPublicAiChatbotRoute = ApiPublicAiChatbotRouteImport.update({
   path: '/api/public/ai-chatbot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicLandingEventRoute = ApiPublicLandingEventRouteImport.update({
+  id: '/api/public/landing-event',
+  path: '/api/public/landing-event',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksBaseJuridicaSyncRoute =
   ApiPublicHooksBaseJuridicaSyncRouteImport.update({
     id: '/api/public/hooks/base-juridica-sync',
@@ -314,6 +320,7 @@ export interface FileRoutesByFullPath {
   '/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
+  '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -357,6 +364,7 @@ export interface FileRoutesByTo {
   '/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
+  '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/ia': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -403,6 +411,7 @@ export interface FileRoutesById {
   '/_authenticated/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/_authenticated/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
+  '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -449,6 +458,7 @@ export interface FileRouteTypes {
     | '/ia/revisoes'
     | '/ia/risco'
     | '/api/public/ai-chatbot'
+    | '/api/public/landing-event'
     | '/ia/'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
@@ -492,6 +502,7 @@ export interface FileRouteTypes {
     | '/ia/revisoes'
     | '/ia/risco'
     | '/api/public/ai-chatbot'
+    | '/api/public/landing-event'
     | '/ia'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
@@ -537,6 +548,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ia/revisoes'
     | '/_authenticated/ia/risco'
     | '/api/public/ai-chatbot'
+    | '/api/public/landing-event'
     | '/_authenticated/ia/'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
@@ -569,6 +581,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicAiChatbotRoute: typeof ApiPublicAiChatbotRoute
+  ApiPublicLandingEventRoute: typeof ApiPublicLandingEventRoute
   ApiPublicHooksBaseJuridicaSyncRoute: typeof ApiPublicHooksBaseJuridicaSyncRoute
   ApiPublicHooksPlanRemindersRoute: typeof ApiPublicHooksPlanRemindersRoute
   ApiPublicRevisaoTokenRoute: typeof ApiPublicRevisaoTokenRoute
@@ -838,6 +851,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAiChatbotRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/landing-event': {
+      id: '/api/public/landing-event'
+      path: '/api/public/landing-event'
+      fullPath: '/api/public/landing-event'
+      preLoaderRoute: typeof ApiPublicLandingEventRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/base-juridica-sync': {
       id: '/api/public/hooks/base-juridica-sync'
       path: '/api/public/hooks/base-juridica-sync'
@@ -956,6 +976,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicAiChatbotRoute: ApiPublicAiChatbotRoute,
+  ApiPublicLandingEventRoute: ApiPublicLandingEventRoute,
   ApiPublicHooksBaseJuridicaSyncRoute: ApiPublicHooksBaseJuridicaSyncRoute,
   ApiPublicHooksPlanRemindersRoute: ApiPublicHooksPlanRemindersRoute,
   ApiPublicRevisaoTokenRoute: ApiPublicRevisaoTokenRoute,
