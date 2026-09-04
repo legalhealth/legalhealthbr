@@ -455,6 +455,45 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_events: {
+        Row: {
+          created_at: string
+          event: string
+          id: string
+          id_ref: string | null
+          origem: string | null
+          posicao: string | null
+          rota: string | null
+          secao: string | null
+          session_key: string
+          variante: string | null
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: string
+          id_ref?: string | null
+          origem?: string | null
+          posicao?: string | null
+          rota?: string | null
+          secao?: string | null
+          session_key: string
+          variante?: string | null
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: string
+          id_ref?: string | null
+          origem?: string | null
+          posicao?: string | null
+          rota?: string | null
+          secao?: string | null
+          session_key?: string
+          variante?: string | null
+        }
+        Relationships: []
+      }
       legal_change_alerts: {
         Row: {
           created_at: string
@@ -1187,6 +1226,14 @@ export type Database = {
     }
     Functions: {
       current_user_email: { Args: never; Returns: string }
+      funil_landing: {
+        Args: { _desde: string; _rota?: string }
+        Returns: {
+          etapa: string
+          eventos: number
+          sessoes: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
