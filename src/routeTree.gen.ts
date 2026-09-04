@@ -23,6 +23,7 @@ import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedBemVindoRouteImport } from './routes/_authenticated/bem-vindo'
 import { Route as AuthenticatedBibliotecaRouteImport } from './routes/_authenticated/biblioteca'
+import { Route as AuthenticatedEntrarNoPcRouteImport } from './routes/_authenticated/entrar-no-pc'
 import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedJuriscoreRouteImport } from './routes/_authenticated/juriscore'
@@ -34,6 +35,7 @@ import { Route as ApiAiChatbotRouteImport } from './routes/api/ai-chatbot'
 import { Route as ApiAiDocumentoLeituraRouteImport } from './routes/api/ai-documento-leitura'
 import { Route as ApiAiPecaRouteImport } from './routes/api/ai-peca'
 import { Route as ApiAiPlanoRouteImport } from './routes/api/ai-plano'
+import { Route as EntrarCodeRouteImport } from './routes/entrar.$code'
 import { Route as RevisaoTokenRouteImport } from './routes/revisao.$token'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -127,6 +129,11 @@ const AuthenticatedBibliotecaRoute = AuthenticatedBibliotecaRouteImport.update({
   path: '/biblioteca',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEntrarNoPcRoute = AuthenticatedEntrarNoPcRouteImport.update({
+  id: '/entrar-no-pc',
+  path: '/entrar-no-pc',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedIaRoute = AuthenticatedIaRouteImport.update({
   id: '/ia',
   path: '/ia',
@@ -180,6 +187,11 @@ const ApiAiPecaRoute = ApiAiPecaRouteImport.update({
 const ApiAiPlanoRoute = ApiAiPlanoRouteImport.update({
   id: '/api/ai-plano',
   path: '/api/ai-plano',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntrarCodeRoute = EntrarCodeRouteImport.update({
+  id: '/entrar/$code',
+  path: '/entrar/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RevisaoTokenRoute = RevisaoTokenRouteImport.update({
@@ -310,6 +322,7 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/ia': typeof AuthenticatedIaRouteWithChildren
   '/inicio': typeof AuthenticatedInicioRoute
   '/juriscore': typeof AuthenticatedJuriscoreRoute
@@ -321,6 +334,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/entrar/$code': typeof EntrarCodeRoute
   '/revisao/$token': typeof RevisaoTokenRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -357,6 +371,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/juriscore': typeof AuthenticatedJuriscoreRoute
   '/perfil': typeof AuthenticatedPerfilRoute
@@ -367,6 +382,7 @@ export interface FileRoutesByTo {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/entrar/$code': typeof EntrarCodeRoute
   '/revisao/$token': typeof RevisaoTokenRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -405,6 +421,7 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/_authenticated/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/_authenticated/ia': typeof AuthenticatedIaRouteWithChildren
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/_authenticated/juriscore': typeof AuthenticatedJuriscoreRoute
@@ -416,6 +433,7 @@ export interface FileRoutesById {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/entrar/$code': typeof EntrarCodeRoute
   '/revisao/$token': typeof RevisaoTokenRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -454,6 +472,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/bem-vindo'
     | '/biblioteca'
+    | '/entrar-no-pc'
     | '/ia'
     | '/inicio'
     | '/juriscore'
@@ -465,6 +484,7 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/entrar/$code'
     | '/revisao/$token'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -501,6 +521,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/bem-vindo'
     | '/biblioteca'
+    | '/entrar-no-pc'
     | '/inicio'
     | '/juriscore'
     | '/perfil'
@@ -511,6 +532,7 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/entrar/$code'
     | '/revisao/$token'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -548,6 +570,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/bem-vindo'
     | '/_authenticated/biblioteca'
+    | '/_authenticated/entrar-no-pc'
     | '/_authenticated/ia'
     | '/_authenticated/inicio'
     | '/_authenticated/juriscore'
@@ -559,6 +582,7 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/entrar/$code'
     | '/revisao/$token'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -601,6 +625,7 @@ export interface RootRouteChildren {
   ApiAiDocumentoLeituraRoute: typeof ApiAiDocumentoLeituraRoute
   ApiAiPecaRoute: typeof ApiAiPecaRoute
   ApiAiPlanoRoute: typeof ApiAiPlanoRoute
+  EntrarCodeRoute: typeof EntrarCodeRoute
   RevisaoTokenRoute: typeof RevisaoTokenRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -714,6 +739,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBibliotecaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/entrar-no-pc': {
+      id: '/_authenticated/entrar-no-pc'
+      path: '/entrar-no-pc'
+      fullPath: '/entrar-no-pc'
+      preLoaderRoute: typeof AuthenticatedEntrarNoPcRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ia': {
       id: '/_authenticated/ia'
       path: '/ia'
@@ -789,6 +821,13 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-plano'
       fullPath: '/api/ai-plano'
       preLoaderRoute: typeof ApiAiPlanoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entrar/$code': {
+      id: '/entrar/$code'
+      path: '/entrar/$code'
+      fullPath: '/entrar/$code'
+      preLoaderRoute: typeof EntrarCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/revisao/$token': {
@@ -968,6 +1007,7 @@ const AuthenticatedIaRouteWithChildren = AuthenticatedIaRoute._addFileChildren(
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBemVindoRoute: typeof AuthenticatedBemVindoRoute
   AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRoute
+  AuthenticatedEntrarNoPcRoute: typeof AuthenticatedEntrarNoPcRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRouteWithChildren
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
   AuthenticatedJuriscoreRoute: typeof AuthenticatedJuriscoreRoute
@@ -981,6 +1021,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBemVindoRoute: AuthenticatedBemVindoRoute,
   AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRoute,
+  AuthenticatedEntrarNoPcRoute: AuthenticatedEntrarNoPcRoute,
   AuthenticatedIaRoute: AuthenticatedIaRouteWithChildren,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
   AuthenticatedJuriscoreRoute: AuthenticatedJuriscoreRoute,
@@ -1014,6 +1055,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiDocumentoLeituraRoute: ApiAiDocumentoLeituraRoute,
   ApiAiPecaRoute: ApiAiPecaRoute,
   ApiAiPlanoRoute: ApiAiPlanoRoute,
+  EntrarCodeRoute: EntrarCodeRoute,
   RevisaoTokenRoute: RevisaoTokenRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,

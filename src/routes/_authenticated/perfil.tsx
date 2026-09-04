@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -254,7 +254,9 @@ function Page() {
               <User className="h-5 w-5 text-gold" />
               Dados profissionais
             </CardTitle>
-            <CardDescription>Informações usadas para personalizar análises e alertas.</CardDescription>
+            <CardDescription>
+              Informações usadas para personalizar análises e alertas.
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
@@ -374,7 +376,9 @@ function Page() {
                     {item.price}
                     <span className="text-sm font-normal text-muted-foreground">{item.period}</span>
                   </p>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {item.description}
+                  </p>
                 </button>
               );
             })}
@@ -387,7 +391,9 @@ function Page() {
               <Settings2 className="h-5 w-5 text-gold" />
               Configurações
             </CardTitle>
-            <CardDescription>Preferências do aplicativo neste dispositivo e na conta.</CardDescription>
+            <CardDescription>
+              Preferências do aplicativo neste dispositivo e na conta.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
             <PreferenceRow
@@ -456,6 +462,24 @@ function Page() {
               checked={preferences.riskNotifications}
               onCheckedChange={() => toggle("riskNotifications")}
             />
+          </CardContent>
+        </Card>
+
+        <Card className="glass-card rounded-2xl">
+          <CardHeader>
+            <CardTitle className="text-lg font-medium">Entrar no computador</CardTitle>
+            <CardDescription>
+              Libere o acesso à sua conta em um computador escaneando o QR-Code da tela de entrada.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              asChild
+              variant="outline"
+              className="h-11 w-full rounded-xl border-border hover:bg-accent hover:text-accent-foreground sm:w-auto"
+            >
+              <Link to="/entrar-no-pc">Escanear QR-Code</Link>
+            </Button>
           </CardContent>
         </Card>
 
