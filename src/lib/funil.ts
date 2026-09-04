@@ -31,10 +31,11 @@ export function useFunil(periodo: FunilPeriodo, rota: FunilRota) {
     queryKey: ["funil-landing", periodo, rota],
     staleTime: 60_000,
     queryFn: async (): Promise<EtapaLinha[]> => {
-      const { data, error } = await supabase.rpc("funil_landing", {
-        _desde: desde(periodo),
-        _rota: rota === "todas" ? null : rota,
-      });
+      const args =
+        rota === "todas"
+          ? { _desde: desde(periodo) }
+          : { _desde: desde(periodo), _rota: rota as string };
+      const { data, error } = await supabase.rpc("funil_landing", args);
       if (error) throw error;
       return (data ?? []) as EtapaLinha[];
     },
