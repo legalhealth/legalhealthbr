@@ -94,7 +94,10 @@ export function RelatorioJuriscore({ dias }: { dias: PeriodoDias }) {
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={radar} outerRadius="75%">
                   <PolarGrid stroke="var(--color-border)" />
-                  <PolarAngleAxis dataKey="pilar" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} />
+                  <PolarAngleAxis
+                    dataKey="pilar"
+                    tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
+                  />
                   <Radar
                     dataKey="media"
                     stroke="var(--color-gold)"

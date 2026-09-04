@@ -79,11 +79,16 @@ export function RelatorioChatbot({ dias }: { dias: PeriodoDias }) {
         <div className="glass-card rounded-2xl p-5">
           <h3 className="font-display text-lg text-foreground">Origem das respostas</h3>
           {data.origens.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">Nenhuma resposta registrada no período.</p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Nenhuma resposta registrada no período.
+            </p>
           ) : (
             <ul className="mt-3 space-y-2 text-sm">
               {data.origens.map((o) => (
-                <li key={o.fonte} className="flex justify-between border-b border-border pb-2 last:border-0">
+                <li
+                  key={o.fonte}
+                  className="flex justify-between border-b border-border pb-2 last:border-0"
+                >
                   <span className="text-muted-foreground">{FONTE_LABEL[o.fonte] ?? o.fonte}</span>
                   <span className="text-foreground">{o.total}</span>
                 </li>
@@ -102,7 +107,10 @@ export function RelatorioChatbot({ dias }: { dias: PeriodoDias }) {
           ) : (
             <ul className="mt-3 space-y-2 text-sm">
               {data.lacunas.map((l) => (
-                <li key={l.pergunta} className="flex gap-3 border-b border-border pb-2 last:border-0">
+                <li
+                  key={l.pergunta}
+                  className="flex gap-3 border-b border-border pb-2 last:border-0"
+                >
                   <span className="flex-1 text-muted-foreground">{l.pergunta}</span>
                   <span className="text-foreground">{l.ocorrencias}x</span>
                 </li>

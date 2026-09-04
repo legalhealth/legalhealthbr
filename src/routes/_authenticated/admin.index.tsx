@@ -7,7 +7,13 @@ import { RelatorioChatbot } from "@/components/admin/relatorio-chatbot";
 import { RelatorioJuriscore } from "@/components/admin/relatorio-juriscore";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PERIODOS, useCandidaturas, useRelatorioChatbot, useRelatorioJuriscore, type PeriodoDias } from "@/lib/admin-relatorios";
+import {
+  PERIODOS,
+  useCandidaturas,
+  useRelatorioChatbot,
+  useRelatorioJuriscore,
+  type PeriodoDias,
+} from "@/lib/admin-relatorios";
 import { useFunil } from "@/lib/funil";
 import { useHasRole } from "@/lib/roles";
 
@@ -45,8 +51,7 @@ function VisaoGeral({ dias }: { dias: PeriodoDias }) {
   const { data: juriscore } = useRelatorioJuriscore(dias);
   const { data: funil } = useFunil(dias, "todas");
 
-  const chegaramFormulario =
-    funil?.find((e) => e.etapa === "application_form_view")?.sessoes ?? 0;
+  const chegaramFormulario = funil?.find((e) => e.etapa === "application_form_view")?.sessoes ?? 0;
 
   const cartoes = [
     { label: "Candidaturas recebidas", valor: candidaturas?.length ?? 0 },

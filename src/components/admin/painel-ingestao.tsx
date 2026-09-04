@@ -114,8 +114,7 @@ export function PainelIngestao() {
                     <p className="text-sm text-foreground">{fonte.title}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {fonte.issuingBody}
-                      {fonte.number ? ` · ${fonte.number}` : ""} · autoridade{" "}
-                      {fonte.authorityLevel}
+                      {fonte.number ? ` · ${fonte.number}` : ""} · autoridade {fonte.authorityLevel}
                     </p>
                   </div>
                   {fonte.formato === "pdf" && fonte.curado ? (

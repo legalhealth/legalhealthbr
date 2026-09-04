@@ -50,7 +50,9 @@ function agruparPorDia(datas: string[]): SerieDia[] {
     const dia = d.slice(0, 10);
     mapa.set(dia, (mapa.get(dia) ?? 0) + 1);
   }
-  return [...mapa.entries()].map(([dia, total]) => ({ dia, total })).sort((a, b) => (a.dia < b.dia ? -1 : 1));
+  return [...mapa.entries()]
+    .map(([dia, total]) => ({ dia, total }))
+    .sort((a, b) => (a.dia < b.dia ? -1 : 1));
 }
 
 /** Garante papel de administrador antes de qualquer leitura privilegiada. */
@@ -151,7 +153,10 @@ export const relatorioJuriscore = createServerFn({ method: "POST" })
         .from("juriscore_results")
         .select("score, by_pillar, created_at")
         .gte("created_at", desde),
-      supabaseAdmin.from("action_plans").select("id", { count: "exact", head: true }).gte("created_at", desde),
+      supabaseAdmin
+        .from("action_plans")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", desde),
       supabaseAdmin
         .from("action_items_done")
         .select("id", { count: "exact", head: true })
@@ -171,7 +176,7 @@ export const relatorioJuriscore = createServerFn({ method: "POST" })
           typeof valor === "number"
             ? valor
             : typeof (valor as { percent?: unknown })?.percent === "number"
-              ? ((valor as { percent: number }).percent)
+              ? (valor as { percent: number }).percent
               : null;
         if (percent === null) continue;
         const atual = somaPilar.get(pilar) ?? { soma: 0, n: 0 };

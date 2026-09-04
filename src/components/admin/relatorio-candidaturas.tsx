@@ -21,7 +21,9 @@ function contar(valores: (string | null)[]) {
     const chave = v?.trim() || "Não informado";
     mapa.set(chave, (mapa.get(chave) ?? 0) + 1);
   }
-  return [...mapa.entries()].map(([rotulo, total]) => ({ rotulo, total })).sort((a, b) => b.total - a.total);
+  return [...mapa.entries()]
+    .map(([rotulo, total]) => ({ rotulo, total }))
+    .sort((a, b) => b.total - a.total);
 }
 
 export function RelatorioCandidaturas({ dias }: { dias: PeriodoDias }) {
@@ -202,7 +204,10 @@ export function RelatorioCandidaturas({ dias }: { dias: PeriodoDias }) {
           <h3 className="font-display text-lg text-foreground">Por profissão</h3>
           <ul className="mt-3 space-y-2 text-sm">
             {porProfissao.map((p) => (
-              <li key={p.rotulo} className="flex justify-between border-b border-border pb-2 last:border-0">
+              <li
+                key={p.rotulo}
+                className="flex justify-between border-b border-border pb-2 last:border-0"
+              >
                 <span className="text-muted-foreground">{p.rotulo}</span>
                 <span className="text-foreground">{p.total}</span>
               </li>
@@ -213,7 +218,10 @@ export function RelatorioCandidaturas({ dias }: { dias: PeriodoDias }) {
           <h3 className="font-display text-lg text-foreground">Por estado</h3>
           <ul className="mt-3 space-y-2 text-sm">
             {porEstado.map((p) => (
-              <li key={p.rotulo} className="flex justify-between border-b border-border pb-2 last:border-0">
+              <li
+                key={p.rotulo}
+                className="flex justify-between border-b border-border pb-2 last:border-0"
+              >
                 <span className="text-muted-foreground">{p.rotulo}</span>
                 <span className="text-foreground">{p.total}</span>
               </li>
