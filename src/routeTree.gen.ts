@@ -37,6 +37,7 @@ import { Route as ApiAiPlanoRouteImport } from './routes/api/ai-plano'
 import { Route as RevisaoTokenRouteImport } from './routes/revisao.$token'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminFontesRouteImport } from './routes/_authenticated/admin.fontes'
 import { Route as AuthenticatedAdminFunilRouteImport } from './routes/_authenticated/admin.funil'
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia.index'
@@ -197,6 +198,11 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminFontesRoute =
   AuthenticatedAdminFontesRouteImport.update({
     id: '/admin/fontes',
@@ -328,6 +334,7 @@ export interface FileRoutesByFullPath {
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -373,6 +380,7 @@ export interface FileRoutesByTo {
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/ia': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -421,6 +429,7 @@ export interface FileRoutesById {
   '/_authenticated/ia/risco': typeof AuthenticatedIaRiscoRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -469,6 +478,7 @@ export interface FileRouteTypes {
     | '/ia/risco'
     | '/api/public/ai-chatbot'
     | '/api/public/landing-event'
+    | '/admin/'
     | '/ia/'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
@@ -514,6 +524,7 @@ export interface FileRouteTypes {
     | '/ia/risco'
     | '/api/public/ai-chatbot'
     | '/api/public/landing-event'
+    | '/admin'
     | '/ia'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
@@ -561,6 +572,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ia/risco'
     | '/api/public/ai-chatbot'
     | '/api/public/landing-event'
+    | '/_authenticated/admin/'
     | '/_authenticated/ia/'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
@@ -800,6 +812,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/fontes': {
       id: '/_authenticated/admin/fontes'
       path: '/admin/fontes'
@@ -956,6 +975,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlanoRoute: typeof AuthenticatedPlanoRoute
   AuthenticatedAdminFontesRoute: typeof AuthenticatedAdminFontesRoute
   AuthenticatedAdminFunilRoute: typeof AuthenticatedAdminFunilRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -968,6 +988,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPlanoRoute: AuthenticatedPlanoRoute,
   AuthenticatedAdminFontesRoute: AuthenticatedAdminFontesRoute,
   AuthenticatedAdminFunilRoute: AuthenticatedAdminFunilRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
