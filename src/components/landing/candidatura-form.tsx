@@ -298,10 +298,7 @@ export function CandidaturaForm() {
       </div>
 
       <div className="mt-6 space-y-3">
-        <label
-          htmlFor="aceite"
-          className="flex items-start gap-3 text-sm text-muted-foreground"
-        >
+        <label htmlFor="aceite" className="flex items-start gap-3 text-sm text-muted-foreground">
           <Checkbox
             id="aceite"
             checked={aceite}
@@ -310,17 +307,17 @@ export function CandidaturaForm() {
           />
           <span>
             Li e aceito o regulamento do programa e os{" "}
-            <Link to="/termos" className="text-gold underline underline-offset-4 hover:text-gold-light">
+            <Link
+              to="/termos"
+              className="text-gold underline underline-offset-4 hover:text-gold-light"
+            >
               Termos de Uso
             </Link>
             .
           </span>
         </label>
 
-        <label
-          htmlFor="ciencia"
-          className="flex items-start gap-3 text-sm text-muted-foreground"
-        >
+        <label htmlFor="ciencia" className="flex items-start gap-3 text-sm text-muted-foreground">
           <Checkbox
             id="ciencia"
             checked={ciencia}
@@ -333,10 +330,7 @@ export function CandidaturaForm() {
           </span>
         </label>
 
-        <label
-          htmlFor="contato"
-          className="flex items-start gap-3 text-sm text-muted-foreground"
-        >
+        <label htmlFor="contato" className="flex items-start gap-3 text-sm text-muted-foreground">
           <Checkbox
             id="contato"
             checked={contato}
@@ -346,7 +340,11 @@ export function CandidaturaForm() {
           <span>
             Consinto em receber contato sobre o programa de Embaixadores. Posso revogar a qualquer
             momento pelo{" "}
-            <Link to="/privacidade" hash="canal" className="text-gold underline underline-offset-4 hover:text-gold-light">
+            <Link
+              to="/privacidade"
+              hash="canal"
+              className="text-gold underline underline-offset-4 hover:text-gold-light"
+            >
               canal de privacidade
             </Link>
             .
