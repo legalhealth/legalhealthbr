@@ -36,6 +36,7 @@ import { Route as ApiAiDocumentoLeituraRouteImport } from './routes/api/ai-docum
 import { Route as ApiAiPecaRouteImport } from './routes/api/ai-peca'
 import { Route as ApiAiPlanoRouteImport } from './routes/api/ai-plano'
 import { Route as EntrarCodeRouteImport } from './routes/entrar.$code'
+import { Route as MockupReelsRouteImport } from './routes/mockup.reels'
 import { Route as RevisaoTokenRouteImport } from './routes/revisao.$token'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -194,6 +195,11 @@ const EntrarCodeRoute = EntrarCodeRouteImport.update({
   path: '/entrar/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MockupReelsRoute = MockupReelsRouteImport.update({
+  id: '/mockup/reels',
+  path: '/mockup/reels',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RevisaoTokenRoute = RevisaoTokenRouteImport.update({
   id: '/revisao/$token',
   path: '/revisao/$token',
@@ -335,6 +341,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
   '/entrar/$code': typeof EntrarCodeRoute
+  '/mockup/reels': typeof MockupReelsRoute
   '/revisao/$token': typeof RevisaoTokenRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -383,6 +390,7 @@ export interface FileRoutesByTo {
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
   '/entrar/$code': typeof EntrarCodeRoute
+  '/mockup/reels': typeof MockupReelsRoute
   '/revisao/$token': typeof RevisaoTokenRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -434,6 +442,7 @@ export interface FileRoutesById {
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
   '/entrar/$code': typeof EntrarCodeRoute
+  '/mockup/reels': typeof MockupReelsRoute
   '/revisao/$token': typeof RevisaoTokenRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -485,6 +494,7 @@ export interface FileRouteTypes {
     | '/api/ai-peca'
     | '/api/ai-plano'
     | '/entrar/$code'
+    | '/mockup/reels'
     | '/revisao/$token'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -533,6 +543,7 @@ export interface FileRouteTypes {
     | '/api/ai-peca'
     | '/api/ai-plano'
     | '/entrar/$code'
+    | '/mockup/reels'
     | '/revisao/$token'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -583,6 +594,7 @@ export interface FileRouteTypes {
     | '/api/ai-peca'
     | '/api/ai-plano'
     | '/entrar/$code'
+    | '/mockup/reels'
     | '/revisao/$token'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -626,6 +638,7 @@ export interface RootRouteChildren {
   ApiAiPecaRoute: typeof ApiAiPecaRoute
   ApiAiPlanoRoute: typeof ApiAiPlanoRoute
   EntrarCodeRoute: typeof EntrarCodeRoute
+  MockupReelsRoute: typeof MockupReelsRoute
   RevisaoTokenRoute: typeof RevisaoTokenRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -828,6 +841,13 @@ declare module '@tanstack/react-router' {
       path: '/entrar/$code'
       fullPath: '/entrar/$code'
       preLoaderRoute: typeof EntrarCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mockup/reels': {
+      id: '/mockup/reels'
+      path: '/mockup/reels'
+      fullPath: '/mockup/reels'
+      preLoaderRoute: typeof MockupReelsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/revisao/$token': {
@@ -1056,6 +1076,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiPecaRoute: ApiAiPecaRoute,
   ApiAiPlanoRoute: ApiAiPlanoRoute,
   EntrarCodeRoute: EntrarCodeRoute,
+  MockupReelsRoute: MockupReelsRoute,
   RevisaoTokenRoute: RevisaoTokenRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
