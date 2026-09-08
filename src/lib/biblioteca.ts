@@ -6,6 +6,7 @@ export {
   BIBLIOTECA_CATEGORIAS,
   categoriaLabel,
   docsDaCategoria,
+  gruposDaCategoria,
 } from "@/lib/biblioteca-catalogo";
 export type { BibliotecaCategoria, BibliotecaDoc } from "@/lib/biblioteca-catalogo";
 
