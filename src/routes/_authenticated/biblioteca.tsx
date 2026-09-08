@@ -17,6 +17,7 @@ import {
   BIBLIOTECA_CATEGORIAS,
   categoriaLabel,
   docsDaCategoria,
+  gruposDaCategoria,
   streamBibliotecaDoc,
   type BibliotecaCategoria,
 } from "@/lib/biblioteca";
@@ -59,6 +60,7 @@ function Page() {
   const gerandoRef = useRef(false);
 
   const docs = useMemo(() => docsDaCategoria(categoria), [categoria]);
+  const grupos = useMemo(() => gruposDaCategoria(categoria), [categoria]);
   const docAtual = docs.find((d) => d.value === documento) ?? docs[0]!;
 
   const { data: profile } = useQuery({
@@ -161,23 +163,34 @@ function Page() {
 
         {/* Painel de geração */}
         <section className="rounded-2xl glass-card p-5 md:p-6">
-          <div className="flex flex-wrap gap-3">
-            {docs.map((d) => (
-              <Button
-                key={d.value}
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setDocumento(d.value)}
-                className={cn(
-                  "h-auto whitespace-normal rounded-xl px-4 py-2 text-left text-xs",
-                  documento === d.value
-                    ? "border-gold/50 bg-gold/10 text-gold hover:bg-gold/15 hover:text-gold"
-                    : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                )}
-              >
-                {d.label}
-              </Button>
+          <div className="space-y-5">
+            {grupos.map((grupo) => (
+              <div key={grupo.label || "documentos"} className="space-y-2.5">
+                {grupo.label ? (
+                  <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground/70">
+                    {grupo.label}
+                  </p>
+                ) : null}
+                <div className="flex flex-wrap gap-3">
+                  {grupo.docs.map((d) => (
+                    <Button
+                      key={d.value}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setDocumento(d.value)}
+                      className={cn(
+                        "h-auto whitespace-normal rounded-xl px-4 py-2 text-left text-xs",
+                        documento === d.value
+                          ? "border-gold/50 bg-gold/10 text-gold hover:bg-gold/15 hover:text-gold"
+                          : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                      )}
+                    >
+                      {d.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
 
