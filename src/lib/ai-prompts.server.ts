@@ -91,5 +91,6 @@ Regras:
 export type TaskType = keyof typeof SYSTEM_PROMPTS;
 
 export function systemPromptFor(task: string): string {
-  return SYSTEM_PROMPTS[task as TaskType] ?? SYSTEM_PROMPTS.assistente;
+  const prompt: string = SYSTEM_PROMPTS[task as TaskType] ?? SYSTEM_PROMPTS.assistente;
+  return prompt.replace("__CATALOGO_BIBLIOTECA__", catalogoBiblioteca());
 }
