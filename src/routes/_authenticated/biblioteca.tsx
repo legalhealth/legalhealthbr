@@ -24,8 +24,8 @@ import {
 
 export const Route = createFileRoute("/_authenticated/biblioteca")({
   validateSearch: (search: Record<string, unknown>): { cat?: string; doc?: string } => ({
-    ...(typeof search.cat === "string" ? { cat: search.cat } : {}),
-    ...(typeof search.doc === "string" ? { doc: search.doc } : {}),
+    ...(typeof search["cat"] === "string" ? { cat: search["cat"] } : {}),
+    ...(typeof search["doc"] === "string" ? { doc: search["doc"] } : {}),
   }),
   head: () => ({
     meta: [
@@ -49,8 +49,15 @@ export const Route = createFileRoute("/_authenticated/biblioteca")({
 });
 
 function Page() {
-  const [categoria, setCategoria] = useState<BibliotecaCategoria>("minutas");
-  const [documento, setDocumento] = useState(docsDaCategoria("minutas")[0]!.value);
+  const search = Route.useSearch();
+  const categoriaInicial = BIBLIOTECA_CATEGORIAS.some((c) => c.value === search.cat)
+    ? (search.cat as BibliotecaCategoria)
+    : "minutas";
+  const docsIniciais = docsDaCategoria(categoriaInicial);
+  const [categoria, setCategoria] = useState<BibliotecaCategoria>(categoriaInicial);
+  const [documento, setDocumento] = useState(
+    docsIniciais.find((d) => d.value === search.doc)?.value ?? docsIniciais[0]!.value,
+  );
   const [nome, setNome] = useState("");
   const [crm, setCrm] = useState("");
   const [especialidade, setEspecialidade] = useState("");
