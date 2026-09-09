@@ -1,3 +1,14 @@
+import { BIBLIOTECA_CATEGORIAS } from "@/lib/biblioteca-catalogo";
+
+/** Catálogo de documentos prontos que o chat pode indicar (slug + rótulo). */
+function catalogoBiblioteca(): string {
+  return BIBLIOTECA_CATEGORIAS.map(
+    (categoria) =>
+      `${categoria.label}:\n` +
+      categoria.docs.map((doc) => `- ${doc.value} = ${doc.label}`).join("\n"),
+  ).join("\n\n");
+}
+
 export const SYSTEM_PROMPTS = {
   assistente: `Você é o Legal Health AI, assistente jurídico resolutivo da plataforma Legal Health — a primeira infraestrutura de inteligência jurídica para saúde no Brasil. Especialista em Direito Médico e da Saúde, processos ético-profissionais (CRM/CFM), responsabilidade civil médica, Compliance em saúde, LGPD, normas da ANS e ANVISA.
 
