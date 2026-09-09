@@ -23,6 +23,10 @@ import {
 } from "@/lib/biblioteca";
 
 export const Route = createFileRoute("/_authenticated/biblioteca")({
+  validateSearch: (search: Record<string, unknown>): { cat?: string; doc?: string } => ({
+    ...(typeof search.cat === "string" ? { cat: search.cat } : {}),
+    ...(typeof search.doc === "string" ? { doc: search.doc } : {}),
+  }),
   head: () => ({
     meta: [
       { title: "Biblioteca Inteligente | Legal Health" },
