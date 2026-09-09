@@ -58,6 +58,7 @@ export function ChatWidgetMessages({
             {entry.action && (
               <Link
                 to={entry.action.to}
+                search={(entry.action.search ?? {}) as never}
                 onClick={onNavigate}
                 className="inline-flex min-h-[40px] w-fit items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-4 text-xs font-medium text-gold-light transition-colors hover:bg-gold/20"
               >

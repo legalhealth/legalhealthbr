@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { BIBLIOTECA_CATEGORIAS } from "@/lib/biblioteca-catalogo";
 import { streamAiEndpoint, type ChatTurn } from "@/lib/ia-chat";
 
 export type ChatbotVariant = "app" | "publico";
@@ -29,15 +30,45 @@ export const CHATBOT_ROUTES = [
 
 export type ChatbotRoute = (typeof CHATBOT_ROUTES)[number];
 
-export type ChatbotAction = { to: ChatbotRoute; label: string };
+export type ChatbotAction = {
+  to: ChatbotRoute;
+  label: string;
+  search?: Record<string, string>;
+};
 
 const ACTION_RE = /\[IR:(\/[a-z0-9/_-]*)\|([^\]]{1,60})\]/i;
+/** Atalho para uma minuta/protocolo/checklist pronto da Biblioteca. */
+const MINUTA_RE = /\[MINUTA:([a-z0-9-]+)\|([^\]]{1,60})\]/i;
+
+function acharDocumento(slug: string): { categoria: string; label: string } | null {
+  for (const categoria of BIBLIOTECA_CATEGORIAS) {
+    const doc = categoria.docs.find((d) => d.value === slug);
+    if (doc) return { categoria: categoria.value, label: doc.label };
+  }
+  return null;
+}
 
 /** Separa o texto exibido do atalho de navegação sugerido pela IA. */
 export function parseChatbotAnswer(raw: string): { text: string; action: ChatbotAction | null } {
+  const text = raw.replace(ACTION_RE, "").replace(MINUTA_RE, "").trim();
+
+  const minuta = raw.match(MINUTA_RE);
+  if (minuta) {
+    const doc = acharDocumento((minuta[1] ?? "").toLowerCase());
+    if (doc) {
+      return {
+        text,
+        action: {
+          to: "/biblioteca",
+          label: (minuta[2] ?? `Abrir ${doc.label}`).trim(),
+          search: { cat: doc.categoria, doc: (minuta[1] ?? "").toLowerCase() },
+        },
+      };
+    }
+  }
+
   const match = raw.match(ACTION_RE);
-  const text = raw.replace(ACTION_RE, "").trim();
-  if (!match) return { text: raw.trim(), action: null };
+  if (!match) return { text: text || raw.trim(), action: null };
   const path = (match[1] ?? "").replace(/\/$/, "") || "/";
   const found = CHATBOT_ROUTES.find((route) => route === path);
   if (!found) return { text, action: null };
