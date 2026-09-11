@@ -33,7 +33,10 @@ export type ChatAttachment = {
   text?: string;
 };
 
-export const ATTACHMENT_ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,.txt,.md";
+// `image/*` garante que fotos do celular (inclusive HEIC do iPhone) apareçam
+// selecionáveis no seletor de arquivos; extensões cobrem navegadores antigos.
+export const ATTACHMENT_ACCEPT =
+  "application/pdf,image/*,text/plain,.pdf,.png,.jpg,.jpeg,.webp,.heic,.heif,.txt,.md";
 export const ATTACHMENT_MAX_BYTES = 8 * 1024 * 1024;
 
 /** Converte o arquivo escolhido em um anexo pronto para a IA. */
