@@ -125,9 +125,9 @@ function Page() {
     if (q) textareaRef.current?.focus();
   }, [q]);
 
-  const handleFiles = async (files: FileList | null) => {
-    if (!files || files.length === 0) return;
-    const picked = Array.from(files).slice(0, 4 - attachments.length);
+  const handleFiles = async (files: File[]) => {
+    if (files.length === 0) return;
+    const picked = files.slice(0, 4 - attachments.length);
     if (picked.length === 0) {
       toast.error("Máximo de 4 anexos por mensagem.");
       return;
@@ -426,8 +426,11 @@ function Page() {
                   accept={ATTACHMENT_ACCEPT}
                   className="hidden"
                   onChange={(event) => {
-                    void handleFiles(event.currentTarget.files);
+                    // Copiar antes de limpar o campo: no Safari/iOS o reset
+                    // esvazia a FileList e o anexo era perdido.
+                    const selected = Array.from(event.currentTarget.files ?? []);
                     event.currentTarget.value = "";
+                    void handleFiles(selected);
                   }}
                 />
                 <button
