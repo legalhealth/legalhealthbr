@@ -344,6 +344,78 @@ export type Database = {
         }
         Relationships: []
       }
+      clinic_invites: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          medico_user_id: string
+          nome: string | null
+          status: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          medico_user_id: string
+          nome?: string | null
+          status?: string
+          token: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          medico_user_id?: string
+          nome?: string | null
+          status?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      clinic_members: {
+        Row: {
+          assistente_user_id: string
+          created_at: string
+          id: string
+          medico_user_id: string
+          nome: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assistente_user_id: string
+          created_at?: string
+          id?: string
+          medico_user_id: string
+          nome?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assistente_user_id?: string
+          created_at?: string
+          id?: string
+          medico_user_id?: string
+          nome?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       device_login_requests: {
         Row: {
           approved_at: string | null
@@ -1000,9 +1072,94 @@ export type Database = {
           },
         ]
       }
+      library_categories: {
+        Row: {
+          created_at: string
+          escopo: string
+          id: string
+          label: string
+          ordem: number
+          slug: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          escopo?: string
+          id?: string
+          label: string
+          ordem?: number
+          slug: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          escopo?: string
+          id?: string
+          label?: string
+          ordem?: number
+          slug?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      library_templates: {
+        Row: {
+          categoria_slug: string
+          created_at: string
+          escopo: string
+          grupo: string | null
+          id: string
+          instrucoes: string | null
+          label: string
+          ordem: number
+          pede_procedimento: boolean
+          slug: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          categoria_slug: string
+          created_at?: string
+          escopo?: string
+          grupo?: string | null
+          id?: string
+          instrucoes?: string | null
+          label: string
+          ordem?: number
+          pede_procedimento?: boolean
+          slug: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          categoria_slug?: string
+          created_at?: string
+          escopo?: string
+          grupo?: string | null
+          id?: string
+          instrucoes?: string | null
+          label?: string
+          ordem?: number
+          pede_procedimento?: boolean
+          slug?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       patient_audit_log: {
         Row: {
           acao: string
+          autor_user_id: string | null
           detalhe: string | null
           entidade: string
           entidade_id: string | null
@@ -1013,6 +1170,7 @@ export type Database = {
         }
         Insert: {
           acao: string
+          autor_user_id?: string | null
           detalhe?: string | null
           entidade: string
           entidade_id?: string | null
@@ -1023,6 +1181,7 @@ export type Database = {
         }
         Update: {
           acao?: string
+          autor_user_id?: string | null
           detalhe?: string | null
           entidade?: string
           entidade_id?: string | null
@@ -1146,6 +1305,90 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "patient_field_history_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_screenings: {
+        Row: {
+          autor_user_id: string | null
+          confirmado_em: string | null
+          created_at: string
+          doc_id: string | null
+          documentos: Json | null
+          encaminhamento: string | null
+          exames: string | null
+          fatores_risco: string[]
+          historico: string | null
+          id: string
+          medicacoes: string | null
+          patient_id: string
+          queixa: string
+          risco: string
+          risco_justificativa: string | null
+          sinais_alerta: string[]
+          sintomas: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          autor_user_id?: string | null
+          confirmado_em?: string | null
+          created_at?: string
+          doc_id?: string | null
+          documentos?: Json | null
+          encaminhamento?: string | null
+          exames?: string | null
+          fatores_risco?: string[]
+          historico?: string | null
+          id?: string
+          medicacoes?: string | null
+          patient_id: string
+          queixa: string
+          risco?: string
+          risco_justificativa?: string | null
+          sinais_alerta?: string[]
+          sintomas?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          autor_user_id?: string | null
+          confirmado_em?: string | null
+          created_at?: string
+          doc_id?: string | null
+          documentos?: Json | null
+          encaminhamento?: string | null
+          exames?: string | null
+          fatores_risco?: string[]
+          historico?: string | null
+          id?: string
+          medicacoes?: string | null
+          patient_id?: string
+          queixa?: string
+          risco?: string
+          risco_justificativa?: string | null
+          sinais_alerta?: string[]
+          sintomas?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_screenings_doc_id_fkey"
+            columns: ["doc_id"]
+            isOneToOne: false
+            referencedRelation: "generated_docs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_screenings_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
@@ -1341,6 +1584,7 @@ export type Database = {
           updated_at: string
           user_id: string
           weekly_digest: boolean
+          whatsapp: string | null
         }
         Insert: {
           biometria?: boolean
@@ -1360,6 +1604,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           weekly_digest?: boolean
+          whatsapp?: string | null
         }
         Update: {
           biometria?: boolean
@@ -1379,6 +1624,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           weekly_digest?: boolean
+          whatsapp?: string | null
         }
         Relationships: []
       }
@@ -1556,6 +1802,7 @@ export type Database = {
     }
     Functions: {
       current_user_email: { Args: never; Returns: string }
+      eh_assistente_de: { Args: { _dono: string }; Returns: boolean }
       funil_landing: {
         Args: { _desde: string; _rota?: string }
         Returns: {
@@ -1611,6 +1858,7 @@ export type Database = {
           tags: string[]
         }[]
       }
+      pode_acessar_conta: { Args: { _dono: string }; Returns: boolean }
       registrar_auditoria_resposta: {
         Args: {
           citacoes_in: Json
