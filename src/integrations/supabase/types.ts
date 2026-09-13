@@ -416,6 +416,66 @@ export type Database = {
         }
         Relationships: []
       }
+      clinics: {
+        Row: {
+          bairro: string | null
+          cep: string | null
+          cidade: string | null
+          cnpj: string | null
+          complemento: string | null
+          created_at: string
+          email: string | null
+          horarios: Json
+          id: string
+          logradouro: string | null
+          nome: string | null
+          numero: string | null
+          responsavel_tecnico: string | null
+          telefone: string | null
+          uf: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          cnpj?: string | null
+          complemento?: string | null
+          created_at?: string
+          email?: string | null
+          horarios?: Json
+          id?: string
+          logradouro?: string | null
+          nome?: string | null
+          numero?: string | null
+          responsavel_tecnico?: string | null
+          telefone?: string | null
+          uf?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          cnpj?: string | null
+          complemento?: string | null
+          created_at?: string
+          email?: string | null
+          horarios?: Json
+          id?: string
+          logradouro?: string | null
+          nome?: string | null
+          numero?: string | null
+          responsavel_tecnico?: string | null
+          telefone?: string | null
+          uf?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       device_login_requests: {
         Row: {
           approved_at: string | null
