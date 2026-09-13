@@ -97,7 +97,12 @@ export async function guardAiRequest(
     };
   }
 
-  await supabase.from("ai_usage").insert({ user_id: userId, endpoint });
+  // Janelas de transcrição ao vivo são muitas por atendimento: elas respeitam o
+  // limite diário, mas não consomem uma consulta cada.
+  if (options?.registrarUso !== false) {
+    await supabase.from("ai_usage").insert({ user_id: userId, endpoint });
+  }
+
 
   return { ok: true, userId, apiKey, supabase };
 }
