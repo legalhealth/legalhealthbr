@@ -11,7 +11,10 @@ export function SiteHeader() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/85 backdrop-blur-xl">
       <div className="mx-auto grid min-h-[var(--header-h)] max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-3 md:px-8">
-        <Link to="/inicio" className="flex min-w-0 items-center gap-3">
+        <Link
+          to={ehAssistente ? "/biblioteca" : "/inicio"}
+          className="flex min-w-0 items-center gap-3"
+        >
           <img
             src={monograma.url}
             alt="Legal Health"
