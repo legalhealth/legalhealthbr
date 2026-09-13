@@ -52,9 +52,9 @@ import { Route as AuthenticatedIaHistoricoRouteImport } from './routes/_authenti
 import { Route as AuthenticatedIaPecaRouteImport } from './routes/_authenticated/ia.peca'
 import { Route as AuthenticatedIaRevisoesRouteImport } from './routes/_authenticated/ia.revisoes'
 import { Route as AuthenticatedIaRiscoRouteImport } from './routes/_authenticated/ia.risco'
+import { Route as AuthenticatedPacienteIdRouteImport } from './routes/_authenticated/paciente.$id'
 import { Route as ApiPublicAiChatbotRouteImport } from './routes/api/public/ai-chatbot'
 import { Route as ApiPublicLandingEventRouteImport } from './routes/api/public/landing-event'
-import { Route as AuthenticatedBibliotecaPacienteIdRouteImport } from './routes/_authenticated/biblioteca.paciente.$id'
 import { Route as ApiPublicHooksBaseJuridicaSyncRouteImport } from './routes/api/public/hooks/base-juridica-sync'
 import { Route as ApiPublicHooksPlanRemindersRouteImport } from './routes/api/public/hooks/plan-reminders'
 import { Route as ApiPublicRevisaoTokenRouteImport } from './routes/api/public/revisao.$token'
@@ -283,6 +283,11 @@ const AuthenticatedIaRiscoRoute = AuthenticatedIaRiscoRouteImport.update({
   path: '/risco',
   getParentRoute: () => AuthenticatedIaRoute,
 } as any)
+const AuthenticatedPacienteIdRoute = AuthenticatedPacienteIdRouteImport.update({
+  id: '/paciente/$id',
+  path: '/paciente/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicAiChatbotRoute = ApiPublicAiChatbotRouteImport.update({
   id: '/api/public/ai-chatbot',
   path: '/api/public/ai-chatbot',
@@ -293,12 +298,6 @@ const ApiPublicLandingEventRoute = ApiPublicLandingEventRouteImport.update({
   path: '/api/public/landing-event',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedBibliotecaPacienteIdRoute =
-  AuthenticatedBibliotecaPacienteIdRouteImport.update({
-    id: '/paciente/$id',
-    path: '/paciente/$id',
-    getParentRoute: () => AuthenticatedBibliotecaRoute,
-  } as any)
 const ApiPublicHooksBaseJuridicaSyncRoute =
   ApiPublicHooksBaseJuridicaSyncRouteImport.update({
     id: '/api/public/hooks/base-juridica-sync',
@@ -346,7 +345,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
-  '/biblioteca': typeof AuthenticatedBibliotecaRouteWithChildren
+  '/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/ia': typeof AuthenticatedIaRouteWithChildren
   '/inicio': typeof AuthenticatedInicioRoute
@@ -374,11 +373,11 @@ export interface FileRoutesByFullPath {
   '/ia/peca': typeof AuthenticatedIaPecaRoute
   '/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
+  '/paciente/$id': typeof AuthenticatedPacienteIdRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
-  '/biblioteca/paciente/$id': typeof AuthenticatedBibliotecaPacienteIdRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
   '/api/public/revisao/$token': typeof ApiPublicRevisaoTokenRoute
@@ -399,7 +398,7 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
-  '/biblioteca': typeof AuthenticatedBibliotecaRouteWithChildren
+  '/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/juriscore': typeof AuthenticatedJuriscoreRoute
@@ -426,11 +425,11 @@ export interface FileRoutesByTo {
   '/ia/peca': typeof AuthenticatedIaPecaRoute
   '/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
+  '/paciente/$id': typeof AuthenticatedPacienteIdRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/ia': typeof AuthenticatedIaIndexRoute
-  '/biblioteca/paciente/$id': typeof AuthenticatedBibliotecaPacienteIdRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
   '/api/public/revisao/$token': typeof ApiPublicRevisaoTokenRoute
@@ -453,7 +452,7 @@ export interface FileRoutesById {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/bem-vindo': typeof AuthenticatedBemVindoRoute
-  '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRouteWithChildren
+  '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRoute
   '/_authenticated/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/_authenticated/ia': typeof AuthenticatedIaRouteWithChildren
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
@@ -481,11 +480,11 @@ export interface FileRoutesById {
   '/_authenticated/ia/peca': typeof AuthenticatedIaPecaRoute
   '/_authenticated/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/_authenticated/ia/risco': typeof AuthenticatedIaRiscoRoute
+  '/_authenticated/paciente/$id': typeof AuthenticatedPacienteIdRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
-  '/_authenticated/biblioteca/paciente/$id': typeof AuthenticatedBibliotecaPacienteIdRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
   '/api/public/revisao/$token': typeof ApiPublicRevisaoTokenRoute
@@ -536,11 +535,11 @@ export interface FileRouteTypes {
     | '/ia/peca'
     | '/ia/revisoes'
     | '/ia/risco'
+    | '/paciente/$id'
     | '/api/public/ai-chatbot'
     | '/api/public/landing-event'
     | '/admin/'
     | '/ia/'
-    | '/biblioteca/paciente/$id'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
     | '/api/public/revisao/$token'
@@ -588,11 +587,11 @@ export interface FileRouteTypes {
     | '/ia/peca'
     | '/ia/revisoes'
     | '/ia/risco'
+    | '/paciente/$id'
     | '/api/public/ai-chatbot'
     | '/api/public/landing-event'
     | '/admin'
     | '/ia'
-    | '/biblioteca/paciente/$id'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
     | '/api/public/revisao/$token'
@@ -642,11 +641,11 @@ export interface FileRouteTypes {
     | '/_authenticated/ia/peca'
     | '/_authenticated/ia/revisoes'
     | '/_authenticated/ia/risco'
+    | '/_authenticated/paciente/$id'
     | '/api/public/ai-chatbot'
     | '/api/public/landing-event'
     | '/_authenticated/admin/'
     | '/_authenticated/ia/'
-    | '/_authenticated/biblioteca/paciente/$id'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
     | '/api/public/revisao/$token'
@@ -994,6 +993,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIaRiscoRouteImport
       parentRoute: typeof AuthenticatedIaRoute
     }
+    '/_authenticated/paciente/$id': {
+      id: '/_authenticated/paciente/$id'
+      path: '/paciente/$id'
+      fullPath: '/paciente/$id'
+      preLoaderRoute: typeof AuthenticatedPacienteIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/ai-chatbot': {
       id: '/api/public/ai-chatbot'
       path: '/api/public/ai-chatbot'
@@ -1007,13 +1013,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/landing-event'
       preLoaderRoute: typeof ApiPublicLandingEventRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/biblioteca/paciente/$id': {
-      id: '/_authenticated/biblioteca/paciente/$id'
-      path: '/paciente/$id'
-      fullPath: '/biblioteca/paciente/$id'
-      preLoaderRoute: typeof AuthenticatedBibliotecaPacienteIdRouteImport
-      parentRoute: typeof AuthenticatedBibliotecaRoute
     }
     '/api/public/hooks/base-juridica-sync': {
       id: '/api/public/hooks/base-juridica-sync'
@@ -1060,21 +1059,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedBibliotecaRouteChildren {
-  AuthenticatedBibliotecaPacienteIdRoute: typeof AuthenticatedBibliotecaPacienteIdRoute
-}
-
-const AuthenticatedBibliotecaRouteChildren: AuthenticatedBibliotecaRouteChildren =
-  {
-    AuthenticatedBibliotecaPacienteIdRoute:
-      AuthenticatedBibliotecaPacienteIdRoute,
-  }
-
-const AuthenticatedBibliotecaRouteWithChildren =
-  AuthenticatedBibliotecaRoute._addFileChildren(
-    AuthenticatedBibliotecaRouteChildren,
-  )
-
 interface AuthenticatedIaRouteChildren {
   AuthenticatedIaAssistenteRoute: typeof AuthenticatedIaAssistenteRoute
   AuthenticatedIaDocumentosRoute: typeof AuthenticatedIaDocumentosRoute
@@ -1101,7 +1085,7 @@ const AuthenticatedIaRouteWithChildren = AuthenticatedIaRoute._addFileChildren(
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBemVindoRoute: typeof AuthenticatedBemVindoRoute
-  AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRouteWithChildren
+  AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRoute
   AuthenticatedEntrarNoPcRoute: typeof AuthenticatedEntrarNoPcRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRouteWithChildren
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
@@ -1110,12 +1094,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlanoRoute: typeof AuthenticatedPlanoRoute
   AuthenticatedAdminFontesRoute: typeof AuthenticatedAdminFontesRoute
   AuthenticatedAdminFunilRoute: typeof AuthenticatedAdminFunilRoute
+  AuthenticatedPacienteIdRoute: typeof AuthenticatedPacienteIdRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBemVindoRoute: AuthenticatedBemVindoRoute,
-  AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRouteWithChildren,
+  AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRoute,
   AuthenticatedEntrarNoPcRoute: AuthenticatedEntrarNoPcRoute,
   AuthenticatedIaRoute: AuthenticatedIaRouteWithChildren,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
@@ -1124,6 +1109,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPlanoRoute: AuthenticatedPlanoRoute,
   AuthenticatedAdminFontesRoute: AuthenticatedAdminFontesRoute,
   AuthenticatedAdminFunilRoute: AuthenticatedAdminFunilRoute,
+  AuthenticatedPacienteIdRoute: AuthenticatedPacienteIdRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 

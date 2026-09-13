@@ -30,7 +30,7 @@ import {
   type EventoTipo,
 } from "@/lib/pacientes";
 
-export const Route = createFileRoute("/_authenticated/biblioteca/paciente/$id")({
+export const Route = createFileRoute("/_authenticated/paciente/$id")({
   head: () => ({
     meta: [
       { title: "Ficha do paciente | Legal Health" },

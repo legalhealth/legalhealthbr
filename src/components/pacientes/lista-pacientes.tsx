@@ -131,7 +131,7 @@ export function ListaPacientes() {
           pacientes.map((paciente) => (
             <Link
               key={paciente.id}
-              to="/biblioteca/paciente/$id"
+              to="/paciente/$id"
               params={{ id: paciente.id }}
               className="flex items-center gap-4 rounded-xl border border-border bg-transparent p-4 transition-colors hover:border-gold/40 hover:bg-gold/5"
             >
