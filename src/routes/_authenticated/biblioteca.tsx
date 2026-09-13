@@ -349,7 +349,7 @@ function Page() {
           {error ? <p className="mt-4 text-sm text-danger">{error}</p> : null}
         </section>
 
-        {draft !== null ? (
+        {draft !== null && aba !== "pacientes" ? (
           <section ref={draftRef} className="rounded-2xl glass-card p-6">
             <h2 className="font-display text-lg text-foreground">
               {generating ? "Gerando…" : docAtual.label}
