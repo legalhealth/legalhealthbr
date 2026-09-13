@@ -133,18 +133,55 @@ type RecorderOpts = {
   onErro?: (mensagem: string) => void;
   onSegundo?: (segundos: number) => void;
   onLimite?: () => void;
+  /** nível de voz de 0 a 1, para o medidor na tela */
+  onNivel?: (nivel: number) => void;
+  /** avisa quando nenhum som é captado por vários segundos */
+  onSilencio?: (silencioso: boolean) => void;
 };
+
+/** Mensagem legível para cada falha de permissão/captação do microfone. */
+export function mensagemErroMicrofone(erro: unknown): string {
+  const nome = (erro as { name?: string } | null)?.name ?? "";
+  if (nome === "NotAllowedError" || nome === "SecurityError") {
+    return "O microfone está bloqueado para este site. Autorize o microfone nas permissões do navegador e tente novamente.";
+  }
+  if (nome === "NotFoundError" || nome === "OverconstrainedError") {
+    return "Nenhum microfone foi encontrado neste aparelho.";
+  }
+  if (nome === "NotReadableError" || nome === "AbortError") {
+    return "O microfone está sendo usado por outro aplicativo. Feche chamadas ou gravadores abertos e tente novamente.";
+  }
+  if (typeof navigator !== "undefined" && !navigator.mediaDevices?.getUserMedia) {
+    return "Este navegador não permite gravar áudio. Abra o app pelo Chrome ou Safari atualizado.";
+  }
+  return "Não foi possível acessar o microfone. Autorize o uso do microfone e tente novamente.";
+}
+
+/** Worklet que apenas repassa os blocos de PCM para a thread principal. */
+const WORKLET_SRC = `
+class TriagemCaptureProcessor extends AudioWorkletProcessor {
+  process(inputs) {
+    const canal = inputs[0] && inputs[0][0];
+    if (canal && canal.length) this.port.postMessage(new Float32Array(canal));
+    return true;
+  }
+}
+registerProcessor('triagem-capture', TriagemCaptureProcessor);
+`;
 
 /**
  * Gravador de triagem: entrega janelas WAV completas durante a fala e o
- * arquivo integral no encerramento. Retoma sozinho quando o navegador
- * suspende o áudio (app em segundo plano / tela travada no PWA).
+ * arquivo integral no encerramento. Usa AudioWorklet (com fallback para
+ * ScriptProcessor em navegadores antigos) e retoma sozinho quando o
+ * navegador suspende o áudio (app em segundo plano / tela travada no PWA).
  */
 export function criarTriagemRecorder(opts: RecorderOpts): TriagemRecorder {
   let ctx: AudioContext | null = null;
   let stream: MediaStream | null = null;
   let source: MediaStreamAudioSourceNode | null = null;
+  let worklet: AudioWorkletNode | null = null;
   let processor: ScriptProcessorNode | null = null;
+  let wakeLock: { release: () => Promise<void> } | null = null;
   let janela: Float32Array[] = [];
   let completo: Float32Array[] = [];
   let taxa = TRIAGEM_SAMPLE_RATE;
@@ -154,11 +191,42 @@ export function criarTriagemRecorder(opts: RecorderOpts): TriagemRecorder {
   let ativo = false;
   let ticker: ReturnType<typeof setInterval> | null = null;
   let avisou = false;
+  let picoJanela = 0;
+  let segundosMudos = 0;
+  let avisouSilencio = false;
 
   const segundos = () => Math.floor(amostrasTotal / (taxa || TRIAGEM_SAMPLE_RATE));
 
+  async function pedirWakeLock() {
+    const wl = (navigator as unknown as { wakeLock?: { request: (t: "screen") => Promise<never> } })
+      .wakeLock;
+    if (!wl) return;
+    try {
+      wakeLock = (await wl.request("screen")) as unknown as { release: () => Promise<void> };
+    } catch {
+      wakeLock = null;
+    }
+  }
+
   function retomar() {
-    if (ativo && ctx && ctx.state === "suspended") void ctx.resume();
+    if (!ativo) return;
+    if (ctx && ctx.state === "suspended") void ctx.resume();
+    if (document.visibilityState === "visible" && !wakeLock) void pedirWakeLock();
+  }
+
+  function receber(dados: Float32Array) {
+    if (!ativo) return;
+    janela.push(dados);
+    completo.push(dados);
+    amostrasJanela += dados.length;
+    amostrasTotal += dados.length;
+    let pico = 0;
+    for (let i = 0; i < dados.length; i += 8) {
+      const v = Math.abs(dados[i] ?? 0);
+      if (v > pico) pico = v;
+    }
+    if (pico > picoJanela) picoJanela = pico;
+    if (amostrasJanela >= taxa * TRIAGEM_WINDOW_SECONDS) flushJanela();
   }
 
   function flushJanela() {
@@ -176,57 +244,97 @@ export function criarTriagemRecorder(opts: RecorderOpts): TriagemRecorder {
     if (ticker) clearInterval(ticker);
     ticker = null;
     document.removeEventListener("visibilitychange", retomar);
+    if (worklet) worklet.port.onmessage = null;
+    worklet?.disconnect();
     processor?.disconnect();
     source?.disconnect();
     stream?.getTracks().forEach((t) => t.stop());
+    void wakeLock?.release().catch(() => undefined);
     void ctx?.close();
+    worklet = null;
     processor = null;
     source = null;
     stream = null;
     ctx = null;
+    wakeLock = null;
   }
 
   return {
     segundos,
     async iniciar() {
       try {
+        if (!navigator.mediaDevices?.getUserMedia) throw new Error("sem suporte");
         stream = await navigator.mediaDevices.getUserMedia({
           audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
         });
-      } catch {
-        throw new Error(
-          "Não foi possível acessar o microfone. Autorize o uso do microfone e tente novamente.",
-        );
+      } catch (erro) {
+        throw new Error(mensagemErroMicrofone(erro));
       }
       ctx = new AudioContext();
+      if (ctx.state === "suspended") await ctx.resume();
       taxa = ctx.sampleRate;
       source = ctx.createMediaStreamSource(stream);
-      processor = ctx.createScriptProcessor(4096, 1, 1);
       janela = [];
       completo = [];
       ordem = 0;
       amostrasJanela = 0;
       amostrasTotal = 0;
       avisou = false;
+      picoJanela = 0;
+      segundosMudos = 0;
+      avisouSilencio = false;
       ativo = true;
 
-      processor.onaudioprocess = (event) => {
-        if (!ativo) return;
-        const dados = new Float32Array(event.inputBuffer.getChannelData(0));
-        janela.push(dados);
-        completo.push(dados);
-        amostrasJanela += dados.length;
-        amostrasTotal += dados.length;
-        if (amostrasJanela >= taxa * TRIAGEM_WINDOW_SECONDS) flushJanela();
-      };
+      let usouWorklet = false;
+      if (ctx.audioWorklet) {
+        try {
+          const url = URL.createObjectURL(new Blob([WORKLET_SRC], { type: "text/javascript" }));
+          await ctx.audioWorklet.addModule(url);
+          URL.revokeObjectURL(url);
+          worklet = new AudioWorkletNode(ctx, "triagem-capture");
+          worklet.port.onmessage = (event: MessageEvent<Float32Array>) => receber(event.data);
+          source.connect(worklet);
+          // saída silenciosa: mantém o grafo ativo sem devolver som ao alto-falante
+          const mudo = ctx.createGain();
+          mudo.gain.value = 0;
+          worklet.connect(mudo);
+          mudo.connect(ctx.destination);
+          usouWorklet = true;
+        } catch {
+          worklet = null;
+        }
+      }
 
-      source.connect(processor);
-      processor.connect(ctx.destination);
+      if (!usouWorklet) {
+        processor = ctx.createScriptProcessor(4096, 1, 1);
+        processor.onaudioprocess = (event) => {
+          receber(new Float32Array(event.inputBuffer.getChannelData(0)));
+        };
+        source.connect(processor);
+        processor.connect(ctx.destination);
+      }
+
       document.addEventListener("visibilitychange", retomar);
+      await pedirWakeLock();
 
       ticker = setInterval(() => {
         const s = segundos();
         opts.onSegundo?.(s);
+        opts.onNivel?.(Math.min(1, picoJanela * 3));
+        if (picoJanela < 0.01) {
+          segundosMudos += 1;
+          if (segundosMudos >= 6 && !avisouSilencio) {
+            avisouSilencio = true;
+            opts.onSilencio?.(true);
+          }
+        } else {
+          segundosMudos = 0;
+          if (avisouSilencio) {
+            avisouSilencio = false;
+            opts.onSilencio?.(false);
+          }
+        }
+        picoJanela = 0;
         retomar();
         if (!avisou && s >= TRIAGEM_MAX_SECONDS - TRIAGEM_AVISO_SEGUNDOS) {
           avisou = true;
