@@ -377,6 +377,7 @@ function Page() {
           </CardContent>
         </Card>
 
+        {ehAssistente ? null : (
         <Card className="rounded-2xl glass-card shadow-none">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
@@ -391,7 +392,9 @@ function Page() {
             <ResumoPacientes />
           </CardContent>
         </Card>
+        )}
 
+        {ehAssistente ? null : (
         <Card className="rounded-2xl glass-card shadow-none">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
@@ -449,7 +452,9 @@ function Page() {
             </Link>
           </CardContent>
         </Card>
+        )}
 
+        {ehAssistente ? null : (
         <Card className="rounded-2xl glass-card shadow-none">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
@@ -505,6 +510,7 @@ function Page() {
             })}
           </CardContent>
         </Card>
+        )}
 
         <Card className="rounded-2xl glass-card shadow-none">
           <CardHeader className="pb-4">
