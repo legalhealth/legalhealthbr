@@ -171,12 +171,18 @@ export function useEquipe() {
 export function useAlterarAssistente() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { id: string; status: "ativo" | "inativo" }) => {
+    mutationFn: async (input: { id: string; status: "ativo" | "inativo"; nome?: string }) => {
       const { error } = await supabase
         .from("clinic_members")
         .update({ status: input.status })
         .eq("id", input.id);
       if (error) throw error;
+      await auditarEquipe(
+        "edicao",
+        "membro_equipe",
+        input.id,
+        `Assistente ${input.nome ?? ""} ${input.status === "ativo" ? "reativado" : "pausado"}`.trim(),
+      );
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["clinica"] });
@@ -187,9 +193,15 @@ export function useAlterarAssistente() {
 export function useRemoverAssistente() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("clinic_members").delete().eq("id", id);
+    mutationFn: async (input: { id: string; nome?: string }) => {
+      const { error } = await supabase.from("clinic_members").delete().eq("id", input.id);
       if (error) throw error;
+      await auditarEquipe(
+        "exclusao",
+        "membro_equipe",
+        input.id,
+        `Assistente ${input.nome ?? ""} removido da equipe`.trim(),
+      );
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["clinica"] });
@@ -200,11 +212,58 @@ export function useRemoverAssistente() {
 export function useCancelarConvite() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (input: { id: string; email?: string }) => {
       const { error } = await supabase
         .from("clinic_invites")
         .update({ status: "cancelado" })
-        .eq("id", id);
+        .eq("id", input.id);
+      if (error) throw error;
+      await auditarEquipe(
+        "exclusao",
+        "convite",
+        input.id,
+        `Convite para ${input.email ?? "assistente"} cancelado`,
+      );
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["clinica"] });
+    },
+  });
+}
+
+/** Dados da clínica da conta ativa (dono edita; assistente só lê). */
+export function useClinica() {
+  return useQuery({
+    queryKey: ["clinica", "dados"],
+    queryFn: async (): Promise<{ clinica: Clinica | null; ehDono: boolean }> => {
+      const { data: auth } = await supabase.auth.getUser();
+      const userId = auth.user?.id;
+      if (!userId) return { clinica: null, ehDono: false };
+      const dono = await contaAtivaId();
+      const { data, error } = await supabase
+        .from("clinics")
+        .select("*")
+        .eq("user_id", dono)
+        .maybeSingle();
+      if (error) throw error;
+      const clinica = data
+        ? ({ ...data, horarios: normalizarHorarios(data.horarios) } as unknown as Clinica)
+        : null;
+      return { clinica, ehDono: dono === userId };
+    },
+  });
+}
+
+export function useSalvarClinica() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: ClinicaInput) => {
+      const { data: auth } = await supabase.auth.getUser();
+      const userId = auth.user?.id;
+      if (!userId) throw new Error("Sessão expirada. Faça login novamente.");
+      const { error } = await supabase
+        .from("clinics")
+        .upsert({ ...input, user_id: userId }, { onConflict: "user_id" });
       if (error) throw error;
     },
     onSuccess: () => {
