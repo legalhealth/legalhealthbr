@@ -48,6 +48,7 @@ type GuardOk = {
 export async function guardAiRequest(
   request: Request,
   endpoint: string,
+  options?: { registrarUso?: boolean },
 ): Promise<GuardOk | { ok: false; response: Response }> {
   const authHeader = request.headers.get("Authorization") ?? "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
