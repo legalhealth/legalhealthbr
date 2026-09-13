@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { abrirWhatsApp } from "@/lib/whatsapp";
+import { modelosDaCategoria, useModelos } from "@/lib/library-templates";
 import { saveHistoryItem } from "@/lib/ia-history";
 import { useCriarEvento, usePacientes } from "@/lib/pacientes";
 import { ListaPacientes } from "@/components/pacientes/lista-pacientes";
@@ -234,6 +235,18 @@ function Page() {
           >
             <UserRound aria-hidden="true" />
             Pacientes
+          </Button>
+          <Button
+            asChild
+            type="button"
+            variant="outline"
+            size="sm"
+            className="rounded-xl border-border bg-transparent px-5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          >
+            <Link to="/biblioteca/modelos">
+              <Settings2 aria-hidden="true" />
+              Modelos
+            </Link>
           </Button>
         </div>
 
