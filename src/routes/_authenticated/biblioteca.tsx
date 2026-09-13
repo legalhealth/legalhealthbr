@@ -41,7 +41,12 @@ function cabecalhoClinica(clinica: Clinica): string | null {
   if (horarios) linhas.push(`Atendimento: ${horarios}`);
   return linhas.length ? linhas.join("\n") : null;
 }
-import { CLINICA_CATEGORIA, modelosDaCategoria, useModelos } from "@/lib/library-templates";
+import {
+  CLINICA_CATEGORIA,
+  modelosDaCategoria,
+  useModelos,
+  useSemearModelosClinica,
+} from "@/lib/library-templates";
 import { saveHistoryItem } from "@/lib/ia-history";
 import { useCriarEvento, usePacientes } from "@/lib/pacientes";
 import { ListaPacientes } from "@/components/pacientes/lista-pacientes";
@@ -126,6 +131,7 @@ function Page() {
   const modoClinica = aba === "clinica";
 
   const { data: modelosDb } = useModelos();
+  const semearClinica = useSemearModelosClinica();
   const fonte = modoClinica ? CLINICA_CATEGORIA : categoria;
   const extras = useMemo(() => modelosDaCategoria(modelosDb, fonte), [modelosDb, fonte]);
   const docs = useMemo(
@@ -347,10 +353,33 @@ function Page() {
           className={cn("rounded-2xl glass-card p-5 md:p-6", aba === "pacientes" && "hidden")}
         >
           {modoClinica && docs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Nenhuma minuta da clínica cadastrada ainda. O responsável pela conta cria as minutas
-              oficiais da clínica na tela Modelos.
-            </p>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Nenhuma minuta da clínica cadastrada ainda.
+              </p>
+              {ehAssistente ? (
+                <p className="text-sm text-muted-foreground">
+                  O responsável pela conta cria as minutas oficiais da clínica.
+                </p>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={semearClinica.isPending}
+                  className="rounded-xl border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+                  onClick={() => {
+                    semearClinica.mutate(undefined, {
+                      onSuccess: () => toast.success("Minutas oficiais da clínica criadas."),
+                      onError: () => toast.error("Não foi possível criar as minutas agora."),
+                    });
+                  }}
+                >
+                  {semearClinica.isPending ? <Loader2 className="animate-spin" /> : null}
+                  Criar minutas oficiais da clínica
+                </Button>
+              )}
+            </div>
           ) : null}
           <div className="space-y-5">
             {grupos.map((grupo) => (
