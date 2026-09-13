@@ -122,12 +122,20 @@ function Page() {
   const criarEvento = useCriarEvento();
   const { data: clinicaData } = useClinica();
   const [incluirClinica, setIncluirClinica] = useState(true);
+  const { data: ehAssistente } = useEhAssistente();
+  const modoClinica = aba === "clinica";
 
   const { data: modelosDb } = useModelos();
-  const extras = useMemo(() => modelosDaCategoria(modelosDb, categoria), [modelosDb, categoria]);
-  const docs = useMemo(() => [...docsDaCategoria(categoria), ...extras], [categoria, extras]);
+  const fonte = modoClinica ? CLINICA_CATEGORIA : categoria;
+  const extras = useMemo(() => modelosDaCategoria(modelosDb, fonte), [modelosDb, fonte]);
+  const docs = useMemo(
+    () => (modoClinica ? extras : [...docsDaCategoria(categoria), ...extras]),
+    [modoClinica, categoria, extras],
+  );
   const grupos = useMemo(() => {
-    const base = gruposDaCategoria(categoria).map((g) => ({ ...g, docs: [...g.docs] }));
+    const base = modoClinica
+      ? []
+      : gruposDaCategoria(categoria).map((g) => ({ ...g, docs: [...g.docs] }));
     for (const doc of extras) {
       const label = doc.grupo ?? "";
       const alvo = base.find((g) => g.label === label);
@@ -135,8 +143,19 @@ function Page() {
       else base.push({ label, docs: [doc] });
     }
     return base;
-  }, [categoria, extras]);
-  const docAtual = docs.find((d) => d.value === documento) ?? docs[0]!;
+  }, [modoClinica, categoria, extras]);
+  const docAtual = docs.find((d) => d.value === documento) ?? docs[0] ?? null;
+
+  // Ao entrar na aba Clínica (ou quando as minutas carregam), seleciona a primeira.
+  useEffect(() => {
+    if (!docs.length) return;
+    if (!docs.some((d) => d.value === documento)) setDocumento(docs[0]!.value);
+  }, [docs, documento]);
+
+  // Assistente enxerga apenas a aba Clínica.
+  useEffect(() => {
+    if (ehAssistente) setAba("clinica");
+  }, [ehAssistente]);
 
   const { data: profile } = useQuery({
     queryKey: ["profile-biblioteca"],
