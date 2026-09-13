@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { abrirWhatsApp } from "@/lib/whatsapp";
-import { useClinica, type Clinica } from "@/lib/clinica";
+import { useClinica, useEhAssistente, type Clinica } from "@/lib/clinica";
 import { resumoHorarios } from "@/lib/clinica-horarios";
 import { Switch } from "@/components/ui/switch";
 
