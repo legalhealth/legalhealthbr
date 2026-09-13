@@ -141,7 +141,8 @@ export function useSalvarCategoria() {
         slug: slugificar(input.label),
         label: input.label.trim(),
         escopo: input.escopo,
-        user_id: input.escopo === "proprio" ? userId : null,
+        user_id: input.escopo === "oficial" ? null : userId,
+        clinic_owner_id: input.escopo === "clinica" ? userId : null,
         status: "publicado",
       };
       const query = input.id
