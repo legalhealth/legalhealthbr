@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2, Mic, Square } from "lucide-react";
 
@@ -16,6 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { abrirWhatsApp } from "@/lib/whatsapp";
 import {
   criarTriagem,
   salvarTriagem,
@@ -53,6 +56,20 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
 
   const { data: triagens } = useTriagens(patientId);
   const confirmar = useConfirmarTriagem();
+  const { data: perfilWhatsapp } = useQuery({
+    queryKey: ["profile-whatsapp"],
+    queryFn: async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      const userId = auth.user?.id;
+      if (!userId) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("whatsapp")
+        .eq("user_id", userId)
+        .maybeSingle();
+      return data?.whatsapp ?? null;
+    },
+  });
 
   useEffect(() => () => recorderRef.current?.cancelar(), []);
 
