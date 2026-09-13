@@ -215,6 +215,13 @@ function Page() {
               <Checkbox checked={publicar} onCheckedChange={(v) => setPublicar(Boolean(v))} />
               Publicar (aparece nos chips da Biblioteca)
             </label>
+            <label className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Checkbox
+                checked={escopo === "clinica"}
+                onCheckedChange={(v) => setEscopo(v ? "clinica" : "proprio")}
+              />
+              Minuta oficial da clínica (equipe vê na aba Clínica)
+            </label>
             {ehAdmin && (
               <label className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Checkbox
@@ -264,8 +271,12 @@ function Page() {
                     <p className="text-xs text-subtle">
                       {m.categoria_slug}
                       {m.grupo ? ` · ${m.grupo}` : ""} ·{" "}
-                      {m.escopo === "oficial" ? "oficial" : "meu modelo"} ·{" "}
-                      {m.status === "publicado" ? "publicado" : "rascunho"}
+                      {m.escopo === "oficial"
+                        ? "oficial"
+                        : m.escopo === "clinica"
+                          ? "da clínica"
+                          : "meu modelo"}{" "}
+                      · {m.status === "publicado" ? "publicado" : "rascunho"}
                     </p>
                   </div>
                   <div className="flex gap-2">

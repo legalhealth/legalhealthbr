@@ -1,17 +1,21 @@
 import { Link } from "@tanstack/react-router";
 import monograma from "@/assets/lh-monograma.png.asset.json";
 import { navItems } from "./nav-items";
+import { useEhAssistente } from "@/lib/clinica";
 
 export function SiteHeader() {
+  const { data: ehAssistente } = useEhAssistente();
+  const itens = ehAssistente
+    ? navItems.filter((i) => i.to === "/biblioteca" || i.to === "/perfil")
+    : navItems;
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/85 backdrop-blur-xl">
       <div className="mx-auto grid min-h-[var(--header-h)] max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-3 md:px-8">
-        <Link to="/inicio" className="flex min-w-0 items-center gap-3">
-          <img
-            src={monograma.url}
-            alt="Legal Health"
-            className="h-9 w-auto shrink-0 md:h-10"
-          />
+        <Link
+          to={ehAssistente ? "/biblioteca" : "/inicio"}
+          className="flex min-w-0 items-center gap-3"
+        >
+          <img src={monograma.url} alt="Legal Health" className="h-9 w-auto shrink-0 md:h-10" />
           <span className="min-w-0">
             <span className="block truncate wordmark text-[0.95rem] leading-none text-gold-light md:text-lg">
               Legal Health
@@ -24,7 +28,7 @@ export function SiteHeader() {
 
         <div className="flex shrink-0 items-center gap-6">
           <nav className="hidden items-center gap-6 lg:flex" aria-label="Navegação principal">
-            {navItems.map(({ to, label, exact }) => (
+            {itens.map(({ to, label, exact }) => (
               <Link
                 key={to}
                 to={to}

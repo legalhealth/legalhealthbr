@@ -3,7 +3,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { BibliotecaDoc } from "@/lib/biblioteca-catalogo";
 
-export type ModeloEscopo = "oficial" | "proprio";
+export type ModeloEscopo = "oficial" | "proprio" | "clinica";
+
+/** Categoria das minutas oficiais da clínica (aba Clínica da Biblioteca). */
+export const CLINICA_CATEGORIA = "clinica-minutas";
 
 export type LibraryTemplate = {
   id: string;
@@ -13,6 +16,7 @@ export type LibraryTemplate = {
   grupo: string | null;
   escopo: string;
   user_id: string | null;
+  clinic_owner_id: string | null;
   pede_procedimento: boolean;
   instrucoes: string | null;
   ordem: number;
@@ -90,10 +94,14 @@ export function useSalvarModelo() {
       const linha = {
         slug: slugificar(input.label),
         label: input.label.trim(),
-        categoria_slug: input.categoria_slug,
-        grupo: input.grupo?.trim() || null,
+        categoria_slug: input.escopo === "clinica" ? CLINICA_CATEGORIA : input.categoria_slug,
+        grupo:
+          input.escopo === "clinica"
+            ? input.grupo?.trim() || "Minutas oficiais da clínica"
+            : input.grupo?.trim() || null,
         escopo: input.escopo,
-        user_id: input.escopo === "proprio" ? userId : null,
+        user_id: input.escopo === "oficial" ? null : userId,
+        clinic_owner_id: input.escopo === "clinica" ? userId : null,
         pede_procedimento: input.pede_procedimento,
         instrucoes: input.instrucoes?.trim() || null,
         status: input.status,
@@ -133,7 +141,8 @@ export function useSalvarCategoria() {
         slug: slugificar(input.label),
         label: input.label.trim(),
         escopo: input.escopo,
-        user_id: input.escopo === "proprio" ? userId : null,
+        user_id: input.escopo === "oficial" ? null : userId,
+        clinic_owner_id: input.escopo === "clinica" ? userId : null,
         status: "publicado",
       };
       const query = input.id
@@ -174,4 +183,22 @@ export function modelosDaCategoria(
       ...(m.pede_procedimento ? { procedimento: true } : {}),
       grupo: m.grupo ?? (m.escopo === "proprio" ? "Meus modelos" : "Novos modelos"),
     }));
+}
+
+/**
+ * Cria as minutas iniciais da clínica (idempotente no banco). Chamado quando o
+ * responsável salva os dados da clínica.
+ */
+export function useSemearModelosClinica() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.rpc("semear_modelos_clinica");
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["library-templates"] });
+      void queryClient.invalidateQueries({ queryKey: ["library-categories"] });
+    },
+  });
 }

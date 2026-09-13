@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2, Settings2, Sparkles, UserRound } from "lucide-react";
+import { Building2, Loader2, Settings2, Sparkles, UserRound } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { abrirWhatsApp } from "@/lib/whatsapp";
-import { useClinica, type Clinica } from "@/lib/clinica";
+import { useClinica, useEhAssistente, type Clinica } from "@/lib/clinica";
 import { resumoHorarios } from "@/lib/clinica-horarios";
 import { Switch } from "@/components/ui/switch";
 
@@ -41,7 +41,12 @@ function cabecalhoClinica(clinica: Clinica): string | null {
   if (horarios) linhas.push(`Atendimento: ${horarios}`);
   return linhas.length ? linhas.join("\n") : null;
 }
-import { modelosDaCategoria, useModelos } from "@/lib/library-templates";
+import {
+  CLINICA_CATEGORIA,
+  modelosDaCategoria,
+  useModelos,
+  useSemearModelosClinica,
+} from "@/lib/library-templates";
 import { saveHistoryItem } from "@/lib/ia-history";
 import { useCriarEvento, usePacientes } from "@/lib/pacientes";
 import { ListaPacientes } from "@/components/pacientes/lista-pacientes";
@@ -93,12 +98,13 @@ export const Route = createFileRoute("/_authenticated/biblioteca")({
 function Page() {
   const search = Route.useSearch();
   const modoPacientes = search.cat === "pacientes";
+  const modoClinicaInicial = search.cat === "clinica";
   const categoriaInicial = BIBLIOTECA_CATEGORIAS.some((c) => c.value === search.cat)
     ? (search.cat as BibliotecaCategoria)
     : "minutas";
   const docsIniciais = docsDaCategoria(categoriaInicial);
-  const [aba, setAba] = useState<BibliotecaCategoria | "pacientes">(
-    modoPacientes ? "pacientes" : categoriaInicial,
+  const [aba, setAba] = useState<BibliotecaCategoria | "pacientes" | "clinica">(
+    modoPacientes ? "pacientes" : modoClinicaInicial ? "clinica" : categoriaInicial,
   );
   const [categoria, setCategoria] = useState<BibliotecaCategoria>(categoriaInicial);
   const [documento, setDocumento] = useState(
@@ -121,12 +127,21 @@ function Page() {
   const criarEvento = useCriarEvento();
   const { data: clinicaData } = useClinica();
   const [incluirClinica, setIncluirClinica] = useState(true);
+  const { data: ehAssistente } = useEhAssistente();
+  const modoClinica = aba === "clinica";
 
   const { data: modelosDb } = useModelos();
-  const extras = useMemo(() => modelosDaCategoria(modelosDb, categoria), [modelosDb, categoria]);
-  const docs = useMemo(() => [...docsDaCategoria(categoria), ...extras], [categoria, extras]);
+  const semearClinica = useSemearModelosClinica();
+  const fonte = modoClinica ? CLINICA_CATEGORIA : categoria;
+  const extras = useMemo(() => modelosDaCategoria(modelosDb, fonte), [modelosDb, fonte]);
+  const docs = useMemo(
+    () => (modoClinica ? extras : [...docsDaCategoria(categoria), ...extras]),
+    [modoClinica, categoria, extras],
+  );
   const grupos = useMemo(() => {
-    const base = gruposDaCategoria(categoria).map((g) => ({ ...g, docs: [...g.docs] }));
+    const base = modoClinica
+      ? []
+      : gruposDaCategoria(categoria).map((g) => ({ ...g, docs: [...g.docs] }));
     for (const doc of extras) {
       const label = doc.grupo ?? "";
       const alvo = base.find((g) => g.label === label);
@@ -134,8 +149,19 @@ function Page() {
       else base.push({ label, docs: [doc] });
     }
     return base;
-  }, [categoria, extras]);
-  const docAtual = docs.find((d) => d.value === documento) ?? docs[0]!;
+  }, [modoClinica, categoria, extras]);
+  const docAtual = docs.find((d) => d.value === documento) ?? docs[0] ?? null;
+
+  // Ao entrar na aba Clínica (ou quando as minutas carregam), seleciona a primeira.
+  useEffect(() => {
+    if (!docs.length) return;
+    if (!docs.some((d) => d.value === documento)) setDocumento(docs[0]!.value);
+  }, [docs, documento]);
+
+  // Assistente enxerga apenas a aba Clínica.
+  useEffect(() => {
+    if (ehAssistente) setAba("clinica");
+  }, [ehAssistente]);
 
   const { data: profile } = useQuery({
     queryKey: ["profile-biblioteca"],
@@ -167,7 +193,7 @@ function Page() {
   }
 
   async function handleGenerate() {
-    if (gerandoRef.current) return;
+    if (gerandoRef.current || !docAtual) return;
     gerandoRef.current = true;
     setGenerating(true);
     setError(null);
@@ -209,7 +235,7 @@ function Page() {
         await criarEvento.mutateAsync({
           patientId: pacienteId,
           tipo: "minuta",
-          titulo: docAtual.label,
+          titulo: docAtual?.label ?? "Documento",
           descricao: categoriaLabel(categoria),
           ...(savedId ? { docId: savedId } : {}),
         });
@@ -238,58 +264,123 @@ function Page() {
       <div className="mt-8 space-y-6 pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+4.5rem)] lg:pb-24">
         {/* Categorias */}
         <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap">
-          {BIBLIOTECA_CATEGORIAS.map((c) => (
-            <Button
-              key={c.value}
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => trocarCategoria(c.value)}
-              className={cn(
-                "rounded-xl px-5",
-                aba === c.value
-                  ? "border-gold/50 bg-gold/10 text-gold hover:bg-gold/15 hover:text-gold"
-                  : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-              )}
-            >
-              {c.label}
-            </Button>
-          ))}
+          {ehAssistente
+            ? null
+            : BIBLIOTECA_CATEGORIAS.map((c) => (
+                <Button
+                  key={c.value}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => trocarCategoria(c.value)}
+                  className={cn(
+                    "rounded-xl px-5",
+                    aba === c.value
+                      ? "border-gold/50 bg-gold/10 text-gold hover:bg-gold/15 hover:text-gold"
+                      : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  )}
+                >
+                  {c.label}
+                </Button>
+              ))}
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => setAba("pacientes")}
+            onClick={() => setAba("clinica")}
             className={cn(
               "rounded-xl px-5",
-              aba === "pacientes"
+              aba === "clinica"
                 ? "border-gold/50 bg-gold/10 text-gold hover:bg-gold/15 hover:text-gold"
                 : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
             )}
           >
-            <UserRound aria-hidden="true" />
-            Pacientes
+            <Building2 aria-hidden="true" />
+            Clínica
           </Button>
-          <Button
-            asChild
-            type="button"
-            variant="outline"
-            size="sm"
-            className="rounded-xl border-border bg-transparent px-5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-          >
-            <Link to="/biblioteca/modelos">
-              <Settings2 aria-hidden="true" />
-              Modelos
-            </Link>
-          </Button>
+          {ehAssistente ? null : (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setAba("pacientes")}
+              className={cn(
+                "rounded-xl px-5",
+                aba === "pacientes"
+                  ? "border-gold/50 bg-gold/10 text-gold hover:bg-gold/15 hover:text-gold"
+                  : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+              )}
+            >
+              <UserRound aria-hidden="true" />
+              Pacientes
+            </Button>
+          )}
+          {ehAssistente ? null : (
+            <Button
+              asChild
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-xl border-border bg-transparent px-5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            >
+              <Link to="/biblioteca/modelos">
+                <Settings2 aria-hidden="true" />
+                Modelos
+              </Link>
+            </Button>
+          )}
         </div>
 
         {aba === "pacientes" ? <ListaPacientes /> : null}
+
+        {modoClinica ? (
+          <section className="rounded-2xl glass-card p-5 md:p-6">
+            <h2 className="font-display text-lg text-foreground">
+              {clinicaData?.clinica?.nome ?? "Minha clínica"}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Pacientes da clínica, triagem por voz ou formulário na ficha de cada um, e as minutas
+              oficiais da clínica logo abaixo.
+            </p>
+            <div className="mt-5">
+              <ListaPacientes />
+            </div>
+          </section>
+        ) : null}
 
         {/* Painel de geração */}
         <section
           className={cn("rounded-2xl glass-card p-5 md:p-6", aba === "pacientes" && "hidden")}
         >
+          {modoClinica && docs.length === 0 ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Nenhuma minuta da clínica cadastrada ainda.
+              </p>
+              {ehAssistente ? (
+                <p className="text-sm text-muted-foreground">
+                  O responsável pela conta cria as minutas oficiais da clínica.
+                </p>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={semearClinica.isPending}
+                  className="rounded-xl border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+                  onClick={() => {
+                    semearClinica.mutate(undefined, {
+                      onSuccess: () => toast.success("Minutas oficiais da clínica criadas."),
+                      onError: () => toast.error("Não foi possível criar as minutas agora."),
+                    });
+                  }}
+                >
+                  {semearClinica.isPending ? <Loader2 className="animate-spin" /> : null}
+                  Criar minutas oficiais da clínica
+                </Button>
+              )}
+            </div>
+          ) : null}
           <div className="space-y-5">
             {grupos.map((grupo) => (
               <div key={grupo.label || "documentos"} className="space-y-2.5">
@@ -366,7 +457,7 @@ function Page() {
                 placeholder="João Pessoa/PB"
               />
             </div>
-            {docAtual.procedimento ? (
+            {docAtual?.procedimento ? (
               <div className="space-y-2">
                 <Label htmlFor="bib-proc" className="text-xs text-muted-foreground">
                   Procedimento
@@ -415,7 +506,7 @@ function Page() {
 
           <Button
             onClick={() => void handleGenerate()}
-            disabled={generating}
+            disabled={generating || !docAtual}
             className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
           >
             {generating ? (
@@ -432,7 +523,7 @@ function Page() {
         {draft !== null && aba !== "pacientes" ? (
           <section ref={draftRef} className="rounded-2xl glass-card p-6">
             <h2 className="font-display text-lg text-foreground">
-              {generating ? "Gerando…" : docAtual.label}
+              {generating ? "Gerando…" : (docAtual?.label ?? "Documento")}
             </h2>
             <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-muted-foreground">
               {draft || "Aguardando a IA…"}
@@ -457,7 +548,7 @@ function Page() {
                 className="border-gold/40 bg-transparent text-gold hover:bg-gold/10"
                 onClick={() =>
                   abrirWhatsApp(profile?.whatsapp, {
-                    titulo: docAtual.label,
+                    titulo: docAtual?.label ?? "Documento",
                     corpo: draft,
                     caminho: "/biblioteca",
                   })
@@ -468,7 +559,7 @@ function Page() {
               {!generating && draft && docId ? (
                 <EnviarRevisaoDialog
                   docId={docId}
-                  titulo={`${categoriaLabel(categoria)} — ${docAtual.label}`}
+                  titulo={`${categoriaLabel(categoria)} — ${docAtual?.label ?? "Documento"}`}
                   conteudo={draft}
                 />
               ) : null}

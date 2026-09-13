@@ -1,14 +1,22 @@
 import { Link } from "@tanstack/react-router";
 import { navItems } from "./nav-items";
+import { useEhAssistente } from "@/lib/clinica";
 
 export function MobileNav() {
+  const { data: ehAssistente } = useEhAssistente();
+  const itens = ehAssistente
+    ? navItems.filter((i) => i.to === "/biblioteca" || i.to === "/perfil")
+    : navItems;
   return (
     <nav
       aria-label="Navegação principal"
       className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden"
     >
-      <ul className="grid min-h-[var(--bottom-nav-h)] grid-cols-6">
-        {navItems.map(({ to, label, icon: Icon, exact }) => (
+      <ul
+        className="grid min-h-[var(--bottom-nav-h)]"
+        style={{ gridTemplateColumns: `repeat(${itens.length}, minmax(0, 1fr))` }}
+      >
+        {itens.map(({ to, label, icon: Icon, exact }) => (
           <li key={to}>
             <Link
               to={to}

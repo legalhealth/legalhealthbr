@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { ResumoPacientes } from "@/components/pacientes/resumo-pacientes";
-import { useClinica, useEquipe } from "@/lib/clinica";
+import { useClinica, useEhAssistente, useEquipe } from "@/lib/clinica";
 import { resumoHorarios } from "@/lib/clinica-horarios";
 import { normalizarWhatsApp } from "@/lib/whatsapp";
 
@@ -107,6 +107,7 @@ const profileSchema = z.object({
 function Page() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { data: ehAssistente } = useEhAssistente();
   const clinicaResumo = useClinica();
   const equipeResumo = useEquipe();
 
@@ -376,134 +377,142 @@ function Page() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl glass-card shadow-none">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
-              <Users className="h-5 w-5 text-gold" />
-              Meus pacientes
-            </CardTitle>
-            <CardDescription>
-              Pacientes recentes, com ficha, histórico e minutas vinculadas.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResumoPacientes />
-          </CardContent>
-        </Card>
+        {ehAssistente ? null : (
+          <Card className="rounded-2xl glass-card shadow-none">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
+                <Users className="h-5 w-5 text-gold" />
+                Meus pacientes
+              </CardTitle>
+              <CardDescription>
+                Pacientes recentes, com ficha, histórico e minutas vinculadas.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResumoPacientes />
+            </CardContent>
+          </Card>
+        )}
 
-        <Card className="rounded-2xl glass-card shadow-none">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
-              <Building2 className="h-5 w-5 text-gold" />
-              Minha clínica
-            </CardTitle>
-            <CardDescription>
-              Dados usados nos documentos, horários de atendimento e equipe com acesso.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-1 text-sm text-muted-foreground">
-              {clinicaResumo.isLoading ? (
-                <p>Carregando…</p>
-              ) : clinicaResumo.data?.clinica ? (
-                <>
-                  <p className="text-foreground">
-                    {clinicaResumo.data.clinica.nome || "Clínica sem nome"}
-                  </p>
-                  {clinicaResumo.data.clinica.cidade ? (
-                    <p>
-                      {clinicaResumo.data.clinica.cidade}
-                      {clinicaResumo.data.clinica.uf ? ` · ${clinicaResumo.data.clinica.uf}` : ""}
+        {ehAssistente ? null : (
+          <Card className="rounded-2xl glass-card shadow-none">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
+                <Building2 className="h-5 w-5 text-gold" />
+                Minha clínica
+              </CardTitle>
+              <CardDescription>
+                Dados usados nos documentos, horários de atendimento e equipe com acesso.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1 text-sm text-muted-foreground">
+                {clinicaResumo.isLoading ? (
+                  <p>Carregando…</p>
+                ) : clinicaResumo.data?.clinica ? (
+                  <>
+                    <p className="text-foreground">
+                      {clinicaResumo.data.clinica.nome || "Clínica sem nome"}
                     </p>
-                  ) : null}
-                  <p>{resumoHorarios(clinicaResumo.data.clinica.horarios)}</p>
-                </>
-              ) : (
-                <p>Cadastre os dados da clínica para saírem no cabeçalho dos documentos.</p>
-              )}
-              {equipeResumo.data ? (
-                <p>
-                  {equipeResumo.data.membros.length === 0
-                    ? "Nenhum assistente com acesso."
-                    : `${equipeResumo.data.membros.length} ${
-                        equipeResumo.data.membros.length === 1
-                          ? "assistente com acesso"
-                          : "assistentes com acesso"
-                      }`}
-                  {equipeResumo.data.convites.length > 0
-                    ? ` · ${equipeResumo.data.convites.length} ${
-                        equipeResumo.data.convites.length === 1
-                          ? "convite em aberto"
-                          : "convites em aberto"
-                      }`
-                    : ""}
-                </p>
-              ) : null}
-            </div>
-            <Link to="/clinica">
-              <Button variant="outline" className="rounded-xl">
-                Gerenciar clínica e equipe
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+                    {clinicaResumo.data.clinica.cidade ? (
+                      <p>
+                        {clinicaResumo.data.clinica.cidade}
+                        {clinicaResumo.data.clinica.uf ? ` · ${clinicaResumo.data.clinica.uf}` : ""}
+                      </p>
+                    ) : null}
+                    <p>{resumoHorarios(clinicaResumo.data.clinica.horarios)}</p>
+                  </>
+                ) : (
+                  <p>Cadastre os dados da clínica para saírem no cabeçalho dos documentos.</p>
+                )}
+                {equipeResumo.data ? (
+                  <p>
+                    {equipeResumo.data.membros.length === 0
+                      ? "Nenhum assistente com acesso."
+                      : `${equipeResumo.data.membros.length} ${
+                          equipeResumo.data.membros.length === 1
+                            ? "assistente com acesso"
+                            : "assistentes com acesso"
+                        }`}
+                    {equipeResumo.data.convites.length > 0
+                      ? ` · ${equipeResumo.data.convites.length} ${
+                          equipeResumo.data.convites.length === 1
+                            ? "convite em aberto"
+                            : "convites em aberto"
+                        }`
+                      : ""}
+                  </p>
+                ) : null}
+              </div>
+              <Link to="/clinica">
+                <Button variant="outline" className="rounded-xl">
+                  Gerenciar clínica e equipe
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        )}
 
-        <Card className="rounded-2xl glass-card shadow-none">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
-              <Crown className="h-5 w-5 text-gold" />
-              Assinatura
-            </CardTitle>
-            <CardDescription>Escolha o plano adequado ao porte da sua operação.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4 lg:grid-cols-3">
-            {PLANS.map((item) => {
-              const active = plan === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setPlan(item.id)}
-                  aria-pressed={active}
-                  className={`relative flex h-full flex-col items-start gap-3 rounded-2xl border p-5 text-left transition-colors ${
-                    active
-                      ? "border-gold bg-gold/5"
-                      : item.featured
-                        ? "border-gold/40 bg-background hover:border-gold"
-                        : "border-border bg-background hover:border-gold/40"
-                  }`}
-                >
-                  <div className="flex w-full flex-wrap items-center gap-2">
-                    <span
-                      className={`text-sm font-medium tracking-wide ${item.featured ? "text-gold" : "text-foreground"}`}
-                    >
-                      {item.name}
-                    </span>
-                    {item.featured && !active ? (
-                      <span className="rounded-full border border-gold/40 px-2 py-0.5 text-[0.6rem] tracking-[0.16em] text-gold uppercase">
-                        Recomendado
+        {ehAssistente ? null : (
+          <Card className="rounded-2xl glass-card shadow-none">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
+                <Crown className="h-5 w-5 text-gold" />
+                Assinatura
+              </CardTitle>
+              <CardDescription>Escolha o plano adequado ao porte da sua operação.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 lg:grid-cols-3">
+              {PLANS.map((item) => {
+                const active = plan === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setPlan(item.id)}
+                    aria-pressed={active}
+                    className={`relative flex h-full flex-col items-start gap-3 rounded-2xl border p-5 text-left transition-colors ${
+                      active
+                        ? "border-gold bg-gold/5"
+                        : item.featured
+                          ? "border-gold/40 bg-background hover:border-gold"
+                          : "border-border bg-background hover:border-gold/40"
+                    }`}
+                  >
+                    <div className="flex w-full flex-wrap items-center gap-2">
+                      <span
+                        className={`text-sm font-medium tracking-wide ${item.featured ? "text-gold" : "text-foreground"}`}
+                      >
+                        {item.name}
                       </span>
-                    ) : null}
-                    {active ? (
-                      <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-[0.65rem] font-medium text-success">
-                        <Check className="h-3 w-3" />
-                        Ativo
+                      {item.featured && !active ? (
+                        <span className="rounded-full border border-gold/40 px-2 py-0.5 text-[0.6rem] tracking-[0.16em] text-gold uppercase">
+                          Recomendado
+                        </span>
+                      ) : null}
+                      {active ? (
+                        <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-[0.65rem] font-medium text-success">
+                          <Check className="h-3 w-3" />
+                          Ativo
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="text-2xl font-medium text-foreground">
+                      {item.price}
+                      <span className="text-sm font-normal text-muted-foreground">
+                        {item.period}
                       </span>
-                    ) : null}
-                  </div>
-                  <p className="text-2xl font-medium text-foreground">
-                    {item.price}
-                    <span className="text-sm font-normal text-muted-foreground">{item.period}</span>
-                  </p>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {item.description}
-                  </p>
-                </button>
-              );
-            })}
-          </CardContent>
-        </Card>
+                    </p>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      {item.description}
+                    </p>
+                  </button>
+                );
+              })}
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="rounded-2xl glass-card shadow-none">
           <CardHeader className="pb-4">

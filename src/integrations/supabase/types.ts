@@ -1134,6 +1134,7 @@ export type Database = {
       }
       library_categories: {
         Row: {
+          clinic_owner_id: string | null
           created_at: string
           escopo: string
           id: string
@@ -1145,6 +1146,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          clinic_owner_id?: string | null
           created_at?: string
           escopo?: string
           id?: string
@@ -1156,6 +1158,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          clinic_owner_id?: string | null
           created_at?: string
           escopo?: string
           id?: string
@@ -1171,6 +1174,7 @@ export type Database = {
       library_templates: {
         Row: {
           categoria_slug: string
+          clinic_owner_id: string | null
           created_at: string
           escopo: string
           grupo: string | null
@@ -1186,6 +1190,7 @@ export type Database = {
         }
         Insert: {
           categoria_slug: string
+          clinic_owner_id?: string | null
           created_at?: string
           escopo?: string
           grupo?: string | null
@@ -1201,6 +1206,7 @@ export type Database = {
         }
         Update: {
           categoria_slug?: string
+          clinic_owner_id?: string | null
           created_at?: string
           escopo?: string
           grupo?: string | null
@@ -1938,6 +1944,7 @@ export type Database = {
         Returns: undefined
       }
       registrar_uso_legal_qa: { Args: { qa_id: string }; Returns: undefined }
+      semear_modelos_clinica: { Args: never; Returns: undefined }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
     }
