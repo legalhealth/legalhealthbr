@@ -35,6 +35,8 @@ import { Route as ApiAiChatbotRouteImport } from './routes/api/ai-chatbot'
 import { Route as ApiAiDocumentoLeituraRouteImport } from './routes/api/ai-documento-leitura'
 import { Route as ApiAiPecaRouteImport } from './routes/api/ai-peca'
 import { Route as ApiAiPlanoRouteImport } from './routes/api/ai-plano'
+import { Route as ApiAiTriagemResumoRouteImport } from './routes/api/ai-triagem-resumo'
+import { Route as ApiAiTriagemTranscreverRouteImport } from './routes/api/ai-triagem-transcrever'
 import { Route as EntrarCodeRouteImport } from './routes/entrar.$code'
 import { Route as MockupReelsRouteImport } from './routes/mockup.reels'
 import { Route as RevisaoTokenRouteImport } from './routes/revisao.$token'
@@ -50,6 +52,7 @@ import { Route as AuthenticatedIaHistoricoRouteImport } from './routes/_authenti
 import { Route as AuthenticatedIaPecaRouteImport } from './routes/_authenticated/ia.peca'
 import { Route as AuthenticatedIaRevisoesRouteImport } from './routes/_authenticated/ia.revisoes'
 import { Route as AuthenticatedIaRiscoRouteImport } from './routes/_authenticated/ia.risco'
+import { Route as AuthenticatedPacienteIdRouteImport } from './routes/_authenticated/paciente.$id'
 import { Route as ApiPublicAiChatbotRouteImport } from './routes/api/public/ai-chatbot'
 import { Route as ApiPublicLandingEventRouteImport } from './routes/api/public/landing-event'
 import { Route as ApiPublicHooksBaseJuridicaSyncRouteImport } from './routes/api/public/hooks/base-juridica-sync'
@@ -190,6 +193,16 @@ const ApiAiPlanoRoute = ApiAiPlanoRouteImport.update({
   path: '/api/ai-plano',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiTriagemResumoRoute = ApiAiTriagemResumoRouteImport.update({
+  id: '/api/ai-triagem-resumo',
+  path: '/api/ai-triagem-resumo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiTriagemTranscreverRoute = ApiAiTriagemTranscreverRouteImport.update({
+  id: '/api/ai-triagem-transcrever',
+  path: '/api/ai-triagem-transcrever',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EntrarCodeRoute = EntrarCodeRouteImport.update({
   id: '/entrar/$code',
   path: '/entrar/$code',
@@ -270,6 +283,11 @@ const AuthenticatedIaRiscoRoute = AuthenticatedIaRiscoRouteImport.update({
   path: '/risco',
   getParentRoute: () => AuthenticatedIaRoute,
 } as any)
+const AuthenticatedPacienteIdRoute = AuthenticatedPacienteIdRouteImport.update({
+  id: '/paciente/$id',
+  path: '/paciente/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicAiChatbotRoute = ApiPublicAiChatbotRouteImport.update({
   id: '/api/public/ai-chatbot',
   path: '/api/public/ai-chatbot',
@@ -340,6 +358,8 @@ export interface FileRoutesByFullPath {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/api/ai-triagem-resumo': typeof ApiAiTriagemResumoRoute
+  '/api/ai-triagem-transcrever': typeof ApiAiTriagemTranscreverRoute
   '/entrar/$code': typeof EntrarCodeRoute
   '/mockup/reels': typeof MockupReelsRoute
   '/revisao/$token': typeof RevisaoTokenRoute
@@ -353,6 +373,7 @@ export interface FileRoutesByFullPath {
   '/ia/peca': typeof AuthenticatedIaPecaRoute
   '/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
+  '/paciente/$id': typeof AuthenticatedPacienteIdRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -389,6 +410,8 @@ export interface FileRoutesByTo {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/api/ai-triagem-resumo': typeof ApiAiTriagemResumoRoute
+  '/api/ai-triagem-transcrever': typeof ApiAiTriagemTranscreverRoute
   '/entrar/$code': typeof EntrarCodeRoute
   '/mockup/reels': typeof MockupReelsRoute
   '/revisao/$token': typeof RevisaoTokenRoute
@@ -402,6 +425,7 @@ export interface FileRoutesByTo {
   '/ia/peca': typeof AuthenticatedIaPecaRoute
   '/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/ia/risco': typeof AuthenticatedIaRiscoRoute
+  '/paciente/$id': typeof AuthenticatedPacienteIdRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -441,6 +465,8 @@ export interface FileRoutesById {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/api/ai-triagem-resumo': typeof ApiAiTriagemResumoRoute
+  '/api/ai-triagem-transcrever': typeof ApiAiTriagemTranscreverRoute
   '/entrar/$code': typeof EntrarCodeRoute
   '/mockup/reels': typeof MockupReelsRoute
   '/revisao/$token': typeof RevisaoTokenRoute
@@ -454,6 +480,7 @@ export interface FileRoutesById {
   '/_authenticated/ia/peca': typeof AuthenticatedIaPecaRoute
   '/_authenticated/ia/revisoes': typeof AuthenticatedIaRevisoesRoute
   '/_authenticated/ia/risco': typeof AuthenticatedIaRiscoRoute
+  '/_authenticated/paciente/$id': typeof AuthenticatedPacienteIdRoute
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -493,6 +520,8 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/api/ai-triagem-resumo'
+    | '/api/ai-triagem-transcrever'
     | '/entrar/$code'
     | '/mockup/reels'
     | '/revisao/$token'
@@ -506,6 +535,7 @@ export interface FileRouteTypes {
     | '/ia/peca'
     | '/ia/revisoes'
     | '/ia/risco'
+    | '/paciente/$id'
     | '/api/public/ai-chatbot'
     | '/api/public/landing-event'
     | '/admin/'
@@ -542,6 +572,8 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/api/ai-triagem-resumo'
+    | '/api/ai-triagem-transcrever'
     | '/entrar/$code'
     | '/mockup/reels'
     | '/revisao/$token'
@@ -555,6 +587,7 @@ export interface FileRouteTypes {
     | '/ia/peca'
     | '/ia/revisoes'
     | '/ia/risco'
+    | '/paciente/$id'
     | '/api/public/ai-chatbot'
     | '/api/public/landing-event'
     | '/admin'
@@ -593,6 +626,8 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/api/ai-triagem-resumo'
+    | '/api/ai-triagem-transcrever'
     | '/entrar/$code'
     | '/mockup/reels'
     | '/revisao/$token'
@@ -606,6 +641,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ia/peca'
     | '/_authenticated/ia/revisoes'
     | '/_authenticated/ia/risco'
+    | '/_authenticated/paciente/$id'
     | '/api/public/ai-chatbot'
     | '/api/public/landing-event'
     | '/_authenticated/admin/'
@@ -637,6 +673,8 @@ export interface RootRouteChildren {
   ApiAiDocumentoLeituraRoute: typeof ApiAiDocumentoLeituraRoute
   ApiAiPecaRoute: typeof ApiAiPecaRoute
   ApiAiPlanoRoute: typeof ApiAiPlanoRoute
+  ApiAiTriagemResumoRoute: typeof ApiAiTriagemResumoRoute
+  ApiAiTriagemTranscreverRoute: typeof ApiAiTriagemTranscreverRoute
   EntrarCodeRoute: typeof EntrarCodeRoute
   MockupReelsRoute: typeof MockupReelsRoute
   RevisaoTokenRoute: typeof RevisaoTokenRoute
@@ -836,6 +874,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiPlanoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-triagem-resumo': {
+      id: '/api/ai-triagem-resumo'
+      path: '/api/ai-triagem-resumo'
+      fullPath: '/api/ai-triagem-resumo'
+      preLoaderRoute: typeof ApiAiTriagemResumoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-triagem-transcrever': {
+      id: '/api/ai-triagem-transcrever'
+      path: '/api/ai-triagem-transcrever'
+      fullPath: '/api/ai-triagem-transcrever'
+      preLoaderRoute: typeof ApiAiTriagemTranscreverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/entrar/$code': {
       id: '/entrar/$code'
       path: '/entrar/$code'
@@ -941,6 +993,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIaRiscoRouteImport
       parentRoute: typeof AuthenticatedIaRoute
     }
+    '/_authenticated/paciente/$id': {
+      id: '/_authenticated/paciente/$id'
+      path: '/paciente/$id'
+      fullPath: '/paciente/$id'
+      preLoaderRoute: typeof AuthenticatedPacienteIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/ai-chatbot': {
       id: '/api/public/ai-chatbot'
       path: '/api/public/ai-chatbot'
@@ -1035,6 +1094,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlanoRoute: typeof AuthenticatedPlanoRoute
   AuthenticatedAdminFontesRoute: typeof AuthenticatedAdminFontesRoute
   AuthenticatedAdminFunilRoute: typeof AuthenticatedAdminFunilRoute
+  AuthenticatedPacienteIdRoute: typeof AuthenticatedPacienteIdRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
@@ -1049,6 +1109,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPlanoRoute: AuthenticatedPlanoRoute,
   AuthenticatedAdminFontesRoute: AuthenticatedAdminFontesRoute,
   AuthenticatedAdminFunilRoute: AuthenticatedAdminFunilRoute,
+  AuthenticatedPacienteIdRoute: AuthenticatedPacienteIdRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
@@ -1075,6 +1136,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiDocumentoLeituraRoute: ApiAiDocumentoLeituraRoute,
   ApiAiPecaRoute: ApiAiPecaRoute,
   ApiAiPlanoRoute: ApiAiPlanoRoute,
+  ApiAiTriagemResumoRoute: ApiAiTriagemResumoRoute,
+  ApiAiTriagemTranscreverRoute: ApiAiTriagemTranscreverRoute,
   EntrarCodeRoute: EntrarCodeRoute,
   MockupReelsRoute: MockupReelsRoute,
   RevisaoTokenRoute: RevisaoTokenRoute,

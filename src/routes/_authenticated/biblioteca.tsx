@@ -13,6 +13,15 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { saveHistoryItem } from "@/lib/ia-history";
+import { useCriarEvento, usePacientes } from "@/lib/pacientes";
+import { ListaPacientes } from "@/components/pacientes/lista-pacientes";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   BIBLIOTECA_CATEGORIAS,
   categoriaLabel,
@@ -50,10 +59,14 @@ export const Route = createFileRoute("/_authenticated/biblioteca")({
 
 function Page() {
   const search = Route.useSearch();
+  const modoPacientes = search.cat === "pacientes";
   const categoriaInicial = BIBLIOTECA_CATEGORIAS.some((c) => c.value === search.cat)
     ? (search.cat as BibliotecaCategoria)
     : "minutas";
   const docsIniciais = docsDaCategoria(categoriaInicial);
+  const [aba, setAba] = useState<BibliotecaCategoria | "pacientes">(
+    modoPacientes ? "pacientes" : categoriaInicial,
+  );
   const [categoria, setCategoria] = useState<BibliotecaCategoria>(categoriaInicial);
   const [documento, setDocumento] = useState(
     docsIniciais.find((d) => d.value === search.doc)?.value ?? docsIniciais[0]!.value,
@@ -63,12 +76,16 @@ function Page() {
   const [especialidade, setEspecialidade] = useState("");
   const [cidade, setCidade] = useState("");
   const [procedimento, setProcedimento] = useState("");
+  const [pacienteId, setPacienteId] = useState<string>("");
   const [draft, setDraft] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [docId, setDocId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const draftRef = useRef<HTMLElement | null>(null);
   const gerandoRef = useRef(false);
+
+  const { data: pacientes } = usePacientes();
+  const criarEvento = useCriarEvento();
 
   const docs = useMemo(() => docsDaCategoria(categoria), [categoria]);
   const grupos = useMemo(() => gruposDaCategoria(categoria), [categoria]);
@@ -98,6 +115,7 @@ function Page() {
   }, [profile]);
 
   function trocarCategoria(value: BibliotecaCategoria) {
+    setAba(value);
     setCategoria(value);
     setDocumento(docsDaCategoria(value)[0]!.value);
   }
@@ -131,9 +149,23 @@ function Page() {
         tipo: docAtual.label,
         titulo: `${categoriaLabel(categoria)} — ${docAtual.label}`,
         conteudo: text,
+        ...(pacienteId ? { patientId: pacienteId } : {}),
       });
       setDocId(savedId);
-      toast.success("Documento gerado e salvo no histórico.");
+      if (pacienteId) {
+        await criarEvento.mutateAsync({
+          patientId: pacienteId,
+          tipo: "minuta",
+          titulo: docAtual.label,
+          descricao: categoriaLabel(categoria),
+          ...(savedId ? { docId: savedId } : {}),
+        });
+      }
+      toast.success(
+        pacienteId
+          ? "Documento gerado, salvo no histórico e vinculado ao paciente."
+          : "Documento gerado e salvo no histórico.",
+      );
     } catch (e) {
       const message =
         e instanceof Error ? e.message : "Falha ao gerar o documento. Tente novamente.";
@@ -162,7 +194,7 @@ function Page() {
               onClick={() => trocarCategoria(c.value)}
               className={cn(
                 "rounded-xl px-5",
-                categoria === c.value
+                aba === c.value
                   ? "border-gold/50 bg-gold/10 text-gold hover:bg-gold/15 hover:text-gold"
                   : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
               )}
@@ -170,10 +202,28 @@ function Page() {
               {c.label}
             </Button>
           ))}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setAba("pacientes")}
+            className={cn(
+              "rounded-xl px-5",
+              aba === "pacientes"
+                ? "border-gold/50 bg-gold/10 text-gold hover:bg-gold/15 hover:text-gold"
+                : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+            )}
+          >
+            Pacientes
+          </Button>
         </div>
 
+        {aba === "pacientes" ? <ListaPacientes /> : null}
+
         {/* Painel de geração */}
-        <section className="rounded-2xl glass-card p-5 md:p-6">
+        <section
+          className={cn("rounded-2xl glass-card p-5 md:p-6", aba === "pacientes" && "hidden")}
+        >
           <div className="space-y-5">
             {grupos.map((grupo) => (
               <div key={grupo.label || "documentos"} className="space-y-2.5">
@@ -263,6 +313,27 @@ function Page() {
                 />
               </div>
             ) : null}
+            {pacientes?.length ? (
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Vincular ao paciente</Label>
+                <Select
+                  value={pacienteId || "nenhum"}
+                  onValueChange={(v) => setPacienteId(v === "nenhum" ? "" : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Nenhum" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nenhum">Nenhum</SelectItem>
+                    {pacientes.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : null}
           </div>
 
           <Button
@@ -281,7 +352,7 @@ function Page() {
           {error ? <p className="mt-4 text-sm text-danger">{error}</p> : null}
         </section>
 
-        {draft !== null ? (
+        {draft !== null && aba !== "pacientes" ? (
           <section ref={draftRef} className="rounded-2xl glass-card p-6">
             <h2 className="font-display text-lg text-foreground">
               {generating ? "Gerando…" : docAtual.label}

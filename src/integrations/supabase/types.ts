@@ -397,6 +397,7 @@ export type Database = {
           id: string
           mime: string | null
           nome: string
+          patient_id: string | null
           size_bytes: number | null
           storage_path: string
           tag: string
@@ -411,6 +412,7 @@ export type Database = {
           id?: string
           mime?: string | null
           nome: string
+          patient_id?: string | null
           size_bytes?: number | null
           storage_path: string
           tag?: string
@@ -425,6 +427,7 @@ export type Database = {
           id?: string
           mime?: string | null
           nome?: string
+          patient_id?: string | null
           size_bytes?: number | null
           storage_path?: string
           tag?: string
@@ -432,7 +435,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "documents_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       generated_docs: {
         Row: {
@@ -441,6 +452,7 @@ export type Database = {
           created_at: string
           id: string
           origem: string | null
+          patient_id: string | null
           status: string
           tipo: string | null
           titulo: string | null
@@ -453,6 +465,7 @@ export type Database = {
           created_at?: string
           id?: string
           origem?: string | null
+          patient_id?: string | null
           status?: string
           tipo?: string | null
           titulo?: string | null
@@ -465,13 +478,22 @@ export type Database = {
           created_at?: string
           id?: string
           origem?: string | null
+          patient_id?: string | null
           status?: string
           tipo?: string | null
           titulo?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "generated_docs_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       juriscore_results: {
         Row: {
@@ -977,6 +999,269 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      patient_audit_log: {
+        Row: {
+          acao: string
+          detalhe: string | null
+          entidade: string
+          entidade_id: string | null
+          id: string
+          ocorrido_em: string
+          patient_id: string | null
+          user_id: string
+        }
+        Insert: {
+          acao: string
+          detalhe?: string | null
+          entidade: string
+          entidade_id?: string | null
+          id?: string
+          ocorrido_em?: string
+          patient_id?: string | null
+          user_id: string
+        }
+        Update: {
+          acao?: string
+          detalhe?: string | null
+          entidade?: string
+          entidade_id?: string | null
+          id?: string
+          ocorrido_em?: string
+          patient_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_audit_log_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_events: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          doc_id: string | null
+          document_id: string | null
+          id: string
+          ocorrido_em: string
+          patient_id: string
+          tipo: string
+          titulo: string
+          triage_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          doc_id?: string | null
+          document_id?: string | null
+          id?: string
+          ocorrido_em?: string
+          patient_id: string
+          tipo: string
+          titulo: string
+          triage_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          doc_id?: string | null
+          document_id?: string | null
+          id?: string
+          ocorrido_em?: string
+          patient_id?: string
+          tipo?: string
+          titulo?: string
+          triage_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_events_doc_id_fkey"
+            columns: ["doc_id"]
+            isOneToOne: false
+            referencedRelation: "generated_docs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_events_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_events_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_events_triage_id_fkey"
+            columns: ["triage_id"]
+            isOneToOne: false
+            referencedRelation: "patient_triages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_field_history: {
+        Row: {
+          campo: string
+          created_at: string
+          id: string
+          patient_id: string
+          user_id: string
+          valor_anterior: string | null
+          valor_novo: string | null
+        }
+        Insert: {
+          campo: string
+          created_at?: string
+          id?: string
+          patient_id: string
+          user_id: string
+          valor_anterior?: string | null
+          valor_novo?: string | null
+        }
+        Update: {
+          campo?: string
+          created_at?: string
+          id?: string
+          patient_id?: string
+          user_id?: string
+          valor_anterior?: string | null
+          valor_novo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_field_history_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_triages: {
+        Row: {
+          audio_path: string | null
+          consentimento_atendimento_em: string | null
+          consentimento_audio_em: string | null
+          created_at: string
+          duracao_seg: number
+          encaminhamento: string | null
+          id: string
+          patient_id: string
+          resumo: Json | null
+          resumo_original: Json | null
+          revisado_em: string | null
+          revisado_por: string | null
+          status: string
+          transcricao: string
+          updated_at: string
+          urgencia: string
+          user_id: string
+        }
+        Insert: {
+          audio_path?: string | null
+          consentimento_atendimento_em?: string | null
+          consentimento_audio_em?: string | null
+          created_at?: string
+          duracao_seg?: number
+          encaminhamento?: string | null
+          id?: string
+          patient_id: string
+          resumo?: Json | null
+          resumo_original?: Json | null
+          revisado_em?: string | null
+          revisado_por?: string | null
+          status?: string
+          transcricao?: string
+          updated_at?: string
+          urgencia?: string
+          user_id: string
+        }
+        Update: {
+          audio_path?: string | null
+          consentimento_atendimento_em?: string | null
+          consentimento_audio_em?: string | null
+          created_at?: string
+          duracao_seg?: number
+          encaminhamento?: string | null
+          id?: string
+          patient_id?: string
+          resumo?: Json | null
+          resumo_original?: Json | null
+          revisado_em?: string | null
+          revisado_por?: string | null
+          status?: string
+          transcricao?: string
+          updated_at?: string
+          urgencia?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_triages_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          ativo: boolean
+          contato: string | null
+          convenio: string | null
+          created_at: string
+          id: string
+          nascimento: string | null
+          nome: string
+          observacoes: string | null
+          responsavel_legal: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          contato?: string | null
+          convenio?: string | null
+          created_at?: string
+          id?: string
+          nascimento?: string | null
+          nome: string
+          observacoes?: string | null
+          responsavel_legal?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean
+          contato?: string | null
+          convenio?: string | null
+          created_at?: string
+          id?: string
+          nascimento?: string | null
+          nome?: string
+          observacoes?: string | null
+          responsavel_legal?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       plan_reminders: {
         Row: {
