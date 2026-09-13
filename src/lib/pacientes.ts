@@ -225,7 +225,7 @@ export function useAtualizarPaciente() {
       anterior: Paciente;
       valores: Partial<Record<CampoFicha, string | null>>;
     }) => {
-      const userId = await exigirUsuario();
+      const userId = await contaAtivaId();
       const alteracoes = CAMPOS_FICHA.filter((campo) => {
         if (!(campo in valores)) return false;
         const novo = valores[campo] ?? null;
@@ -351,7 +351,7 @@ export function useCriarEvento() {
       documentId?: string | null;
       triageId?: string | null;
     }) => {
-      const userId = await exigirUsuario();
+      const userId = await contaAtivaId();
       const { error } = await supabase.from("patient_events").insert({
         patient_id: input.patientId,
         user_id: userId,
@@ -444,7 +444,7 @@ export async function criarTriagem(input: {
   consentimentoAtendimento: boolean;
   consentimentoAudio: boolean;
 }): Promise<string> {
-  const userId = await exigirUsuario();
+  const userId = await contaAtivaId();
   const agora = new Date().toISOString();
   const { data, error } = await supabase
     .from("patient_triages")
@@ -470,7 +470,8 @@ export async function salvarTriagem(input: {
   duracaoSeg: number;
   audio: Blob | null;
 }): Promise<void> {
-  const userId = await exigirUsuario();
+  // o áudio fica no prefixo do dono da conta (regra do bucket)
+  const userId = await contaAtivaId();
   let audioPath: string | null = null;
   if (input.audio) {
     audioPath = `${userId}/${input.patientId}/${input.triageId}.wav`;
