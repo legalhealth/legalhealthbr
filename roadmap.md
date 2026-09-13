@@ -66,6 +66,12 @@
 - Verificado: menu, FAQ, tabela, envio real (com sucesso e erro), zero erro de console, 200 em /, /auth, /embaixadores, /termos, /privacidade, /inicio.
 - Pendente: Lighthouse mobile/desktop após publicação, teste com 10 profissionais, regulamento oficial do programa, painel admin de candidaturas.
 
+## Ajustes visuais na Biblioteca Inteligente (13/09)
+- [x] Chips de categoria em grade 2x2 no celular (sem pílula órfã), mantendo uma linha no desktop
+- [x] Ícone de pessoa no chip "Pacientes" para diferenciar a área de cadastro
+- [x] Margem de segurança entre o botão flutuante do chat e os campos do formulário
+- [ ] Conferir em mais aparelhos reais (iPhone SE / Android pequeno) após publicar
+
 ## Lighthouse no pipeline (concluído)
 - `bun run lighthouse` mede as rotas públicas (/, /embaixadores, /auth) em mobile e desktop contra `BASE_URL` (padrão localhost:8080).
 - `bun run lighthouse:build` faz o build de produção, sobe o worker com wrangler em 4173 e mede — é o número que vale (o dev server distorce a performance).
