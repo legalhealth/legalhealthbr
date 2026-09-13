@@ -102,7 +102,7 @@ function Page() {
       if (!userId) return null;
       const { data } = await supabase
         .from("profiles")
-        .select("nome, crm, especialidade, cidade")
+        .select("nome, crm, especialidade, cidade, whatsapp")
         .eq("user_id", userId)
         .maybeSingle();
       return data ?? null;
@@ -376,6 +376,21 @@ function Page() {
                 }}
               >
                 Copiar texto
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={generating || !draft}
+                className="border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+                onClick={() =>
+                  abrirWhatsApp(profile?.whatsapp, {
+                    titulo: docAtual.label,
+                    corpo: draft,
+                    caminho: "/biblioteca",
+                  })
+                }
+              >
+                Enviar no meu WhatsApp
               </Button>
               {!generating && draft && docId ? (
                 <EnviarRevisaoDialog
