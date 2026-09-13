@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react";
 
@@ -60,7 +60,16 @@ const TIPOS: { value: EventoTipo; label: string }[] = [
 
 function Page() {
   const { id } = Route.useParams();
+  const router = useRouter();
   const { data: paciente, isPending } = usePaciente(id);
+
+  function voltar() {
+    if (router.history.canGoBack()) {
+      router.history.back();
+    } else {
+      void router.navigate({ to: "/biblioteca", search: { cat: "pacientes" } });
+    }
+  }
   const { data: eventos } = useEventos(id);
   const { data: historico } = useHistoricoCampos(id);
   const { data: docs } = useDocumentosDoPaciente(id);
@@ -161,11 +170,9 @@ function Page() {
       description="Histórico documental e procedimental individualizado, guardado sem prazo de expiração."
     >
       <div className="mt-8 space-y-6">
-        <Button asChild variant="outline" size="sm" className="border-border">
-          <Link to="/biblioteca" search={{ cat: "pacientes" }}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Pacientes
-          </Link>
+        <Button variant="outline" size="sm" onClick={voltar} className="border-border">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Voltar
         </Button>
 
         <TriagemVoz patientId={id} />
