@@ -112,7 +112,7 @@ export function EquipeClinica() {
           <>
             <Separator />
             <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.18em] text-subtle">Convites pendentes</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-subtle">Convites</p>
               {convites.map((c) => (
                 <div
                   key={c.id}
