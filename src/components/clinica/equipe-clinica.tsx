@@ -124,18 +124,37 @@ export function EquipeClinica() {
                       {c.email}
                     </p>
                     <p className="text-xs text-subtle">
-                      Válido até {new Date(c.expires_at).toLocaleDateString("pt-BR")}
+                      {c.status === "expirado"
+                        ? "Expirado — reenvie para gerar novo link"
+                        : `Válido até ${new Date(c.expires_at).toLocaleDateString("pt-BR")}`}
                     </p>
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="rounded-lg text-muted-foreground"
-                    onClick={() => cancelar.mutate({ id: c.id, email: c.email })}
-                  >
-                    Cancelar
-                  </Button>
+                  <div className="flex gap-2">
+                    {c.status === "expirado" ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="rounded-lg"
+                        disabled={reenviando === c.id}
+                        onClick={() => void handleReenviar(c.id)}
+                      >
+                        {reenviando === c.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : null}
+                        Reenviar
+                      </Button>
+                    ) : null}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="rounded-lg text-muted-foreground"
+                      onClick={() => cancelar.mutate({ id: c.id, email: c.email })}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
