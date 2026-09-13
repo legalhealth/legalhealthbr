@@ -18,6 +18,7 @@ const FIELDS = [
   ["especialidade", "Especialidade"],
   ["cidade", "Cidade / UF"],
   ["procedimento", "Procedimento"],
+  ["contexto", "Contexto administrativo informado na triagem"],
 ] as const;
 
 function buildUserPrompt(body: Record<string, unknown>): string {

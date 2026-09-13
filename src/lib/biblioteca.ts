@@ -18,6 +18,8 @@ export type BibliotecaInput = {
   especialidade: string;
   cidade: string;
   procedimento?: string;
+  /** Resumo da triagem, quando a minuta nasce de um atendimento. */
+  contexto?: string;
 };
 
 /** Gera o documento via rota protegida /api/ai-biblioteca (chave de IA só no servidor). */
@@ -35,6 +37,7 @@ export function streamBibliotecaDoc(
       especialidade: input.especialidade,
       cidade: input.cidade,
       procedimento: input.procedimento ?? "",
+      contexto: input.contexto ?? "",
     },
     onDelta,
   );

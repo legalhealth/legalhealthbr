@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { ResumoPacientes } from "@/components/pacientes/resumo-pacientes";
+import { EquipeClinica } from "@/components/clinica/equipe-clinica";
+import { normalizarWhatsApp } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   head: () => ({
@@ -81,6 +83,12 @@ const profileSchema = z.object({
   ),
   especialidade: optionalText(100, "Especialidade"),
   cidade: optionalText(100, "Cidade"),
+  whatsapp: z
+    .string()
+    .trim()
+    .refine((v) => !v || normalizarWhatsApp(v) !== null, {
+      message: "Informe um número com DDD, ex.: (11) 99999-8888.",
+    }),
 });
 
 function Page() {
@@ -93,6 +101,7 @@ function Page() {
   const [crm, setCrm] = useState("");
   const [specialty, setSpecialty] = useState("");
   const [city, setCity] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
   const [plan, setPlan] = useState<string>("essential");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -115,7 +124,7 @@ function Page() {
       const { data, error } = await supabase
         .from("profiles")
         .select(
-          "nome, clinica, crm, especialidade, cidade, plano, push, biometria, offline, email_alerts, weekly_digest, new_jurisprudence, risk_notifications",
+          "nome, clinica, crm, especialidade, cidade, whatsapp, plano, push, biometria, offline, email_alerts, weekly_digest, new_jurisprudence, risk_notifications",
         )
         .eq("user_id", userId)
         .maybeSingle();
@@ -135,6 +144,7 @@ function Page() {
     setCrm(p.crm ?? "");
     setSpecialty(p.especialidade ?? "");
     setCity(p.cidade ?? "");
+    setWhatsapp(p.whatsapp ?? "");
     setPlan(p.plano ?? "essential");
     setPreferences({
       push: p.push,
@@ -172,6 +182,7 @@ function Page() {
           crm: values.crm || null,
           especialidade: values.especialidade || null,
           cidade: values.cidade || null,
+          whatsapp: values.whatsapp ? normalizarWhatsApp(values.whatsapp) : null,
           plano: plan,
           push: preferences.push,
           biometria: preferences.biometria,
@@ -204,6 +215,7 @@ function Page() {
       crm,
       especialidade: specialty,
       cidade: city,
+      whatsapp,
     });
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {};
@@ -311,6 +323,25 @@ function Page() {
               {errors["cidade"] && <p className="text-xs text-danger">{errors["cidade"]}</p>}
             </div>
             <div className="space-y-2">
+              <Label htmlFor="whatsapp">WhatsApp</Label>
+              <Input
+                id="whatsapp"
+                inputMode="tel"
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                placeholder="(11) 99999-8888"
+                maxLength={20}
+                aria-invalid={Boolean(errors["whatsapp"])}
+              />
+              {errors["whatsapp"] ? (
+                <p className="text-xs text-danger">{errors["whatsapp"]}</p>
+              ) : (
+                <p className="text-xs text-subtle">
+                  Usado para você receber minutas e triagens no seu próprio WhatsApp.
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="clinic">Clínica / Instituição</Label>
               <Input
                 id="clinic"
@@ -344,6 +375,8 @@ function Page() {
             <ResumoPacientes />
           </CardContent>
         </Card>
+
+        <EquipeClinica />
 
         <Card className="rounded-2xl glass-card shadow-none">
           <CardHeader className="pb-4">

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2, Sparkles, UserRound } from "lucide-react";
+import { Loader2, Settings2, Sparkles, UserRound } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { abrirWhatsApp } from "@/lib/whatsapp";
+import { modelosDaCategoria, useModelos } from "@/lib/library-templates";
 import { saveHistoryItem } from "@/lib/ia-history";
 import { useCriarEvento, usePacientes } from "@/lib/pacientes";
 import { ListaPacientes } from "@/components/pacientes/lista-pacientes";
@@ -32,9 +34,12 @@ import {
 } from "@/lib/biblioteca";
 
 export const Route = createFileRoute("/_authenticated/biblioteca")({
-  validateSearch: (search: Record<string, unknown>): { cat?: string; doc?: string } => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { cat?: string; doc?: string; pac?: string } => ({
     ...(typeof search["cat"] === "string" ? { cat: search["cat"] } : {}),
     ...(typeof search["doc"] === "string" ? { doc: search["doc"] } : {}),
+    ...(typeof search["pac"] === "string" ? { pac: search["pac"] } : {}),
   }),
   head: () => ({
     meta: [
@@ -76,7 +81,7 @@ function Page() {
   const [especialidade, setEspecialidade] = useState("");
   const [cidade, setCidade] = useState("");
   const [procedimento, setProcedimento] = useState("");
-  const [pacienteId, setPacienteId] = useState<string>("");
+  const [pacienteId, setPacienteId] = useState<string>(search.pac ?? "");
   const [draft, setDraft] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [docId, setDocId] = useState<string | null>(null);
@@ -87,8 +92,22 @@ function Page() {
   const { data: pacientes } = usePacientes();
   const criarEvento = useCriarEvento();
 
-  const docs = useMemo(() => docsDaCategoria(categoria), [categoria]);
-  const grupos = useMemo(() => gruposDaCategoria(categoria), [categoria]);
+  const { data: modelosDb } = useModelos();
+  const extras = useMemo(
+    () => modelosDaCategoria(modelosDb, categoria),
+    [modelosDb, categoria],
+  );
+  const docs = useMemo(() => [...docsDaCategoria(categoria), ...extras], [categoria, extras]);
+  const grupos = useMemo(() => {
+    const base = gruposDaCategoria(categoria).map((g) => ({ ...g, docs: [...g.docs] }));
+    for (const doc of extras) {
+      const label = doc.grupo ?? "";
+      const alvo = base.find((g) => g.label === label);
+      if (alvo) alvo.docs.push(doc);
+      else base.push({ label, docs: [doc] });
+    }
+    return base;
+  }, [categoria, extras]);
   const docAtual = docs.find((d) => d.value === documento) ?? docs[0]!;
 
   const { data: profile } = useQuery({
@@ -99,7 +118,7 @@ function Page() {
       if (!userId) return null;
       const { data } = await supabase
         .from("profiles")
-        .select("nome, crm, especialidade, cidade")
+        .select("nome, crm, especialidade, cidade, whatsapp")
         .eq("user_id", userId)
         .maybeSingle();
       return data ?? null;
@@ -216,6 +235,18 @@ function Page() {
           >
             <UserRound aria-hidden="true" />
             Pacientes
+          </Button>
+          <Button
+            asChild
+            type="button"
+            variant="outline"
+            size="sm"
+            className="rounded-xl border-border bg-transparent px-5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          >
+            <Link to="/biblioteca/modelos">
+              <Settings2 aria-hidden="true" />
+              Modelos
+            </Link>
           </Button>
         </div>
 
@@ -373,6 +404,21 @@ function Page() {
                 }}
               >
                 Copiar texto
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={generating || !draft}
+                className="border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+                onClick={() =>
+                  abrirWhatsApp(profile?.whatsapp, {
+                    titulo: docAtual.label,
+                    corpo: draft,
+                    caminho: "/biblioteca",
+                  })
+                }
+              >
+                Enviar no meu WhatsApp
               </Button>
               {!generating && draft && docId ? (
                 <EnviarRevisaoDialog

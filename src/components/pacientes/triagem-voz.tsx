@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2, Mic, Square } from "lucide-react";
 
@@ -16,6 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { abrirWhatsApp } from "@/lib/whatsapp";
 import {
   criarTriagem,
   salvarTriagem,
@@ -44,6 +47,8 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
   const [aviso, setAviso] = useState<string | null>(null);
   const [triagem, setTriagem] = useState<Triagem | null>(null);
   const [resumo, setResumo] = useState<TriagemResumo | null>(null);
+  const [nivel, setNivel] = useState(0);
+  const [semSom, setSemSom] = useState(false);
 
   const recorderRef = useRef<TriagemRecorder | null>(null);
   const filaRef = useRef<Promise<void>>(Promise.resolve());
@@ -51,6 +56,20 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
 
   const { data: triagens } = useTriagens(patientId);
   const confirmar = useConfirmarTriagem();
+  const { data: perfilWhatsapp } = useQuery({
+    queryKey: ["profile-whatsapp"],
+    queryFn: async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      const userId = auth.user?.id;
+      if (!userId) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("whatsapp")
+        .eq("user_id", userId)
+        .maybeSingle();
+      return data?.whatsapp ?? null;
+    },
+  });
 
   useEffect(() => () => recorderRef.current?.cancelar(), []);
 
@@ -91,6 +110,8 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
       onJanela: (wav) => enfileirarJanela(wav),
       onErro: (mensagem) => setAviso(mensagem),
       onSegundo: (s) => setSegundos(s),
+      onNivel: (v) => setNivel(v),
+      onSilencio: (mudo) => setSemSom(mudo),
       onLimite: () => void encerrar(),
     });
     recorderRef.current = recorder;
@@ -228,6 +249,26 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
             <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-danger" />
             <span className="text-sm text-foreground">Gravando e transcrevendo…</span>
           </div>
+          <div className="space-y-1.5">
+            <div
+              className="h-2 overflow-hidden rounded-full bg-muted"
+              role="meter"
+              aria-label="Nível de voz captado"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(nivel * 100)}
+            >
+              <div
+                className="h-full rounded-full bg-gold transition-[width] duration-150"
+                style={{ width: `${Math.max(2, Math.round(nivel * 100))}%` }}
+              />
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {semSom
+                ? "Nenhum som captado — fale mais perto do aparelho ou confira o microfone."
+                : "Microfone ativo. Mantenha o aparelho próximo de quem fala."}
+            </p>
+          </div>
           <div className="max-h-56 overflow-y-auto rounded-xl border border-border p-4 text-sm leading-relaxed text-muted-foreground">
             {transcricao || "Aguardando as primeiras palavras…"}
           </div>
@@ -315,31 +356,68 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
           ) : null}
 
           {resumo.documentos.length ? (
-            <div className="flex flex-wrap gap-3">
-              {resumo.documentos.map((doc) => (
-                <Button
-                  key={doc.slug}
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="rounded-xl border-gold/40 bg-transparent text-gold hover:bg-gold/10"
-                >
-                  <Link to="/biblioteca" search={{ cat: "minutas", doc: doc.slug }}>
-                    {doc.label}
-                  </Link>
-                </Button>
-              ))}
+            <div className="rounded-xl border border-gold/30 bg-gold/5 p-4">
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-gold">
+                Minutas sugeridas para este caso
+              </p>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Ao tocar, o modelo abre na Biblioteca já vinculado a este paciente.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-3">
+                {resumo.documentos.map((doc) => (
+                  <Button
+                    key={doc.slug}
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="rounded-xl border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+                  >
+                    <Link
+                      to="/biblioteca"
+                      search={{ cat: "minutas", doc: doc.slug, pac: patientId }}
+                    >
+                      {doc.label}
+                    </Link>
+                  </Button>
+                ))}
+              </div>
             </div>
           ) : null}
 
-          <Button
-            onClick={() => void handleConfirmar()}
-            disabled={confirmar.isPending}
-            className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:brightness-105"
-          >
-            {confirmar.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Confirmar triagem
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              onClick={() => void handleConfirmar()}
+              disabled={confirmar.isPending}
+              className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:brightness-105"
+            >
+              {confirmar.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Confirmar triagem
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-xl border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+              onClick={() =>
+                abrirWhatsApp(perfilWhatsapp, {
+                  titulo: `Triagem — ${resumo.motivo || "atendimento"}`,
+                  corpo: [
+                    `Prioridade: ${urgenciaMeta(resumo.urgencia).label}`,
+                    resumo.resumo.join("\n"),
+                    resumo.encaminhamento ? `Encaminhamento: ${resumo.encaminhamento}` : "",
+                    resumo.pendencias.length
+                      ? `A confirmar: ${resumo.pendencias.join("; ")}`
+                      : "",
+                  ]
+                    .filter(Boolean)
+                    .join("\n\n"),
+                  caminho: `/paciente/${patientId}`,
+                })
+              }
+            >
+              Enviar no meu WhatsApp
+            </Button>
+          </div>
         </div>
       ) : null}
 

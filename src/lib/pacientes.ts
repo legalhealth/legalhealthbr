@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { contaAtivaId } from "@/lib/clinica";
 
 export const AUDIO_BUCKET = "patient-audio";
 /** Retenção padrão do áudio bruto; depois disso resta apenas a transcrição. */
@@ -123,9 +124,10 @@ export async function registrarAuditoria(input: {
   detalhe?: string;
 }): Promise<void> {
   try {
-    const userId = await exigirUsuario();
+    const [conta, autor] = await Promise.all([contaAtivaId(), exigirUsuario()]);
     await supabase.from("patient_audit_log").insert({
-      user_id: userId,
+      user_id: conta,
+      autor_user_id: autor,
       patient_id: input.patientId,
       entidade: input.entidade,
       entidade_id: input.entidadeId ?? null,
@@ -141,8 +143,7 @@ export function usePacientes(busca = "") {
   return useQuery({
     queryKey: ["pacientes", busca],
     queryFn: async (): Promise<(Paciente & { atendimentos: number })[]> => {
-      const { data: auth } = await supabase.auth.getUser();
-      const userId = auth.user?.id;
+      const userId = await contaAtivaId();
       if (!userId) return [];
       let query = supabase
         .from("patients")
@@ -182,7 +183,7 @@ export function useCriarPaciente() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: { nome: string; contato?: string; nascimento?: string }) => {
-      const userId = await exigirUsuario();
+      const userId = await contaAtivaId();
       const { data, error } = await supabase
         .from("patients")
         .insert({
@@ -224,7 +225,7 @@ export function useAtualizarPaciente() {
       anterior: Paciente;
       valores: Partial<Record<CampoFicha, string | null>>;
     }) => {
-      const userId = await exigirUsuario();
+      const userId = await contaAtivaId();
       const alteracoes = CAMPOS_FICHA.filter((campo) => {
         if (!(campo in valores)) return false;
         const novo = valores[campo] ?? null;
@@ -350,7 +351,7 @@ export function useCriarEvento() {
       documentId?: string | null;
       triageId?: string | null;
     }) => {
-      const userId = await exigirUsuario();
+      const userId = await contaAtivaId();
       const { error } = await supabase.from("patient_events").insert({
         patient_id: input.patientId,
         user_id: userId,
@@ -443,7 +444,7 @@ export async function criarTriagem(input: {
   consentimentoAtendimento: boolean;
   consentimentoAudio: boolean;
 }): Promise<string> {
-  const userId = await exigirUsuario();
+  const userId = await contaAtivaId();
   const agora = new Date().toISOString();
   const { data, error } = await supabase
     .from("patient_triages")
@@ -469,7 +470,8 @@ export async function salvarTriagem(input: {
   duracaoSeg: number;
   audio: Blob | null;
 }): Promise<void> {
-  const userId = await exigirUsuario();
+  // o áudio fica no prefixo do dono da conta (regra do bucket)
+  const userId = await contaAtivaId();
   let audioPath: string | null = null;
   if (input.audio) {
     audioPath = `${userId}/${input.patientId}/${input.triageId}.wav`;
@@ -500,7 +502,7 @@ export function useConfirmarTriagem() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: { triagem: Triagem; resumo: TriagemResumo }) => {
-      const userId = await exigirUsuario();
+      const [userId, autorId] = await Promise.all([contaAtivaId(), exigirUsuario()]);
       const { error } = await supabase
         .from("patient_triages")
         .update({
@@ -508,7 +510,7 @@ export function useConfirmarTriagem() {
           urgencia: input.resumo.urgencia,
           encaminhamento: input.resumo.encaminhamento,
           status: "confirmada",
-          revisado_por: userId,
+          revisado_por: autorId,
           revisado_em: new Date().toISOString(),
         })
         .eq("id", input.triagem.id);
