@@ -3,7 +3,19 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
-import { User, Users, Bell, Check, Save, LogOut, Loader2, Settings2, Crown } from "lucide-react";
+import {
+  User,
+  Users,
+  Bell,
+  Building2,
+  Check,
+  ChevronRight,
+  Save,
+  LogOut,
+  Loader2,
+  Settings2,
+  Crown,
+} from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
@@ -14,7 +26,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { ResumoPacientes } from "@/components/pacientes/resumo-pacientes";
-import { EquipeClinica } from "@/components/clinica/equipe-clinica";
+import { useClinica, useEquipe } from "@/lib/clinica";
+import { resumoHorarios } from "@/lib/clinica-horarios";
 import { normalizarWhatsApp } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
