@@ -23,14 +23,14 @@ Nova tela de triagem estruturada na Biblioteca, ao lado da triagem por voz:
 - Ao concluir, a minuta correspondente é gerada automaticamente (consentimento, orientação ou registro conforme o caso) e vinculada à ficha do paciente.
 - Tudo revisável e editável antes de salvar; a IA nunca diagnostica nem indica conduta.
 
-## Etapa 3 — Envio pelo WhatsApp
+## Etapa 3 — Envio pelo WhatsApp (link pronto)
 
-O chatbot da Biblioteca passa a enviar minutas e resultados de triagem direto para o WhatsApp do profissional, sem abrir o app.
+O chatbot da Biblioteca passa a enviar minutas e resultados de triagem para o WhatsApp do profissional, sem abrir nenhuma API.
 
-- Cadastro e confirmação do número no Perfil (código de verificação).
-- Envio automático oficial pela API do WhatsApp Business: mensagem com o resumo e um link seguro e temporário para o documento.
-- Registro de cada envio (enviado, entregue, falhou) e aviso por e-mail quando o envio falha.
-- **Depende de credenciais suas**: conta WhatsApp Business, número aprovado e chaves de acesso. Sem elas, o envio automático não pode ser ativado — nesse caso deixo tudo pronto e o botão fica indisponível até as chaves serem cadastradas. Peço as chaves em mensagem separada, com o passo a passo de onde obtê-las.
+- Número do WhatsApp salvo no Perfil (com confirmação simples do formato).
+- No chatbot e na triagem, um botão "Enviar no WhatsApp" abre o WhatsApp do aparelho com a mensagem e o link seguro do documento já escritos — você só toca em enviar.
+- Funciona no celular e no computador (WhatsApp Web), sem contratar serviço nem aprovar número.
+- O link do documento continua temporário e seguro, igual aos envios por e-mail.
 
 ## Etapa 4 — Assistente da clínica e administração de minutas
 
@@ -52,7 +52,7 @@ O chatbot da Biblioteca passa a enviar minutas e resultados de triagem direto pa
 - Captura: mantém PCM via Web Audio + WAV completo por janela (`src/lib/triagem-audio.ts`); trocar `ScriptProcessorNode` por `AudioWorklet` com fallback, `wakeLock` opcional e reconstrução do `AudioContext` em `visibilitychange`.
 - Transcrição/resumo seguem em `src/routes/api/ai-triagem-transcrever.ts` (SSE) e `ai-triagem-resumo.ts`; sugestão de minutas validada contra `BIBLIOTECA_CATEGORIAS`.
 - Triagem estruturada: nova tabela `patient_screenings` + geração de minuta reaproveitando `/api/ai-biblioteca`, com `patient_id` já suportado em `generated_docs`.
-- WhatsApp: `whatsapp_messages` (log) + `profiles.whatsapp`/`whatsapp_verificado_em`; rota `src/routes/api/public/hooks/whatsapp-status.ts` para callbacks de status, com verificação de assinatura. Secrets: `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_ID`, `WHATSAPP_VERIFY_TOKEN`.
+- WhatsApp: `profiles.whatsapp` no Perfil; botões montam link `wa.me/<numero>?text=...` com mensagem + URL assinada temporária do documento (reaproveita os tokens seguros já usados nas revisões). Sem backend novo.
 - Assistente: `clinic_members` (medico_user_id, assistente_user_id, papel, status) + `clinic_invites`; novo papel `assistente` no enum `app_role`; RLS de `patients`, `patient_events`, `patient_triages`, `generated_docs` e `documents` passa a aceitar dono OU assistente ativo via função `security definer` (`pode_ver_paciente`). Rotas sob `_authenticated/clinica/*`.
 - Minutas: `library_templates` + `library_categories` com escopo `oficial` (admin) e `proprio` (user_id), RLS por `has_role('admin')`/`auth.uid()`; catálogo estático atual vira seed e a Biblioteca lê a união das duas fontes.
 - Validação: `bunx tsgo --noEmit`, ESLint e testes Playwright autenticados (triagem curta, envio WhatsApp em modo simulado, login do assistente, CRUD de minutas).
