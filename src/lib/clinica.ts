@@ -155,7 +155,7 @@ export function useEquipe() {
           .from("clinic_invites")
           .select("id, email, nome, token, status, expires_at, created_at")
           .eq("medico_user_id", userId)
-          .eq("status", "pendente")
+          .in("status", ["pendente", "expirado"])
           .order("created_at", { ascending: false }),
       ]);
       if (membros.error) throw membros.error;

@@ -132,7 +132,7 @@ export function EquipeClinica() {
                     variant="ghost"
                     size="sm"
                     className="rounded-lg text-muted-foreground"
-                    onClick={() => cancelar.mutate(c.id)}
+                    onClick={() => cancelar.mutate({ id: c.id, email: c.email })}
                   >
                     Cancelar
                   </Button>
@@ -183,7 +183,7 @@ export function EquipeClinica() {
                     variant="ghost"
                     size="sm"
                     className="rounded-lg text-danger"
-                    onClick={() => remover.mutate(m.id)}
+                    onClick={() => remover.mutate({ id: m.id, nome: m.nome ?? undefined })}
                   >
                     Remover
                   </Button>
