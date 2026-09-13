@@ -477,7 +477,7 @@ function Page() {
 
           <Button
             onClick={() => void handleGenerate()}
-            disabled={generating}
+            disabled={generating || !docAtual}
             className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
           >
             {generating ? (
