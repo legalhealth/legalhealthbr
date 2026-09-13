@@ -94,10 +94,14 @@ export function useSalvarModelo() {
       const linha = {
         slug: slugificar(input.label),
         label: input.label.trim(),
-        categoria_slug: input.categoria_slug,
-        grupo: input.grupo?.trim() || null,
+        categoria_slug: input.escopo === "clinica" ? CLINICA_CATEGORIA : input.categoria_slug,
+        grupo:
+          input.escopo === "clinica"
+            ? input.grupo?.trim() || "Minutas oficiais da clínica"
+            : input.grupo?.trim() || null,
         escopo: input.escopo,
-        user_id: input.escopo === "proprio" ? userId : null,
+        user_id: input.escopo === "oficial" ? null : userId,
+        clinic_owner_id: input.escopo === "clinica" ? userId : null,
         pede_procedimento: input.pede_procedimento,
         instrucoes: input.instrucoes?.trim() || null,
         status: input.status,
