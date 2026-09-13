@@ -367,14 +367,40 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
             </div>
           ) : null}
 
-          <Button
-            onClick={() => void handleConfirmar()}
-            disabled={confirmar.isPending}
-            className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:brightness-105"
-          >
-            {confirmar.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Confirmar triagem
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              onClick={() => void handleConfirmar()}
+              disabled={confirmar.isPending}
+              className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:brightness-105"
+            >
+              {confirmar.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Confirmar triagem
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-xl border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+              onClick={() =>
+                abrirWhatsApp(perfilWhatsapp, {
+                  titulo: `Triagem — ${resumo.motivo || "atendimento"}`,
+                  corpo: [
+                    `Prioridade: ${urgenciaMeta(resumo.urgencia).label}`,
+                    resumo.resumo.join("\n"),
+                    resumo.encaminhamento ? `Encaminhamento: ${resumo.encaminhamento}` : "",
+                    resumo.pendencias.length
+                      ? `A confirmar: ${resumo.pendencias.join("; ")}`
+                      : "",
+                  ]
+                    .filter(Boolean)
+                    .join("\n\n"),
+                  caminho: `/paciente/${patientId}`,
+                })
+              }
+            >
+              Enviar no meu WhatsApp
+            </Button>
+          </div>
         </div>
       ) : null}
 
