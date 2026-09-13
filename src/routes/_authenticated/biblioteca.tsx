@@ -406,6 +406,17 @@ function Page() {
             ) : null}
           </div>
 
+          {clinicaData?.clinica ? (
+            <label className="mt-5 flex items-center gap-3 text-sm text-muted-foreground">
+              <Switch
+                checked={incluirClinica}
+                onCheckedChange={setIncluirClinica}
+                aria-label="Incluir dados da clínica no cabeçalho"
+              />
+              Incluir dados da clínica no cabeçalho do documento
+            </label>
+          ) : null}
+
           <Button
             onClick={() => void handleGenerate()}
             disabled={generating}
