@@ -312,7 +312,26 @@ function Page() {
                 />
               </div>
             ) : null}
+            {pacientes?.length ? (
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Vincular ao paciente</Label>
+                <Select value={pacienteId || "nenhum"} onValueChange={(v) => setPacienteId(v === "nenhum" ? "" : v)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Nenhum" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nenhum">Nenhum</SelectItem>
+                    {pacientes.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : null}
           </div>
+
 
           <Button
             onClick={() => void handleGenerate()}
