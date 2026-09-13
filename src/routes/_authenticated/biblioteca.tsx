@@ -79,7 +79,7 @@ function Page() {
   const [especialidade, setEspecialidade] = useState("");
   const [cidade, setCidade] = useState("");
   const [procedimento, setProcedimento] = useState("");
-  const [pacienteId, setPacienteId] = useState<string>("");
+  const [pacienteId, setPacienteId] = useState<string>(search.pac ?? "");
   const [draft, setDraft] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [docId, setDocId] = useState<string | null>(null);
