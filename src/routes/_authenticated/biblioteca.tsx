@@ -115,6 +115,7 @@ function Page() {
   }, [profile]);
 
   function trocarCategoria(value: BibliotecaCategoria) {
+    setAba(value);
     setCategoria(value);
     setDocumento(docsDaCategoria(value)[0]!.value);
   }
