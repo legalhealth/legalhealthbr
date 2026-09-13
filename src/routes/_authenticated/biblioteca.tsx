@@ -50,10 +50,14 @@ export const Route = createFileRoute("/_authenticated/biblioteca")({
 
 function Page() {
   const search = Route.useSearch();
+  const modoPacientes = search.cat === "pacientes";
   const categoriaInicial = BIBLIOTECA_CATEGORIAS.some((c) => c.value === search.cat)
     ? (search.cat as BibliotecaCategoria)
     : "minutas";
   const docsIniciais = docsDaCategoria(categoriaInicial);
+  const [aba, setAba] = useState<BibliotecaCategoria | "pacientes">(
+    modoPacientes ? "pacientes" : categoriaInicial,
+  );
   const [categoria, setCategoria] = useState<BibliotecaCategoria>(categoriaInicial);
   const [documento, setDocumento] = useState(
     docsIniciais.find((d) => d.value === search.doc)?.value ?? docsIniciais[0]!.value,
@@ -63,12 +67,16 @@ function Page() {
   const [especialidade, setEspecialidade] = useState("");
   const [cidade, setCidade] = useState("");
   const [procedimento, setProcedimento] = useState("");
+  const [pacienteId, setPacienteId] = useState<string>("");
   const [draft, setDraft] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [docId, setDocId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const draftRef = useRef<HTMLElement | null>(null);
   const gerandoRef = useRef(false);
+
+  const { data: pacientes } = usePacientes();
+  const criarEvento = useCriarEvento();
 
   const docs = useMemo(() => docsDaCategoria(categoria), [categoria]);
   const grupos = useMemo(() => gruposDaCategoria(categoria), [categoria]);
