@@ -182,9 +182,9 @@ function Page() {
       title="Biblioteca Inteligente"
       description="Minutas, protocolos e checklists gerados sob medida para a sua especialidade, com base nas normas do CFM, LGPD e Código de Ética Médica."
     >
-      <div className="mt-8 space-y-6">
+      <div className="mt-8 space-y-6 pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+4.5rem)] lg:pb-0">
         {/* Categorias */}
-        <div className="flex flex-wrap gap-3">
+        <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap">
           {BIBLIOTECA_CATEGORIAS.map((c) => (
             <Button
               key={c.value}
@@ -214,6 +214,7 @@ function Page() {
                 : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
             )}
           >
+            <UserRound aria-hidden="true" />
             Pacientes
           </Button>
         </div>
@@ -255,7 +256,7 @@ function Page() {
             ))}
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-6 grid gap-4 pr-12 sm:grid-cols-2 lg:grid-cols-5 2xl:pr-0">
             <div className="space-y-2">
               <Label htmlFor="bib-nome" className="text-xs text-muted-foreground">
                 Nome do profissional
