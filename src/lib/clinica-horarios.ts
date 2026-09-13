@@ -45,6 +45,6 @@ export function resumoHorarios(horarios: DiaHorario[]): string {
   const abertos = horarios.filter((h) => h.aberto);
   if (abertos.length === 0) return "Horários não informados";
   return abertos
-    .map((h) => `${DIAS_SEMANA[h.dia].slice(0, 3)} ${h.abre}–${h.fecha}`)
+    .map((h) => `${(DIAS_SEMANA[h.dia] ?? "").slice(0, 3)} ${h.abre}–${h.fecha}`)
     .join(" · ");
 }
