@@ -221,8 +221,9 @@ function Page() {
         {aba === "pacientes" ? <ListaPacientes /> : null}
 
         {/* Painel de geração */}
-        <section className={cn("rounded-2xl glass-card p-5 md:p-6", aba === "pacientes" && "hidden")}>
-
+        <section
+          className={cn("rounded-2xl glass-card p-5 md:p-6", aba === "pacientes" && "hidden")}
+        >
           <div className="space-y-5">
             {grupos.map((grupo) => (
               <div key={grupo.label || "documentos"} className="space-y-2.5">
@@ -315,7 +316,10 @@ function Page() {
             {pacientes?.length ? (
               <div className="space-y-2">
                 <Label className="text-xs text-muted-foreground">Vincular ao paciente</Label>
-                <Select value={pacienteId || "nenhum"} onValueChange={(v) => setPacienteId(v === "nenhum" ? "" : v)}>
+                <Select
+                  value={pacienteId || "nenhum"}
+                  onValueChange={(v) => setPacienteId(v === "nenhum" ? "" : v)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Nenhum" />
                   </SelectTrigger>
@@ -331,7 +335,6 @@ function Page() {
               </div>
             ) : null}
           </div>
-
 
           <Button
             onClick={() => void handleGenerate()}

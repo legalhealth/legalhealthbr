@@ -366,7 +366,8 @@ function Page() {
             <ul className="mt-4 space-y-2 text-xs text-muted-foreground">
               {historico.map((linha) => (
                 <li key={linha.id}>
-                  {formatarData(linha.created_at)} — <span className="text-foreground">{linha.campo}</span>:{" "}
+                  {formatarData(linha.created_at)} —{" "}
+                  <span className="text-foreground">{linha.campo}</span>:{" "}
                   {linha.valor_anterior || "vazio"} → {linha.valor_novo || "vazio"}
                 </li>
               ))}

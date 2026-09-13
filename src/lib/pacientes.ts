@@ -597,7 +597,9 @@ export function useTriagensSemDesfecho() {
         .order("created_at", { ascending: false })
         .limit(30);
 
-      const lista = (triagens ?? []) as unknown as (Triagem & { patients: { nome: string } | null })[];
+      const lista = (triagens ?? []) as unknown as (Triagem & {
+        patients: { nome: string } | null;
+      })[];
       if (!lista.length) return [];
 
       const { data: eventos } = await supabase

@@ -114,7 +114,9 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
       await filaRef.current;
       const texto = transcricao.trim();
       if (texto.length < 20) {
-        setAviso("A transcrição ficou curta demais. Grave novamente falando mais perto do aparelho.");
+        setAviso(
+          "A transcrição ficou curta demais. Grave novamente falando mais perto do aparelho.",
+        );
         setEtapa("consentimento");
         return;
       }
@@ -357,10 +359,7 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
                     {item.resumo?.motivo || "Triagem por voz"}
                   </p>
                   <span
-                    className={cn(
-                      "rounded-full border px-2.5 py-0.5 text-[11px]",
-                      meta.className,
-                    )}
+                    className={cn("rounded-full border px-2.5 py-0.5 text-[11px]", meta.className)}
                   >
                     {meta.label}
                   </span>
