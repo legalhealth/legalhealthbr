@@ -46,6 +46,7 @@ import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminFontesRouteImport } from './routes/_authenticated/admin.fontes'
 import { Route as AuthenticatedAdminFunilRouteImport } from './routes/_authenticated/admin.funil'
+import { Route as AuthenticatedBibliotecaModelosRouteImport } from './routes/_authenticated/biblioteca.modelos'
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia.index'
 import { Route as AuthenticatedIaAssistenteRouteImport } from './routes/_authenticated/ia.assistente'
 import { Route as AuthenticatedIaDocumentosRouteImport } from './routes/_authenticated/ia.documentos'
@@ -251,6 +252,12 @@ const AuthenticatedAdminFunilRoute = AuthenticatedAdminFunilRouteImport.update({
   path: '/admin/funil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBibliotecaModelosRoute =
+  AuthenticatedBibliotecaModelosRouteImport.update({
+    id: '/modelos',
+    path: '/modelos',
+    getParentRoute: () => AuthenticatedBibliotecaRoute,
+  } as any)
 const AuthenticatedIaIndexRoute = AuthenticatedIaIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -351,7 +358,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
-  '/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/biblioteca': typeof AuthenticatedBibliotecaRouteWithChildren
   '/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/ia': typeof AuthenticatedIaRouteWithChildren
   '/inicio': typeof AuthenticatedInicioRoute
@@ -374,6 +381,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/fontes': typeof AuthenticatedAdminFontesRoute
   '/admin/funil': typeof AuthenticatedAdminFunilRoute
+  '/biblioteca/modelos': typeof AuthenticatedBibliotecaModelosRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/ia/historico': typeof AuthenticatedIaHistoricoRoute
@@ -405,7 +413,7 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
-  '/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/biblioteca': typeof AuthenticatedBibliotecaRouteWithChildren
   '/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/juriscore': typeof AuthenticatedJuriscoreRoute
@@ -427,6 +435,7 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/fontes': typeof AuthenticatedAdminFontesRoute
   '/admin/funil': typeof AuthenticatedAdminFunilRoute
+  '/biblioteca/modelos': typeof AuthenticatedBibliotecaModelosRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/ia/historico': typeof AuthenticatedIaHistoricoRoute
@@ -460,7 +469,7 @@ export interface FileRoutesById {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/bem-vindo': typeof AuthenticatedBemVindoRoute
-  '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRouteWithChildren
   '/_authenticated/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/_authenticated/ia': typeof AuthenticatedIaRouteWithChildren
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
@@ -483,6 +492,7 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/fontes': typeof AuthenticatedAdminFontesRoute
   '/_authenticated/admin/funil': typeof AuthenticatedAdminFunilRoute
+  '/_authenticated/biblioteca/modelos': typeof AuthenticatedBibliotecaModelosRoute
   '/_authenticated/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/_authenticated/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/_authenticated/ia/historico': typeof AuthenticatedIaHistoricoRoute
@@ -539,6 +549,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/admin/fontes'
     | '/admin/funil'
+    | '/biblioteca/modelos'
     | '/ia/assistente'
     | '/ia/documentos'
     | '/ia/historico'
@@ -592,6 +603,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/admin/fontes'
     | '/admin/funil'
+    | '/biblioteca/modelos'
     | '/ia/assistente'
     | '/ia/documentos'
     | '/ia/historico'
@@ -647,6 +659,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/fontes'
     | '/_authenticated/admin/funil'
+    | '/_authenticated/biblioteca/modelos'
     | '/_authenticated/ia/assistente'
     | '/_authenticated/ia/documentos'
     | '/_authenticated/ia/historico'
@@ -964,6 +977,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminFunilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/biblioteca/modelos': {
+      id: '/_authenticated/biblioteca/modelos'
+      path: '/modelos'
+      fullPath: '/biblioteca/modelos'
+      preLoaderRoute: typeof AuthenticatedBibliotecaModelosRouteImport
+      parentRoute: typeof AuthenticatedBibliotecaRoute
+    }
     '/_authenticated/ia/': {
       id: '/_authenticated/ia/'
       path: '/'
@@ -1079,6 +1099,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedBibliotecaRouteChildren {
+  AuthenticatedBibliotecaModelosRoute: typeof AuthenticatedBibliotecaModelosRoute
+}
+
+const AuthenticatedBibliotecaRouteChildren: AuthenticatedBibliotecaRouteChildren =
+  {
+    AuthenticatedBibliotecaModelosRoute: AuthenticatedBibliotecaModelosRoute,
+  }
+
+const AuthenticatedBibliotecaRouteWithChildren =
+  AuthenticatedBibliotecaRoute._addFileChildren(
+    AuthenticatedBibliotecaRouteChildren,
+  )
+
 interface AuthenticatedIaRouteChildren {
   AuthenticatedIaAssistenteRoute: typeof AuthenticatedIaAssistenteRoute
   AuthenticatedIaDocumentosRoute: typeof AuthenticatedIaDocumentosRoute
@@ -1105,7 +1139,7 @@ const AuthenticatedIaRouteWithChildren = AuthenticatedIaRoute._addFileChildren(
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBemVindoRoute: typeof AuthenticatedBemVindoRoute
-  AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRoute
+  AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRouteWithChildren
   AuthenticatedEntrarNoPcRoute: typeof AuthenticatedEntrarNoPcRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRouteWithChildren
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
@@ -1120,7 +1154,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBemVindoRoute: AuthenticatedBemVindoRoute,
-  AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRoute,
+  AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRouteWithChildren,
   AuthenticatedEntrarNoPcRoute: AuthenticatedEntrarNoPcRoute,
   AuthenticatedIaRoute: AuthenticatedIaRouteWithChildren,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
