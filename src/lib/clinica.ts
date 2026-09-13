@@ -265,9 +265,13 @@ export function useSalvarClinica() {
         .from("clinics")
         .upsert({ ...input, user_id: userId }, { onConflict: "user_id" });
       if (error) throw error;
+      // Cria as minutas oficiais da clínica na primeira vez (idempotente no banco).
+      await supabase.rpc("semear_modelos_clinica");
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["clinica"] });
+      void queryClient.invalidateQueries({ queryKey: ["library-templates"] });
+      void queryClient.invalidateQueries({ queryKey: ["library-categories"] });
     },
   });
 }
