@@ -194,7 +194,7 @@ function Page() {
               onClick={() => trocarCategoria(c.value)}
               className={cn(
                 "rounded-xl px-5",
-                categoria === c.value
+                aba === c.value
                   ? "border-gold/50 bg-gold/10 text-gold hover:bg-gold/15 hover:text-gold"
                   : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
               )}
@@ -202,10 +202,27 @@ function Page() {
               {c.label}
             </Button>
           ))}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setAba("pacientes")}
+            className={cn(
+              "rounded-xl px-5",
+              aba === "pacientes"
+                ? "border-gold/50 bg-gold/10 text-gold hover:bg-gold/15 hover:text-gold"
+                : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+            )}
+          >
+            Pacientes
+          </Button>
         </div>
 
+        {aba === "pacientes" ? <ListaPacientes /> : null}
+
         {/* Painel de geração */}
-        <section className="rounded-2xl glass-card p-5 md:p-6">
+        <section className={cn("rounded-2xl glass-card p-5 md:p-6", aba === "pacientes" && "hidden")}>
+
           <div className="space-y-5">
             {grupos.map((grupo) => (
               <div key={grupo.label || "documentos"} className="space-y-2.5">
