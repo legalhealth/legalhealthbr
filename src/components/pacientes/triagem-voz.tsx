@@ -232,6 +232,26 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
             <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-danger" />
             <span className="text-sm text-foreground">Gravando e transcrevendo…</span>
           </div>
+          <div className="space-y-1.5">
+            <div
+              className="h-2 overflow-hidden rounded-full bg-muted"
+              role="meter"
+              aria-label="Nível de voz captado"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(nivel * 100)}
+            >
+              <div
+                className="h-full rounded-full bg-gold transition-[width] duration-150"
+                style={{ width: `${Math.max(2, Math.round(nivel * 100))}%` }}
+              />
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {semSom
+                ? "Nenhum som captado — fale mais perto do aparelho ou confira o microfone."
+                : "Microfone ativo. Mantenha o aparelho próximo de quem fala."}
+            </p>
+          </div>
           <div className="max-h-56 overflow-y-auto rounded-xl border border-border p-4 text-sm leading-relaxed text-muted-foreground">
             {transcricao || "Aguardando as primeiras palavras…"}
           </div>
