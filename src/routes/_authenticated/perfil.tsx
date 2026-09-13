@@ -376,6 +376,8 @@ function Page() {
           </CardContent>
         </Card>
 
+        <EquipeClinica />
+
         <Card className="rounded-2xl glass-card shadow-none">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
