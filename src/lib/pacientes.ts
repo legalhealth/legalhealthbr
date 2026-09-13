@@ -233,12 +233,10 @@ export function useAtualizarPaciente() {
       });
       if (!alteracoes.length) return;
 
-      const { error } = await supabase
-        .from("patients")
-        .update(
-          Object.fromEntries(alteracoes.map((campo) => [campo, valores[campo] || null])),
-        )
-        .eq("id", anterior.id);
+      const patch: Partial<Record<CampoFicha, string | null>> = {};
+      for (const campo of alteracoes) patch[campo] = valores[campo] || null;
+
+      const { error } = await supabase.from("patients").update(patch).eq("id", anterior.id);
       if (error) throw error;
 
       await supabase.from("patient_field_history").insert(
