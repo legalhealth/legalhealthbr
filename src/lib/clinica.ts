@@ -1,6 +1,47 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { normalizarHorarios, type DiaHorario } from "@/lib/clinica-horarios";
+
+export type Clinica = {
+  id: string;
+  user_id: string;
+  nome: string | null;
+  cnpj: string | null;
+  telefone: string | null;
+  email: string | null;
+  responsavel_tecnico: string | null;
+  cep: string | null;
+  logradouro: string | null;
+  numero: string | null;
+  complemento: string | null;
+  bairro: string | null;
+  cidade: string | null;
+  uf: string | null;
+  horarios: DiaHorario[];
+};
+
+export type ClinicaInput = Omit<Clinica, "id" | "user_id">;
+
+/** Registra ações da equipe no mesmo log de auditoria dos pacientes. */
+async function auditarEquipe(acao: string, entidade: string, entidadeId: string, detalhe: string) {
+  try {
+    const { data } = await supabase.auth.getUser();
+    const userId = data.user?.id;
+    if (!userId) return;
+    await supabase.from("patient_audit_log").insert({
+      user_id: userId,
+      autor_user_id: userId,
+      patient_id: null,
+      entidade,
+      entidade_id: entidadeId,
+      acao,
+      detalhe,
+    });
+  } catch {
+    /* auditoria não deve interromper a gestão da equipe */
+  }
+}
 
 export type VinculoClinica = {
   id: string;
