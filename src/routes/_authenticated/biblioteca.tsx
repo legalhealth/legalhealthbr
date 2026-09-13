@@ -258,58 +258,100 @@ function Page() {
       <div className="mt-8 space-y-6 pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+4.5rem)] lg:pb-24">
         {/* Categorias */}
         <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap">
-          {BIBLIOTECA_CATEGORIAS.map((c) => (
-            <Button
-              key={c.value}
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => trocarCategoria(c.value)}
-              className={cn(
-                "rounded-xl px-5",
-                aba === c.value
-                  ? "border-gold/50 bg-gold/10 text-gold hover:bg-gold/15 hover:text-gold"
-                  : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-              )}
-            >
-              {c.label}
-            </Button>
-          ))}
+          {ehAssistente
+            ? null
+            : BIBLIOTECA_CATEGORIAS.map((c) => (
+                <Button
+                  key={c.value}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => trocarCategoria(c.value)}
+                  className={cn(
+                    "rounded-xl px-5",
+                    aba === c.value
+                      ? "border-gold/50 bg-gold/10 text-gold hover:bg-gold/15 hover:text-gold"
+                      : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  )}
+                >
+                  {c.label}
+                </Button>
+              ))}
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => setAba("pacientes")}
+            onClick={() => setAba("clinica")}
             className={cn(
               "rounded-xl px-5",
-              aba === "pacientes"
+              aba === "clinica"
                 ? "border-gold/50 bg-gold/10 text-gold hover:bg-gold/15 hover:text-gold"
                 : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
             )}
           >
-            <UserRound aria-hidden="true" />
-            Pacientes
+            <Building2 aria-hidden="true" />
+            Clínica
           </Button>
-          <Button
-            asChild
-            type="button"
-            variant="outline"
-            size="sm"
-            className="rounded-xl border-border bg-transparent px-5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-          >
-            <Link to="/biblioteca/modelos">
-              <Settings2 aria-hidden="true" />
-              Modelos
-            </Link>
-          </Button>
+          {ehAssistente ? null : (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setAba("pacientes")}
+              className={cn(
+                "rounded-xl px-5",
+                aba === "pacientes"
+                  ? "border-gold/50 bg-gold/10 text-gold hover:bg-gold/15 hover:text-gold"
+                  : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+              )}
+            >
+              <UserRound aria-hidden="true" />
+              Pacientes
+            </Button>
+          )}
+          {ehAssistente ? null : (
+            <Button
+              asChild
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-xl border-border bg-transparent px-5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            >
+              <Link to="/biblioteca/modelos">
+                <Settings2 aria-hidden="true" />
+                Modelos
+              </Link>
+            </Button>
+          )}
         </div>
 
         {aba === "pacientes" ? <ListaPacientes /> : null}
+
+        {modoClinica ? (
+          <section className="rounded-2xl glass-card p-5 md:p-6">
+            <h2 className="font-display text-lg text-foreground">
+              {clinicaData?.clinica?.nome ?? "Minha clínica"}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Pacientes da clínica, triagem por voz ou formulário na ficha de cada um, e as minutas
+              oficiais da clínica logo abaixo.
+            </p>
+            <div className="mt-5">
+              <ListaPacientes />
+            </div>
+          </section>
+        ) : null}
 
         {/* Painel de geração */}
         <section
           className={cn("rounded-2xl glass-card p-5 md:p-6", aba === "pacientes" && "hidden")}
         >
+          {modoClinica && docs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nenhuma minuta da clínica cadastrada ainda. O responsável pela conta cria as minutas
+              oficiais da clínica na tela Modelos.
+            </p>
+          ) : null}
           <div className="space-y-5">
             {grupos.map((grupo) => (
               <div key={grupo.label || "documentos"} className="space-y-2.5">
