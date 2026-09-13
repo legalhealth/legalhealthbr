@@ -13,6 +13,33 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { abrirWhatsApp } from "@/lib/whatsapp";
+import { useClinica, type Clinica } from "@/lib/clinica";
+import { resumoHorarios } from "@/lib/clinica-horarios";
+import { Switch } from "@/components/ui/switch";
+
+/** Bloco de cabeçalho com os dados da clínica, inserido antes da minuta gerada. */
+function cabecalhoClinica(clinica: Clinica): string | null {
+  const linhas: string[] = [];
+  if (clinica.nome) linhas.push(clinica.nome);
+  if (clinica.responsavel_tecnico) linhas.push(`Responsável técnico(a): ${clinica.responsavel_tecnico}`);
+  if (clinica.cnpj) linhas.push(`CNPJ: ${clinica.cnpj}`);
+  const endereco = [
+    clinica.logradouro,
+    clinica.numero,
+    clinica.complemento,
+    clinica.bairro,
+    [clinica.cidade, clinica.uf].filter(Boolean).join("/"),
+    clinica.cep ? `CEP ${clinica.cep}` : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
+  if (endereco) linhas.push(endereco);
+  if (clinica.telefone) linhas.push(`Telefone: ${clinica.telefone}`);
+  if (clinica.email) linhas.push(`E-mail: ${clinica.email}`);
+  const horarios = resumoHorarios(clinica.horarios);
+  if (horarios) linhas.push(`Atendimento: ${horarios}`);
+  return linhas.length ? linhas.join("\n") : null;
+}
 import { modelosDaCategoria, useModelos } from "@/lib/library-templates";
 import { saveHistoryItem } from "@/lib/ia-history";
 import { useCriarEvento, usePacientes } from "@/lib/pacientes";
