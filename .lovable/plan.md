@@ -23,14 +23,14 @@ Nova tela de triagem estruturada na Biblioteca, ao lado da triagem por voz:
 - Ao concluir, a minuta correspondente é gerada automaticamente (consentimento, orientação ou registro conforme o caso) e vinculada à ficha do paciente.
 - Tudo revisável e editável antes de salvar; a IA nunca diagnostica nem indica conduta.
 
-## Etapa 3 — Envio pelo WhatsApp
+## Etapa 3 — Envio pelo WhatsApp (link pronto)
 
-O chatbot da Biblioteca passa a enviar minutas e resultados de triagem direto para o WhatsApp do profissional, sem abrir o app.
+O chatbot da Biblioteca passa a enviar minutas e resultados de triagem para o WhatsApp do profissional, sem abrir nenhuma API.
 
-- Cadastro e confirmação do número no Perfil (código de verificação).
-- Envio automático oficial pela API do WhatsApp Business: mensagem com o resumo e um link seguro e temporário para o documento.
-- Registro de cada envio (enviado, entregue, falhou) e aviso por e-mail quando o envio falha.
-- **Depende de credenciais suas**: conta WhatsApp Business, número aprovado e chaves de acesso. Sem elas, o envio automático não pode ser ativado — nesse caso deixo tudo pronto e o botão fica indisponível até as chaves serem cadastradas. Peço as chaves em mensagem separada, com o passo a passo de onde obtê-las.
+- Número do WhatsApp salvo no Perfil (com confirmação simples do formato).
+- No chatbot e na triagem, um botão "Enviar no WhatsApp" abre o WhatsApp do aparelho com a mensagem e o link seguro do documento já escritos — você só toca em enviar.
+- Funciona no celular e no computador (WhatsApp Web), sem contratar serviço nem aprovar número.
+- O link do documento continua temporário e seguro, igual aos envios por e-mail.
 
 ## Etapa 4 — Assistente da clínica e administração de minutas
 
