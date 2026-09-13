@@ -93,12 +93,13 @@ export const Route = createFileRoute("/_authenticated/biblioteca")({
 function Page() {
   const search = Route.useSearch();
   const modoPacientes = search.cat === "pacientes";
+  const modoClinicaInicial = search.cat === "clinica";
   const categoriaInicial = BIBLIOTECA_CATEGORIAS.some((c) => c.value === search.cat)
     ? (search.cat as BibliotecaCategoria)
     : "minutas";
   const docsIniciais = docsDaCategoria(categoriaInicial);
-  const [aba, setAba] = useState<BibliotecaCategoria | "pacientes">(
-    modoPacientes ? "pacientes" : categoriaInicial,
+  const [aba, setAba] = useState<BibliotecaCategoria | "pacientes" | "clinica">(
+    modoPacientes ? "pacientes" : modoClinicaInicial ? "clinica" : categoriaInicial,
   );
   const [categoria, setCategoria] = useState<BibliotecaCategoria>(categoriaInicial);
   const [documento, setDocumento] = useState(
