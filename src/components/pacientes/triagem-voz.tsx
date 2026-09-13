@@ -44,6 +44,8 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
   const [aviso, setAviso] = useState<string | null>(null);
   const [triagem, setTriagem] = useState<Triagem | null>(null);
   const [resumo, setResumo] = useState<TriagemResumo | null>(null);
+  const [nivel, setNivel] = useState(0);
+  const [semSom, setSemSom] = useState(false);
 
   const recorderRef = useRef<TriagemRecorder | null>(null);
   const filaRef = useRef<Promise<void>>(Promise.resolve());
@@ -91,6 +93,8 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
       onJanela: (wav) => enfileirarJanela(wav),
       onErro: (mensagem) => setAviso(mensagem),
       onSegundo: (s) => setSegundos(s),
+      onNivel: (v) => setNivel(v),
+      onSilencio: (mudo) => setSemSom(mudo),
       onLimite: () => void encerrar(),
     });
     recorderRef.current = recorder;
