@@ -91,6 +91,8 @@ function Page() {
 
   const { data: pacientes } = usePacientes();
   const criarEvento = useCriarEvento();
+  const { data: clinicaData } = useClinica();
+  const [incluirClinica, setIncluirClinica] = useState(true);
 
   const { data: modelosDb } = useModelos();
   const extras = useMemo(
@@ -161,6 +163,15 @@ function Page() {
         },
         (chunk) => setDraft((prev) => (prev ?? "") + chunk),
       );
+
+      const cabecalho =
+        incluirClinica && clinicaData?.clinica
+          ? cabecalhoClinica(clinicaData.clinica)
+          : null;
+      if (cabecalho) {
+        text = `${cabecalho}\n\n${text}`;
+        setDraft(text);
+      }
       requestAnimationFrame(() => draftRef.current?.scrollIntoView({ behavior: "smooth" }));
 
       const savedId = await saveHistoryItem({
