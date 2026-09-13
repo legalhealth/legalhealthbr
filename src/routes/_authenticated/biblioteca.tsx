@@ -13,6 +13,15 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { saveHistoryItem } from "@/lib/ia-history";
+import { useCriarEvento, usePacientes } from "@/lib/pacientes";
+import { ListaPacientes } from "@/components/pacientes/lista-pacientes";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   BIBLIOTECA_CATEGORIAS,
   categoriaLabel,
