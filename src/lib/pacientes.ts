@@ -233,8 +233,18 @@ export function useAtualizarPaciente() {
       });
       if (!alteracoes.length) return;
 
-      const patch: Partial<Record<CampoFicha, string | null>> = {};
-      for (const campo of alteracoes) patch[campo] = valores[campo] || null;
+      const patch: {
+        nome?: string;
+        nascimento?: string | null;
+        contato?: string | null;
+        convenio?: string | null;
+        observacoes?: string | null;
+        responsavel_legal?: string | null;
+      } = {};
+      for (const campo of alteracoes) {
+        if (campo === "nome") patch.nome = (valores.nome || anterior.nome).trim();
+        else patch[campo] = valores[campo] || null;
+      }
 
       const { error } = await supabase.from("patients").update(patch).eq("id", anterior.id);
       if (error) throw error;
