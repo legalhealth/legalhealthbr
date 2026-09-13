@@ -3,7 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
-import { User, Bell, Check, Save, LogOut, Loader2, Settings2, Crown } from "lucide-react";
+import { User, Users, Bell, Check, Save, LogOut, Loader2, Settings2, Crown } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { ResumoPacientes } from "@/components/pacientes/resumo-pacientes";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   head: () => ({
@@ -326,6 +327,21 @@ function Page() {
               <Input id="email" type="email" value={email} readOnly disabled />
               <p className="text-xs text-subtle">O e-mail de acesso não pode ser alterado aqui.</p>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl glass-card shadow-none">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
+              <Users className="h-5 w-5 text-gold" />
+              Meus pacientes
+            </CardTitle>
+            <CardDescription>
+              Pacientes recentes, com ficha, histórico e minutas vinculadas.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResumoPacientes />
           </CardContent>
         </Card>
 
