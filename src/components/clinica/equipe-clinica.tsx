@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { convidarAssistente } from "@/lib/clinica.functions";
+import { convidarAssistente, reenviarConvite } from "@/lib/clinica.functions";
 import {
   useAlterarAssistente,
   useCancelarConvite,
@@ -22,6 +22,7 @@ export function EquipeClinica() {
   const queryClient = useQueryClient();
   const equipe = useEquipe();
   const convidar = useServerFn(convidarAssistente);
+  const reenviar = useServerFn(reenviarConvite);
   const alterar = useAlterarAssistente();
   const remover = useRemoverAssistente();
   const cancelar = useCancelarConvite();
@@ -29,6 +30,32 @@ export function EquipeClinica() {
   const [email, setEmail] = useState("");
   const [nome, setNome] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [reenviando, setReenviando] = useState<string | null>(null);
+
+  const handleReenviar = async (id: string) => {
+    if (reenviando) return;
+    setReenviando(id);
+    try {
+      const r = await reenviar({ data: { id } });
+      await queryClient.invalidateQueries({ queryKey: ["clinica"] });
+      if (r.enviado) {
+        toast.success("Convite reenviado", {
+          description: "Um novo link, válido por 7 dias, foi enviado por e-mail.",
+        });
+      } else {
+        await navigator.clipboard?.writeText(r.link).catch(() => undefined);
+        toast.warning("Novo link criado, mas o e-mail não saiu", {
+          description: `${r.aviso ?? ""} O link foi copiado para você enviar por outro canal.`,
+        });
+      }
+    } catch (err) {
+      toast.error("Não foi possível reenviar", {
+        description: err instanceof Error ? err.message : "Tente novamente.",
+      });
+    } finally {
+      setReenviando(null);
+    }
+  };
 
   const handleConvidar = async (e: React.FormEvent) => {
     e.preventDefault();
