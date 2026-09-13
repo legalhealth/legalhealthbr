@@ -183,7 +183,9 @@ export function EquipeClinica() {
                     variant="ghost"
                     size="sm"
                     className="rounded-lg text-danger"
-                    onClick={() => remover.mutate({ id: m.id, nome: m.nome ?? undefined })}
+                    onClick={() =>
+                      remover.mutate({ id: m.id, ...(m.nome ? { nome: m.nome } : {}) })
+                    }
                   >
                     Remover
                   </Button>
