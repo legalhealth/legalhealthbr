@@ -32,9 +32,12 @@ import {
 } from "@/lib/biblioteca";
 
 export const Route = createFileRoute("/_authenticated/biblioteca")({
-  validateSearch: (search: Record<string, unknown>): { cat?: string; doc?: string } => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { cat?: string; doc?: string; pac?: string } => ({
     ...(typeof search["cat"] === "string" ? { cat: search["cat"] } : {}),
     ...(typeof search["doc"] === "string" ? { doc: search["doc"] } : {}),
+    ...(typeof search["pac"] === "string" ? { pac: search["pac"] } : {}),
   }),
   head: () => ({
     meta: [
