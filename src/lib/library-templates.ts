@@ -3,7 +3,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { BibliotecaDoc } from "@/lib/biblioteca-catalogo";
 
-export type ModeloEscopo = "oficial" | "proprio";
+export type ModeloEscopo = "oficial" | "proprio" | "clinica";
+
+/** Categoria das minutas oficiais da clínica (aba Clínica da Biblioteca). */
+export const CLINICA_CATEGORIA = "clinica-minutas";
 
 export type LibraryTemplate = {
   id: string;
@@ -13,6 +16,7 @@ export type LibraryTemplate = {
   grupo: string | null;
   escopo: string;
   user_id: string | null;
+  clinic_owner_id: string | null;
   pede_procedimento: boolean;
   instrucoes: string | null;
   ordem: number;
