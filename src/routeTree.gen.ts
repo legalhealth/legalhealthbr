@@ -23,6 +23,7 @@ import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedBemVindoRouteImport } from './routes/_authenticated/bem-vindo'
 import { Route as AuthenticatedBibliotecaRouteImport } from './routes/_authenticated/biblioteca'
+import { Route as AuthenticatedClinicaRouteImport } from './routes/_authenticated/clinica'
 import { Route as AuthenticatedEntrarNoPcRouteImport } from './routes/_authenticated/entrar-no-pc'
 import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
@@ -133,6 +134,11 @@ const AuthenticatedBemVindoRoute = AuthenticatedBemVindoRouteImport.update({
 const AuthenticatedBibliotecaRoute = AuthenticatedBibliotecaRouteImport.update({
   id: '/biblioteca',
   path: '/biblioteca',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedClinicaRoute = AuthenticatedClinicaRouteImport.update({
+  id: '/clinica',
+  path: '/clinica',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedEntrarNoPcRoute = AuthenticatedEntrarNoPcRouteImport.update({
@@ -359,6 +365,7 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRouteWithChildren
+  '/clinica': typeof AuthenticatedClinicaRoute
   '/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/ia': typeof AuthenticatedIaRouteWithChildren
   '/inicio': typeof AuthenticatedInicioRoute
@@ -414,6 +421,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/biblioteca': typeof AuthenticatedBibliotecaRouteWithChildren
+  '/clinica': typeof AuthenticatedClinicaRoute
   '/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/juriscore': typeof AuthenticatedJuriscoreRoute
@@ -470,6 +478,7 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRouteWithChildren
+  '/_authenticated/clinica': typeof AuthenticatedClinicaRoute
   '/_authenticated/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/_authenticated/ia': typeof AuthenticatedIaRouteWithChildren
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
@@ -527,6 +536,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/bem-vindo'
     | '/biblioteca'
+    | '/clinica'
     | '/entrar-no-pc'
     | '/ia'
     | '/inicio'
@@ -582,6 +592,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/bem-vindo'
     | '/biblioteca'
+    | '/clinica'
     | '/entrar-no-pc'
     | '/inicio'
     | '/juriscore'
@@ -637,6 +648,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/bem-vindo'
     | '/_authenticated/biblioteca'
+    | '/_authenticated/clinica'
     | '/_authenticated/entrar-no-pc'
     | '/_authenticated/ia'
     | '/_authenticated/inicio'
@@ -814,6 +826,13 @@ declare module '@tanstack/react-router' {
       path: '/biblioteca'
       fullPath: '/biblioteca'
       preLoaderRoute: typeof AuthenticatedBibliotecaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/clinica': {
+      id: '/_authenticated/clinica'
+      path: '/clinica'
+      fullPath: '/clinica'
+      preLoaderRoute: typeof AuthenticatedClinicaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/entrar-no-pc': {
@@ -1140,6 +1159,7 @@ const AuthenticatedIaRouteWithChildren = AuthenticatedIaRoute._addFileChildren(
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBemVindoRoute: typeof AuthenticatedBemVindoRoute
   AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRouteWithChildren
+  AuthenticatedClinicaRoute: typeof AuthenticatedClinicaRoute
   AuthenticatedEntrarNoPcRoute: typeof AuthenticatedEntrarNoPcRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRouteWithChildren
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
@@ -1155,6 +1175,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBemVindoRoute: AuthenticatedBemVindoRoute,
   AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRouteWithChildren,
+  AuthenticatedClinicaRoute: AuthenticatedClinicaRoute,
   AuthenticatedEntrarNoPcRoute: AuthenticatedEntrarNoPcRoute,
   AuthenticatedIaRoute: AuthenticatedIaRouteWithChildren,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,

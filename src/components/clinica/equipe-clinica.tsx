@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { convidarAssistente } from "@/lib/clinica.functions";
+import { convidarAssistente, reenviarConvite } from "@/lib/clinica.functions";
 import {
   useAlterarAssistente,
   useCancelarConvite,
@@ -22,6 +22,7 @@ export function EquipeClinica() {
   const queryClient = useQueryClient();
   const equipe = useEquipe();
   const convidar = useServerFn(convidarAssistente);
+  const reenviar = useServerFn(reenviarConvite);
   const alterar = useAlterarAssistente();
   const remover = useRemoverAssistente();
   const cancelar = useCancelarConvite();
@@ -29,6 +30,32 @@ export function EquipeClinica() {
   const [email, setEmail] = useState("");
   const [nome, setNome] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [reenviando, setReenviando] = useState<string | null>(null);
+
+  const handleReenviar = async (id: string) => {
+    if (reenviando) return;
+    setReenviando(id);
+    try {
+      const r = await reenviar({ data: { id } });
+      await queryClient.invalidateQueries({ queryKey: ["clinica"] });
+      if (r.enviado) {
+        toast.success("Convite reenviado", {
+          description: "Um novo link, válido por 7 dias, foi enviado por e-mail.",
+        });
+      } else {
+        await navigator.clipboard?.writeText(r.link).catch(() => undefined);
+        toast.warning("Novo link criado, mas o e-mail não saiu", {
+          description: `${r.aviso ?? ""} O link foi copiado para você enviar por outro canal.`,
+        });
+      }
+    } catch (err) {
+      toast.error("Não foi possível reenviar", {
+        description: err instanceof Error ? err.message : "Tente novamente.",
+      });
+    } finally {
+      setReenviando(null);
+    }
+  };
 
   const handleConvidar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,7 +139,7 @@ export function EquipeClinica() {
           <>
             <Separator />
             <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.18em] text-subtle">Convites pendentes</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-subtle">Convites</p>
               {convites.map((c) => (
                 <div
                   key={c.id}
@@ -124,18 +151,35 @@ export function EquipeClinica() {
                       {c.email}
                     </p>
                     <p className="text-xs text-subtle">
-                      Válido até {new Date(c.expires_at).toLocaleDateString("pt-BR")}
+                      {c.status === "expirado"
+                        ? "Expirado — reenvie para gerar novo link"
+                        : `Válido até ${new Date(c.expires_at).toLocaleDateString("pt-BR")}`}
                     </p>
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="rounded-lg text-muted-foreground"
-                    onClick={() => cancelar.mutate(c.id)}
-                  >
-                    Cancelar
-                  </Button>
+                  <div className="flex gap-2">
+                    {c.status === "expirado" ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="rounded-lg"
+                        disabled={reenviando === c.id}
+                        onClick={() => void handleReenviar(c.id)}
+                      >
+                        {reenviando === c.id ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                        Reenviar
+                      </Button>
+                    ) : null}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="rounded-lg text-muted-foreground"
+                      onClick={() => cancelar.mutate({ id: c.id, email: c.email })}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -183,7 +227,9 @@ export function EquipeClinica() {
                     variant="ghost"
                     size="sm"
                     className="rounded-lg text-danger"
-                    onClick={() => remover.mutate(m.id)}
+                    onClick={() =>
+                      remover.mutate({ id: m.id, ...(m.nome ? { nome: m.nome } : {}) })
+                    }
                   >
                     Remover
                   </Button>

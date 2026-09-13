@@ -3,7 +3,19 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
-import { User, Users, Bell, Check, Save, LogOut, Loader2, Settings2, Crown } from "lucide-react";
+import {
+  User,
+  Users,
+  Bell,
+  Building2,
+  Check,
+  ChevronRight,
+  Save,
+  LogOut,
+  Loader2,
+  Settings2,
+  Crown,
+} from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
@@ -14,7 +26,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { ResumoPacientes } from "@/components/pacientes/resumo-pacientes";
-import { EquipeClinica } from "@/components/clinica/equipe-clinica";
+import { useClinica, useEquipe } from "@/lib/clinica";
+import { resumoHorarios } from "@/lib/clinica-horarios";
 import { normalizarWhatsApp } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
@@ -94,6 +107,8 @@ const profileSchema = z.object({
 function Page() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const clinicaResumo = useClinica();
+  const equipeResumo = useEquipe();
 
   const [name, setName] = useState("");
   const [clinic, setClinic] = useState("");
@@ -376,7 +391,63 @@ function Page() {
           </CardContent>
         </Card>
 
-        <EquipeClinica />
+        <Card className="rounded-2xl glass-card shadow-none">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground">
+              <Building2 className="h-5 w-5 text-gold" />
+              Minha clínica
+            </CardTitle>
+            <CardDescription>
+              Dados usados nos documentos, horários de atendimento e equipe com acesso.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-1 text-sm text-muted-foreground">
+              {clinicaResumo.isLoading ? (
+                <p>Carregando…</p>
+              ) : clinicaResumo.data?.clinica ? (
+                <>
+                  <p className="text-foreground">
+                    {clinicaResumo.data.clinica.nome || "Clínica sem nome"}
+                  </p>
+                  {clinicaResumo.data.clinica.cidade ? (
+                    <p>
+                      {clinicaResumo.data.clinica.cidade}
+                      {clinicaResumo.data.clinica.uf ? ` · ${clinicaResumo.data.clinica.uf}` : ""}
+                    </p>
+                  ) : null}
+                  <p>{resumoHorarios(clinicaResumo.data.clinica.horarios)}</p>
+                </>
+              ) : (
+                <p>Cadastre os dados da clínica para saírem no cabeçalho dos documentos.</p>
+              )}
+              {equipeResumo.data ? (
+                <p>
+                  {equipeResumo.data.membros.length === 0
+                    ? "Nenhum assistente com acesso."
+                    : `${equipeResumo.data.membros.length} ${
+                        equipeResumo.data.membros.length === 1
+                          ? "assistente com acesso"
+                          : "assistentes com acesso"
+                      }`}
+                  {equipeResumo.data.convites.length > 0
+                    ? ` · ${equipeResumo.data.convites.length} ${
+                        equipeResumo.data.convites.length === 1
+                          ? "convite em aberto"
+                          : "convites em aberto"
+                      }`
+                    : ""}
+                </p>
+              ) : null}
+            </div>
+            <Link to="/clinica">
+              <Button variant="outline" className="rounded-xl">
+                Gerenciar clínica e equipe
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
 
         <Card className="rounded-2xl glass-card shadow-none">
           <CardHeader className="pb-4">

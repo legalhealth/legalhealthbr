@@ -71,6 +71,71 @@ export const convidarAssistente = createServerFn({ method: "POST" })
     return { id: convite.id, link, enviado, aviso };
   });
 
+/** Gera novo link e prazo para um convite expirado ou cancelado, e reenvia o e-mail. */
+export const reenviarConvite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => {
+    const id = String(input?.id ?? "").trim();
+    if (!id) throw new Error("Convite inválido.");
+    return { id };
+  })
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const { data: atual } = await supabase
+      .from("clinic_invites")
+      .select("id, email, nome, status")
+      .eq("id", data.id)
+      .eq("medico_user_id", userId)
+      .maybeSingle();
+    if (!atual) throw new Error("Convite não encontrado.");
+    if (atual.status === "aceito") throw new Error("Este convite já foi aceito.");
+
+    const token = gerarToken();
+    const { error } = await supabase
+      .from("clinic_invites")
+      .update({
+        token,
+        status: "pendente",
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        accepted_at: null,
+        accepted_by: null,
+      })
+      .eq("id", atual.id);
+    if (error) throw new Error("Não foi possível reenviar o convite.");
+
+    const { data: perfil } = await supabase
+      .from("profiles")
+      .select("nome, clinica")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    const origem = process.env["PUBLIC_SITE_URL"] ?? "https://legalhealthbr.app";
+    const link = `${origem}/convite/${token}`;
+
+    let enviado = true;
+    let aviso: string | null = null;
+    try {
+      const result = await sendTemplateEmail("convite-assistente", atual.email, {
+        templateData: {
+          medicoNome: perfil?.nome || perfil?.clinica || "Sua clínica",
+          assistenteNome: atual.nome ?? undefined,
+          link,
+          validade: "7 dias",
+        },
+      });
+      if (!result.sent) {
+        enviado = false;
+        aviso = "O e-mail do convidado está bloqueado para entrega. Compartilhe o link direto.";
+      }
+    } catch (e) {
+      enviado = false;
+      aviso = e instanceof Error ? e.message : "Falha ao enviar o e-mail.";
+    }
+
+    return { link, enviado, aviso };
+  });
+
 /** Aceita o convite e cria o vínculo (precisa de privilégio: o convidado não é dono da linha). */
 export const aceitarConvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

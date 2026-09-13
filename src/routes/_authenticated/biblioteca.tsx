@@ -13,6 +13,34 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { abrirWhatsApp } from "@/lib/whatsapp";
+import { useClinica, type Clinica } from "@/lib/clinica";
+import { resumoHorarios } from "@/lib/clinica-horarios";
+import { Switch } from "@/components/ui/switch";
+
+/** Bloco de cabeçalho com os dados da clínica, inserido antes da minuta gerada. */
+function cabecalhoClinica(clinica: Clinica): string | null {
+  const linhas: string[] = [];
+  if (clinica.nome) linhas.push(clinica.nome);
+  if (clinica.responsavel_tecnico)
+    linhas.push(`Responsável técnico(a): ${clinica.responsavel_tecnico}`);
+  if (clinica.cnpj) linhas.push(`CNPJ: ${clinica.cnpj}`);
+  const endereco = [
+    clinica.logradouro,
+    clinica.numero,
+    clinica.complemento,
+    clinica.bairro,
+    [clinica.cidade, clinica.uf].filter(Boolean).join("/"),
+    clinica.cep ? `CEP ${clinica.cep}` : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
+  if (endereco) linhas.push(endereco);
+  if (clinica.telefone) linhas.push(`Telefone: ${clinica.telefone}`);
+  if (clinica.email) linhas.push(`E-mail: ${clinica.email}`);
+  const horarios = resumoHorarios(clinica.horarios);
+  if (horarios) linhas.push(`Atendimento: ${horarios}`);
+  return linhas.length ? linhas.join("\n") : null;
+}
 import { modelosDaCategoria, useModelos } from "@/lib/library-templates";
 import { saveHistoryItem } from "@/lib/ia-history";
 import { useCriarEvento, usePacientes } from "@/lib/pacientes";
@@ -91,12 +119,11 @@ function Page() {
 
   const { data: pacientes } = usePacientes();
   const criarEvento = useCriarEvento();
+  const { data: clinicaData } = useClinica();
+  const [incluirClinica, setIncluirClinica] = useState(true);
 
   const { data: modelosDb } = useModelos();
-  const extras = useMemo(
-    () => modelosDaCategoria(modelosDb, categoria),
-    [modelosDb, categoria],
-  );
+  const extras = useMemo(() => modelosDaCategoria(modelosDb, categoria), [modelosDb, categoria]);
   const docs = useMemo(() => [...docsDaCategoria(categoria), ...extras], [categoria, extras]);
   const grupos = useMemo(() => {
     const base = gruposDaCategoria(categoria).map((g) => ({ ...g, docs: [...g.docs] }));
@@ -161,6 +188,13 @@ function Page() {
         },
         (chunk) => setDraft((prev) => (prev ?? "") + chunk),
       );
+
+      const cabecalho =
+        incluirClinica && clinicaData?.clinica ? cabecalhoClinica(clinicaData.clinica) : null;
+      if (cabecalho) {
+        text = `${cabecalho}\n\n${text}`;
+        setDraft(text);
+      }
       requestAnimationFrame(() => draftRef.current?.scrollIntoView({ behavior: "smooth" }));
 
       const savedId = await saveHistoryItem({
@@ -367,6 +401,17 @@ function Page() {
               </div>
             ) : null}
           </div>
+
+          {clinicaData?.clinica ? (
+            <label className="mt-5 flex items-center gap-3 text-sm text-muted-foreground">
+              <Switch
+                checked={incluirClinica}
+                onCheckedChange={setIncluirClinica}
+                aria-label="Incluir dados da clínica no cabeçalho"
+              />
+              Incluir dados da clínica no cabeçalho do documento
+            </label>
+          ) : null}
 
           <Button
             onClick={() => void handleGenerate()}
