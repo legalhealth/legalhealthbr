@@ -107,6 +107,8 @@ const profileSchema = z.object({
 function Page() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const clinicaResumo = useClinica();
+  const equipeResumo = useEquipe();
 
   const [name, setName] = useState("");
   const [clinic, setClinic] = useState("");
