@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { contaAtivaId } from "@/lib/clinica";
 
 export const AUDIO_BUCKET = "patient-audio";
 /** Retenção padrão do áudio bruto; depois disso resta apenas a transcrição. */
@@ -123,9 +124,10 @@ export async function registrarAuditoria(input: {
   detalhe?: string;
 }): Promise<void> {
   try {
-    const userId = await exigirUsuario();
+    const [conta, autor] = await Promise.all([contaAtivaId(), exigirUsuario()]);
     await supabase.from("patient_audit_log").insert({
-      user_id: userId,
+      user_id: conta,
+      autor_user_id: autor,
       patient_id: input.patientId,
       entidade: input.entidade,
       entidade_id: input.entidadeId ?? null,
@@ -141,8 +143,7 @@ export function usePacientes(busca = "") {
   return useQuery({
     queryKey: ["pacientes", busca],
     queryFn: async (): Promise<(Paciente & { atendimentos: number })[]> => {
-      const { data: auth } = await supabase.auth.getUser();
-      const userId = auth.user?.id;
+      const userId = await contaAtivaId();
       if (!userId) return [];
       let query = supabase
         .from("patients")
@@ -182,7 +183,7 @@ export function useCriarPaciente() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: { nome: string; contato?: string; nascimento?: string }) => {
-      const userId = await exigirUsuario();
+      const userId = await contaAtivaId();
       const { data, error } = await supabase
         .from("patients")
         .insert({
