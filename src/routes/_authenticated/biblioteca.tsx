@@ -41,7 +41,7 @@ function cabecalhoClinica(clinica: Clinica): string | null {
   if (horarios) linhas.push(`Atendimento: ${horarios}`);
   return linhas.length ? linhas.join("\n") : null;
 }
-import { modelosDaCategoria, useModelos } from "@/lib/library-templates";
+import { CLINICA_CATEGORIA, modelosDaCategoria, useModelos } from "@/lib/library-templates";
 import { saveHistoryItem } from "@/lib/ia-history";
 import { useCriarEvento, usePacientes } from "@/lib/pacientes";
 import { ListaPacientes } from "@/components/pacientes/lista-pacientes";
