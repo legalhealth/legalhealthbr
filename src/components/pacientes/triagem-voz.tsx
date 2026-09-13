@@ -339,20 +339,31 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
           ) : null}
 
           {resumo.documentos.length ? (
-            <div className="flex flex-wrap gap-3">
-              {resumo.documentos.map((doc) => (
-                <Button
-                  key={doc.slug}
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="rounded-xl border-gold/40 bg-transparent text-gold hover:bg-gold/10"
-                >
-                  <Link to="/biblioteca" search={{ cat: "minutas", doc: doc.slug }}>
-                    {doc.label}
-                  </Link>
-                </Button>
-              ))}
+            <div className="rounded-xl border border-gold/30 bg-gold/5 p-4">
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-gold">
+                Minutas sugeridas para este caso
+              </p>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Ao tocar, o modelo abre na Biblioteca já vinculado a este paciente.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-3">
+                {resumo.documentos.map((doc) => (
+                  <Button
+                    key={doc.slug}
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="rounded-xl border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+                  >
+                    <Link
+                      to="/biblioteca"
+                      search={{ cat: "minutas", doc: doc.slug, pac: patientId }}
+                    >
+                      {doc.label}
+                    </Link>
+                  </Button>
+                ))}
+              </div>
             </div>
           ) : null}
 
