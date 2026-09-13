@@ -35,6 +35,7 @@ import { Route as ApiAiChatbotRouteImport } from './routes/api/ai-chatbot'
 import { Route as ApiAiDocumentoLeituraRouteImport } from './routes/api/ai-documento-leitura'
 import { Route as ApiAiPecaRouteImport } from './routes/api/ai-peca'
 import { Route as ApiAiPlanoRouteImport } from './routes/api/ai-plano'
+import { Route as ApiAiTriagemTranscreverRouteImport } from './routes/api/ai-triagem-transcrever'
 import { Route as EntrarCodeRouteImport } from './routes/entrar.$code'
 import { Route as MockupReelsRouteImport } from './routes/mockup.reels'
 import { Route as RevisaoTokenRouteImport } from './routes/revisao.$token'
@@ -190,6 +191,11 @@ const ApiAiPlanoRoute = ApiAiPlanoRouteImport.update({
   path: '/api/ai-plano',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiTriagemTranscreverRoute = ApiAiTriagemTranscreverRouteImport.update({
+  id: '/api/ai-triagem-transcrever',
+  path: '/api/ai-triagem-transcrever',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EntrarCodeRoute = EntrarCodeRouteImport.update({
   id: '/entrar/$code',
   path: '/entrar/$code',
@@ -340,6 +346,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/api/ai-triagem-transcrever': typeof ApiAiTriagemTranscreverRoute
   '/entrar/$code': typeof EntrarCodeRoute
   '/mockup/reels': typeof MockupReelsRoute
   '/revisao/$token': typeof RevisaoTokenRoute
@@ -389,6 +396,7 @@ export interface FileRoutesByTo {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/api/ai-triagem-transcrever': typeof ApiAiTriagemTranscreverRoute
   '/entrar/$code': typeof EntrarCodeRoute
   '/mockup/reels': typeof MockupReelsRoute
   '/revisao/$token': typeof RevisaoTokenRoute
@@ -441,6 +449,7 @@ export interface FileRoutesById {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/api/ai-triagem-transcrever': typeof ApiAiTriagemTranscreverRoute
   '/entrar/$code': typeof EntrarCodeRoute
   '/mockup/reels': typeof MockupReelsRoute
   '/revisao/$token': typeof RevisaoTokenRoute
@@ -493,6 +502,7 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/api/ai-triagem-transcrever'
     | '/entrar/$code'
     | '/mockup/reels'
     | '/revisao/$token'
@@ -542,6 +552,7 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/api/ai-triagem-transcrever'
     | '/entrar/$code'
     | '/mockup/reels'
     | '/revisao/$token'
@@ -593,6 +604,7 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/api/ai-triagem-transcrever'
     | '/entrar/$code'
     | '/mockup/reels'
     | '/revisao/$token'
@@ -637,6 +649,7 @@ export interface RootRouteChildren {
   ApiAiDocumentoLeituraRoute: typeof ApiAiDocumentoLeituraRoute
   ApiAiPecaRoute: typeof ApiAiPecaRoute
   ApiAiPlanoRoute: typeof ApiAiPlanoRoute
+  ApiAiTriagemTranscreverRoute: typeof ApiAiTriagemTranscreverRoute
   EntrarCodeRoute: typeof EntrarCodeRoute
   MockupReelsRoute: typeof MockupReelsRoute
   RevisaoTokenRoute: typeof RevisaoTokenRoute
@@ -834,6 +847,13 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-plano'
       fullPath: '/api/ai-plano'
       preLoaderRoute: typeof ApiAiPlanoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-triagem-transcrever': {
+      id: '/api/ai-triagem-transcrever'
+      path: '/api/ai-triagem-transcrever'
+      fullPath: '/api/ai-triagem-transcrever'
+      preLoaderRoute: typeof ApiAiTriagemTranscreverRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/entrar/$code': {
@@ -1075,6 +1095,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiDocumentoLeituraRoute: ApiAiDocumentoLeituraRoute,
   ApiAiPecaRoute: ApiAiPecaRoute,
   ApiAiPlanoRoute: ApiAiPlanoRoute,
+  ApiAiTriagemTranscreverRoute: ApiAiTriagemTranscreverRoute,
   EntrarCodeRoute: EntrarCodeRoute,
   MockupReelsRoute: MockupReelsRoute,
   RevisaoTokenRoute: RevisaoTokenRoute,
