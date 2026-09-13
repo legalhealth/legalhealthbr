@@ -6,6 +6,7 @@ import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react";
 import { PageShell } from "@/components/layout/page-shell";
 import { AiDisclaimer } from "@/components/ia/ai-disclaimer";
 import { TriagemVoz } from "@/components/pacientes/triagem-voz";
+import { TriagemFormulario } from "@/components/pacientes/triagem-formulario";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -176,6 +177,8 @@ function Page() {
         </Button>
 
         <TriagemVoz patientId={id} />
+
+        <TriagemFormulario patientId={id} />
 
         {/* Dados cadastrais */}
         <section className="rounded-2xl glass-card p-5 md:p-6">
