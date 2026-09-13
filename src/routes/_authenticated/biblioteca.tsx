@@ -91,8 +91,22 @@ function Page() {
   const { data: pacientes } = usePacientes();
   const criarEvento = useCriarEvento();
 
-  const docs = useMemo(() => docsDaCategoria(categoria), [categoria]);
-  const grupos = useMemo(() => gruposDaCategoria(categoria), [categoria]);
+  const { data: modelosDb } = useModelos();
+  const extras = useMemo(
+    () => modelosDaCategoria(modelosDb, categoria),
+    [modelosDb, categoria],
+  );
+  const docs = useMemo(() => [...docsDaCategoria(categoria), ...extras], [categoria, extras]);
+  const grupos = useMemo(() => {
+    const base = gruposDaCategoria(categoria).map((g) => ({ ...g, docs: [...g.docs] }));
+    for (const doc of extras) {
+      const label = doc.grupo ?? "";
+      const alvo = base.find((g) => g.label === label);
+      if (alvo) alvo.docs.push(doc);
+      else base.push({ label, docs: [doc] });
+    }
+    return base;
+  }, [categoria, extras]);
   const docAtual = docs.find((d) => d.value === documento) ?? docs[0]!;
 
   const { data: profile } = useQuery({
