@@ -413,9 +413,7 @@ function Page() {
                   {clinicaResumo.data.clinica.cidade ? (
                     <p>
                       {clinicaResumo.data.clinica.cidade}
-                      {clinicaResumo.data.clinica.uf
-                        ? ` · ${clinicaResumo.data.clinica.uf}`
-                        : ""}
+                      {clinicaResumo.data.clinica.uf ? ` · ${clinicaResumo.data.clinica.uf}` : ""}
                     </p>
                   ) : null}
                   <p>{resumoHorarios(clinicaResumo.data.clinica.horarios)}</p>

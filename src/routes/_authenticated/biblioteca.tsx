@@ -21,7 +21,8 @@ import { Switch } from "@/components/ui/switch";
 function cabecalhoClinica(clinica: Clinica): string | null {
   const linhas: string[] = [];
   if (clinica.nome) linhas.push(clinica.nome);
-  if (clinica.responsavel_tecnico) linhas.push(`Responsável técnico(a): ${clinica.responsavel_tecnico}`);
+  if (clinica.responsavel_tecnico)
+    linhas.push(`Responsável técnico(a): ${clinica.responsavel_tecnico}`);
   if (clinica.cnpj) linhas.push(`CNPJ: ${clinica.cnpj}`);
   const endereco = [
     clinica.logradouro,
@@ -122,10 +123,7 @@ function Page() {
   const [incluirClinica, setIncluirClinica] = useState(true);
 
   const { data: modelosDb } = useModelos();
-  const extras = useMemo(
-    () => modelosDaCategoria(modelosDb, categoria),
-    [modelosDb, categoria],
-  );
+  const extras = useMemo(() => modelosDaCategoria(modelosDb, categoria), [modelosDb, categoria]);
   const docs = useMemo(() => [...docsDaCategoria(categoria), ...extras], [categoria, extras]);
   const grupos = useMemo(() => {
     const base = gruposDaCategoria(categoria).map((g) => ({ ...g, docs: [...g.docs] }));
@@ -192,9 +190,7 @@ function Page() {
       );
 
       const cabecalho =
-        incluirClinica && clinicaData?.clinica
-          ? cabecalhoClinica(clinicaData.clinica)
-          : null;
+        incluirClinica && clinicaData?.clinica ? cabecalhoClinica(clinicaData.clinica) : null;
       if (cabecalho) {
         text = `${cabecalho}\n\n${text}`;
         setDraft(text);

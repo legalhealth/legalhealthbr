@@ -166,9 +166,7 @@ export function EquipeClinica() {
                         disabled={reenviando === c.id}
                         onClick={() => void handleReenviar(c.id)}
                       >
-                        {reenviando === c.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : null}
+                        {reenviando === c.id ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                         Reenviar
                       </Button>
                     ) : null}
