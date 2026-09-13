@@ -187,7 +187,7 @@ function Page() {
   }
 
   async function handleGenerate() {
-    if (gerandoRef.current) return;
+    if (gerandoRef.current || !docAtual) return;
     gerandoRef.current = true;
     setGenerating(true);
     setError(null);
@@ -229,7 +229,7 @@ function Page() {
         await criarEvento.mutateAsync({
           patientId: pacienteId,
           tipo: "minuta",
-          titulo: docAtual.label,
+          titulo: docAtual?.label ?? "Documento",
           descricao: categoriaLabel(categoria),
           ...(savedId ? { docId: savedId } : {}),
         });
@@ -386,7 +386,7 @@ function Page() {
                 placeholder="João Pessoa/PB"
               />
             </div>
-            {docAtual.procedimento ? (
+            {docAtual?.procedimento ? (
               <div className="space-y-2">
                 <Label htmlFor="bib-proc" className="text-xs text-muted-foreground">
                   Procedimento
@@ -452,7 +452,7 @@ function Page() {
         {draft !== null && aba !== "pacientes" ? (
           <section ref={draftRef} className="rounded-2xl glass-card p-6">
             <h2 className="font-display text-lg text-foreground">
-              {generating ? "Gerando…" : docAtual.label}
+              {generating ? "Gerando…" : (docAtual?.label ?? "Documento")}
             </h2>
             <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-muted-foreground">
               {draft || "Aguardando a IA…"}
@@ -477,7 +477,7 @@ function Page() {
                 className="border-gold/40 bg-transparent text-gold hover:bg-gold/10"
                 onClick={() =>
                   abrirWhatsApp(profile?.whatsapp, {
-                    titulo: docAtual.label,
+                    titulo: docAtual?.label ?? "Documento",
                     corpo: draft,
                     caminho: "/biblioteca",
                   })
@@ -488,7 +488,7 @@ function Page() {
               {!generating && draft && docId ? (
                 <EnviarRevisaoDialog
                   docId={docId}
-                  titulo={`${categoriaLabel(categoria)} — ${docAtual.label}`}
+                  titulo={`${categoriaLabel(categoria)} — ${docAtual?.label ?? "Documento"}`}
                   conteudo={draft}
                 />
               ) : null}
