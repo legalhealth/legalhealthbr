@@ -37,6 +37,7 @@ import { Route as ApiAiPecaRouteImport } from './routes/api/ai-peca'
 import { Route as ApiAiPlanoRouteImport } from './routes/api/ai-plano'
 import { Route as ApiAiTriagemResumoRouteImport } from './routes/api/ai-triagem-resumo'
 import { Route as ApiAiTriagemTranscreverRouteImport } from './routes/api/ai-triagem-transcrever'
+import { Route as ConviteTokenRouteImport } from './routes/convite.$token'
 import { Route as EntrarCodeRouteImport } from './routes/entrar.$code'
 import { Route as MockupReelsRouteImport } from './routes/mockup.reels'
 import { Route as RevisaoTokenRouteImport } from './routes/revisao.$token'
@@ -203,6 +204,11 @@ const ApiAiTriagemTranscreverRoute = ApiAiTriagemTranscreverRouteImport.update({
   path: '/api/ai-triagem-transcrever',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConviteTokenRoute = ConviteTokenRouteImport.update({
+  id: '/convite/$token',
+  path: '/convite/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EntrarCodeRoute = EntrarCodeRouteImport.update({
   id: '/entrar/$code',
   path: '/entrar/$code',
@@ -360,6 +366,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-plano': typeof ApiAiPlanoRoute
   '/api/ai-triagem-resumo': typeof ApiAiTriagemResumoRoute
   '/api/ai-triagem-transcrever': typeof ApiAiTriagemTranscreverRoute
+  '/convite/$token': typeof ConviteTokenRoute
   '/entrar/$code': typeof EntrarCodeRoute
   '/mockup/reels': typeof MockupReelsRoute
   '/revisao/$token': typeof RevisaoTokenRoute
@@ -412,6 +419,7 @@ export interface FileRoutesByTo {
   '/api/ai-plano': typeof ApiAiPlanoRoute
   '/api/ai-triagem-resumo': typeof ApiAiTriagemResumoRoute
   '/api/ai-triagem-transcrever': typeof ApiAiTriagemTranscreverRoute
+  '/convite/$token': typeof ConviteTokenRoute
   '/entrar/$code': typeof EntrarCodeRoute
   '/mockup/reels': typeof MockupReelsRoute
   '/revisao/$token': typeof RevisaoTokenRoute
@@ -467,6 +475,7 @@ export interface FileRoutesById {
   '/api/ai-plano': typeof ApiAiPlanoRoute
   '/api/ai-triagem-resumo': typeof ApiAiTriagemResumoRoute
   '/api/ai-triagem-transcrever': typeof ApiAiTriagemTranscreverRoute
+  '/convite/$token': typeof ConviteTokenRoute
   '/entrar/$code': typeof EntrarCodeRoute
   '/mockup/reels': typeof MockupReelsRoute
   '/revisao/$token': typeof RevisaoTokenRoute
@@ -522,6 +531,7 @@ export interface FileRouteTypes {
     | '/api/ai-plano'
     | '/api/ai-triagem-resumo'
     | '/api/ai-triagem-transcrever'
+    | '/convite/$token'
     | '/entrar/$code'
     | '/mockup/reels'
     | '/revisao/$token'
@@ -574,6 +584,7 @@ export interface FileRouteTypes {
     | '/api/ai-plano'
     | '/api/ai-triagem-resumo'
     | '/api/ai-triagem-transcrever'
+    | '/convite/$token'
     | '/entrar/$code'
     | '/mockup/reels'
     | '/revisao/$token'
@@ -628,6 +639,7 @@ export interface FileRouteTypes {
     | '/api/ai-plano'
     | '/api/ai-triagem-resumo'
     | '/api/ai-triagem-transcrever'
+    | '/convite/$token'
     | '/entrar/$code'
     | '/mockup/reels'
     | '/revisao/$token'
@@ -675,6 +687,7 @@ export interface RootRouteChildren {
   ApiAiPlanoRoute: typeof ApiAiPlanoRoute
   ApiAiTriagemResumoRoute: typeof ApiAiTriagemResumoRoute
   ApiAiTriagemTranscreverRoute: typeof ApiAiTriagemTranscreverRoute
+  ConviteTokenRoute: typeof ConviteTokenRoute
   EntrarCodeRoute: typeof EntrarCodeRoute
   MockupReelsRoute: typeof MockupReelsRoute
   RevisaoTokenRoute: typeof RevisaoTokenRoute
@@ -886,6 +899,13 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-triagem-transcrever'
       fullPath: '/api/ai-triagem-transcrever'
       preLoaderRoute: typeof ApiAiTriagemTranscreverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/convite/$token': {
+      id: '/convite/$token'
+      path: '/convite/$token'
+      fullPath: '/convite/$token'
+      preLoaderRoute: typeof ConviteTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/entrar/$code': {
@@ -1138,6 +1158,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiPlanoRoute: ApiAiPlanoRoute,
   ApiAiTriagemResumoRoute: ApiAiTriagemResumoRoute,
   ApiAiTriagemTranscreverRoute: ApiAiTriagemTranscreverRoute,
+  ConviteTokenRoute: ConviteTokenRoute,
   EntrarCodeRoute: EntrarCodeRoute,
   MockupReelsRoute: MockupReelsRoute,
   RevisaoTokenRoute: RevisaoTokenRoute,
