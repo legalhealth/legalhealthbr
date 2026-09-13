@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { DadosClinica } from "@/components/clinica/dados-clinica";
 import { EquipeClinica } from "@/components/clinica/equipe-clinica";
-import { PageShell } from "@/components/page-shell";
+import { PageShell } from "@/components/layout/page-shell";
 
 export const Route = createFileRoute("/_authenticated/clinica")({
   head: () => ({
