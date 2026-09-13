@@ -70,6 +70,8 @@ export async function saveHistoryItem(input: {
   titulo: string;
   conteudo: string;
   contexto?: Json;
+  /** vincula a minuta à ficha do paciente */
+  patientId?: string;
 }): Promise<string | null> {
   const { data: auth } = await supabase.auth.getUser();
   const userId = auth.user?.id;
@@ -85,6 +87,7 @@ export async function saveHistoryItem(input: {
     conteudo: input.conteudo,
     status: "rascunho",
     ...(input.contexto ? { contexto: input.contexto } : {}),
+    ...(input.patientId ? { patient_id: input.patientId } : {}),
     })
     .select("id")
     .single();
