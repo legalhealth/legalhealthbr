@@ -184,3 +184,21 @@ export function modelosDaCategoria(
       grupo: m.grupo ?? (m.escopo === "proprio" ? "Meus modelos" : "Novos modelos"),
     }));
 }
+
+/**
+ * Cria as minutas iniciais da clínica (idempotente no banco). Chamado quando o
+ * responsável salva os dados da clínica.
+ */
+export function useSemearModelosClinica() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.rpc("semear_modelos_clinica");
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["library-templates"] });
+      void queryClient.invalidateQueries({ queryKey: ["library-categories"] });
+    },
+  });
+}
