@@ -502,7 +502,7 @@ export function useConfirmarTriagem() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: { triagem: Triagem; resumo: TriagemResumo }) => {
-      const userId = await exigirUsuario();
+      const [userId, autorId] = await Promise.all([contaAtivaId(), exigirUsuario()]);
       const { error } = await supabase
         .from("patient_triages")
         .update({
@@ -510,7 +510,7 @@ export function useConfirmarTriagem() {
           urgencia: input.resumo.urgencia,
           encaminhamento: input.resumo.encaminhamento,
           status: "confirmada",
-          revisado_por: userId,
+          revisado_por: autorId,
           revisado_em: new Date().toISOString(),
         })
         .eq("id", input.triagem.id);
