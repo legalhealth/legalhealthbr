@@ -15,11 +15,7 @@ export function SiteHeader() {
           to={ehAssistente ? "/biblioteca" : "/inicio"}
           className="flex min-w-0 items-center gap-3"
         >
-          <img
-            src={monograma.url}
-            alt="Legal Health"
-            className="h-9 w-auto shrink-0 md:h-10"
-          />
+          <img src={monograma.url} alt="Legal Health" className="h-9 w-auto shrink-0 md:h-10" />
           <span className="min-w-0">
             <span className="block truncate wordmark text-[0.95rem] leading-none text-gold-light md:text-lg">
               Legal Health
