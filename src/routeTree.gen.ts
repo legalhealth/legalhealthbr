@@ -54,6 +54,7 @@ import { Route as AuthenticatedIaRevisoesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedIaRiscoRouteImport } from './routes/_authenticated/ia.risco'
 import { Route as ApiPublicAiChatbotRouteImport } from './routes/api/public/ai-chatbot'
 import { Route as ApiPublicLandingEventRouteImport } from './routes/api/public/landing-event'
+import { Route as AuthenticatedBibliotecaPacienteIdRouteImport } from './routes/_authenticated/biblioteca.paciente.$id'
 import { Route as ApiPublicHooksBaseJuridicaSyncRouteImport } from './routes/api/public/hooks/base-juridica-sync'
 import { Route as ApiPublicHooksPlanRemindersRouteImport } from './routes/api/public/hooks/plan-reminders'
 import { Route as ApiPublicRevisaoTokenRouteImport } from './routes/api/public/revisao.$token'
@@ -292,6 +293,12 @@ const ApiPublicLandingEventRoute = ApiPublicLandingEventRouteImport.update({
   path: '/api/public/landing-event',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedBibliotecaPacienteIdRoute =
+  AuthenticatedBibliotecaPacienteIdRouteImport.update({
+    id: '/paciente/$id',
+    path: '/paciente/$id',
+    getParentRoute: () => AuthenticatedBibliotecaRoute,
+  } as any)
 const ApiPublicHooksBaseJuridicaSyncRoute =
   ApiPublicHooksBaseJuridicaSyncRouteImport.update({
     id: '/api/public/hooks/base-juridica-sync',
@@ -339,7 +346,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
-  '/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/biblioteca': typeof AuthenticatedBibliotecaRouteWithChildren
   '/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/ia': typeof AuthenticatedIaRouteWithChildren
   '/inicio': typeof AuthenticatedInicioRoute
@@ -371,6 +378,7 @@ export interface FileRoutesByFullPath {
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
+  '/biblioteca/paciente/$id': typeof AuthenticatedBibliotecaPacienteIdRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
   '/api/public/revisao/$token': typeof ApiPublicRevisaoTokenRoute
@@ -391,7 +399,7 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
-  '/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/biblioteca': typeof AuthenticatedBibliotecaRouteWithChildren
   '/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/juriscore': typeof AuthenticatedJuriscoreRoute
@@ -422,6 +430,7 @@ export interface FileRoutesByTo {
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/ia': typeof AuthenticatedIaIndexRoute
+  '/biblioteca/paciente/$id': typeof AuthenticatedBibliotecaPacienteIdRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
   '/api/public/revisao/$token': typeof ApiPublicRevisaoTokenRoute
@@ -444,7 +453,7 @@ export interface FileRoutesById {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/bem-vindo': typeof AuthenticatedBemVindoRoute
-  '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRouteWithChildren
   '/_authenticated/entrar-no-pc': typeof AuthenticatedEntrarNoPcRoute
   '/_authenticated/ia': typeof AuthenticatedIaRouteWithChildren
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
@@ -476,6 +485,7 @@ export interface FileRoutesById {
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
+  '/_authenticated/biblioteca/paciente/$id': typeof AuthenticatedBibliotecaPacienteIdRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
   '/api/public/revisao/$token': typeof ApiPublicRevisaoTokenRoute
@@ -530,6 +540,7 @@ export interface FileRouteTypes {
     | '/api/public/landing-event'
     | '/admin/'
     | '/ia/'
+    | '/biblioteca/paciente/$id'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
     | '/api/public/revisao/$token'
@@ -581,6 +592,7 @@ export interface FileRouteTypes {
     | '/api/public/landing-event'
     | '/admin'
     | '/ia'
+    | '/biblioteca/paciente/$id'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
     | '/api/public/revisao/$token'
@@ -634,6 +646,7 @@ export interface FileRouteTypes {
     | '/api/public/landing-event'
     | '/_authenticated/admin/'
     | '/_authenticated/ia/'
+    | '/_authenticated/biblioteca/paciente/$id'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
     | '/api/public/revisao/$token'
@@ -995,6 +1008,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLandingEventRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/biblioteca/paciente/$id': {
+      id: '/_authenticated/biblioteca/paciente/$id'
+      path: '/paciente/$id'
+      fullPath: '/biblioteca/paciente/$id'
+      preLoaderRoute: typeof AuthenticatedBibliotecaPacienteIdRouteImport
+      parentRoute: typeof AuthenticatedBibliotecaRoute
+    }
     '/api/public/hooks/base-juridica-sync': {
       id: '/api/public/hooks/base-juridica-sync'
       path: '/api/public/hooks/base-juridica-sync'
@@ -1040,6 +1060,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedBibliotecaRouteChildren {
+  AuthenticatedBibliotecaPacienteIdRoute: typeof AuthenticatedBibliotecaPacienteIdRoute
+}
+
+const AuthenticatedBibliotecaRouteChildren: AuthenticatedBibliotecaRouteChildren =
+  {
+    AuthenticatedBibliotecaPacienteIdRoute:
+      AuthenticatedBibliotecaPacienteIdRoute,
+  }
+
+const AuthenticatedBibliotecaRouteWithChildren =
+  AuthenticatedBibliotecaRoute._addFileChildren(
+    AuthenticatedBibliotecaRouteChildren,
+  )
+
 interface AuthenticatedIaRouteChildren {
   AuthenticatedIaAssistenteRoute: typeof AuthenticatedIaAssistenteRoute
   AuthenticatedIaDocumentosRoute: typeof AuthenticatedIaDocumentosRoute
@@ -1066,7 +1101,7 @@ const AuthenticatedIaRouteWithChildren = AuthenticatedIaRoute._addFileChildren(
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBemVindoRoute: typeof AuthenticatedBemVindoRoute
-  AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRoute
+  AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRouteWithChildren
   AuthenticatedEntrarNoPcRoute: typeof AuthenticatedEntrarNoPcRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRouteWithChildren
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
@@ -1080,7 +1115,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBemVindoRoute: AuthenticatedBemVindoRoute,
-  AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRoute,
+  AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRouteWithChildren,
   AuthenticatedEntrarNoPcRoute: AuthenticatedEntrarNoPcRoute,
   AuthenticatedIaRoute: AuthenticatedIaRouteWithChildren,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
