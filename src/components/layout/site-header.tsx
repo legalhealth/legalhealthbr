@@ -1,8 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import monograma from "@/assets/lh-monograma.png.asset.json";
 import { navItems } from "./nav-items";
+import { useEhAssistente } from "@/lib/clinica";
 
 export function SiteHeader() {
+  const { data: ehAssistente } = useEhAssistente();
+  const itens = ehAssistente
+    ? navItems.filter((i) => i.to === "/biblioteca" || i.to === "/perfil")
+    : navItems;
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/85 backdrop-blur-xl">
       <div className="mx-auto grid min-h-[var(--header-h)] max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-3 md:px-8">
@@ -24,7 +29,7 @@ export function SiteHeader() {
 
         <div className="flex shrink-0 items-center gap-6">
           <nav className="hidden items-center gap-6 lg:flex" aria-label="Navegação principal">
-            {navItems.map(({ to, label, exact }) => (
+            {itens.map(({ to, label, exact }) => (
               <Link
                 key={to}
                 to={to}
