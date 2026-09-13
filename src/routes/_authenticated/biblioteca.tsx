@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { abrirWhatsApp } from "@/lib/whatsapp";
 import { saveHistoryItem } from "@/lib/ia-history";
 import { useCriarEvento, usePacientes } from "@/lib/pacientes";
 import { ListaPacientes } from "@/components/pacientes/lista-pacientes";
