@@ -51,15 +51,18 @@ export const convidarAssistente = createServerFn({ method: "POST" })
     let enviado = true;
     let aviso: string | null = null;
     try {
-      await sendTemplateEmail({
-        to: data.email,
-        subject: `${medico} convidou você para a Legal Health`,
-        html: `<p>Olá${data.nome ? ` ${data.nome}` : ""},</p>
-<p><strong>${medico}</strong> convidou você para acessar a área de pacientes da Legal Health como assistente da clínica.</p>
-<p>Com esse acesso você pode ver e cadastrar fichas e registrar triagens — sem entrar na conta do médico e sem acesso à assinatura ou às configurações dele.</p>
-<p><a href="${link}">Aceitar o convite</a></p>
-<p>O convite vale por 7 dias. Se você não esperava este e-mail, ignore esta mensagem.</p>`,
+      const result = await sendTemplateEmail("convite-assistente", data.email, {
+        templateData: {
+          medicoNome: medico,
+          assistenteNome: data.nome ?? undefined,
+          link,
+          validade: "7 dias",
+        },
       });
+      if (!result.sent) {
+        enviado = false;
+        aviso = "O e-mail do convidado está bloqueado para entrega. Compartilhe o link direto.";
+      }
     } catch (e) {
       enviado = false;
       aviso = e instanceof Error ? e.message : "Falha ao enviar o e-mail.";
