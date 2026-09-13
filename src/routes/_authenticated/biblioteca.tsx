@@ -149,9 +149,23 @@ function Page() {
         tipo: docAtual.label,
         titulo: `${categoriaLabel(categoria)} — ${docAtual.label}`,
         conteudo: text,
+        ...(pacienteId ? { patientId: pacienteId } : {}),
       });
       setDocId(savedId);
-      toast.success("Documento gerado e salvo no histórico.");
+      if (pacienteId) {
+        await criarEvento.mutateAsync({
+          patientId: pacienteId,
+          tipo: "minuta",
+          titulo: docAtual.label,
+          descricao: categoriaLabel(categoria),
+          ...(savedId ? { docId: savedId } : {}),
+        });
+      }
+      toast.success(
+        pacienteId
+          ? "Documento gerado, salvo no histórico e vinculado ao paciente."
+          : "Documento gerado e salvo no histórico.",
+      );
     } catch (e) {
       const message =
         e instanceof Error ? e.message : "Falha ao gerar o documento. Tente novamente.";
