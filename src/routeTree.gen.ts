@@ -35,6 +35,7 @@ import { Route as ApiAiChatbotRouteImport } from './routes/api/ai-chatbot'
 import { Route as ApiAiDocumentoLeituraRouteImport } from './routes/api/ai-documento-leitura'
 import { Route as ApiAiPecaRouteImport } from './routes/api/ai-peca'
 import { Route as ApiAiPlanoRouteImport } from './routes/api/ai-plano'
+import { Route as ApiAiTriagemResumoRouteImport } from './routes/api/ai-triagem-resumo'
 import { Route as ApiAiTriagemTranscreverRouteImport } from './routes/api/ai-triagem-transcrever'
 import { Route as EntrarCodeRouteImport } from './routes/entrar.$code'
 import { Route as MockupReelsRouteImport } from './routes/mockup.reels'
@@ -189,6 +190,11 @@ const ApiAiPecaRoute = ApiAiPecaRouteImport.update({
 const ApiAiPlanoRoute = ApiAiPlanoRouteImport.update({
   id: '/api/ai-plano',
   path: '/api/ai-plano',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiTriagemResumoRoute = ApiAiTriagemResumoRouteImport.update({
+  id: '/api/ai-triagem-resumo',
+  path: '/api/ai-triagem-resumo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAiTriagemTranscreverRoute = ApiAiTriagemTranscreverRouteImport.update({
@@ -346,6 +352,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/api/ai-triagem-resumo': typeof ApiAiTriagemResumoRoute
   '/api/ai-triagem-transcrever': typeof ApiAiTriagemTranscreverRoute
   '/entrar/$code': typeof EntrarCodeRoute
   '/mockup/reels': typeof MockupReelsRoute
@@ -396,6 +403,7 @@ export interface FileRoutesByTo {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/api/ai-triagem-resumo': typeof ApiAiTriagemResumoRoute
   '/api/ai-triagem-transcrever': typeof ApiAiTriagemTranscreverRoute
   '/entrar/$code': typeof EntrarCodeRoute
   '/mockup/reels': typeof MockupReelsRoute
@@ -449,6 +457,7 @@ export interface FileRoutesById {
   '/api/ai-documento-leitura': typeof ApiAiDocumentoLeituraRoute
   '/api/ai-peca': typeof ApiAiPecaRoute
   '/api/ai-plano': typeof ApiAiPlanoRoute
+  '/api/ai-triagem-resumo': typeof ApiAiTriagemResumoRoute
   '/api/ai-triagem-transcrever': typeof ApiAiTriagemTranscreverRoute
   '/entrar/$code': typeof EntrarCodeRoute
   '/mockup/reels': typeof MockupReelsRoute
@@ -502,6 +511,7 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/api/ai-triagem-resumo'
     | '/api/ai-triagem-transcrever'
     | '/entrar/$code'
     | '/mockup/reels'
@@ -552,6 +562,7 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/api/ai-triagem-resumo'
     | '/api/ai-triagem-transcrever'
     | '/entrar/$code'
     | '/mockup/reels'
@@ -604,6 +615,7 @@ export interface FileRouteTypes {
     | '/api/ai-documento-leitura'
     | '/api/ai-peca'
     | '/api/ai-plano'
+    | '/api/ai-triagem-resumo'
     | '/api/ai-triagem-transcrever'
     | '/entrar/$code'
     | '/mockup/reels'
@@ -649,6 +661,7 @@ export interface RootRouteChildren {
   ApiAiDocumentoLeituraRoute: typeof ApiAiDocumentoLeituraRoute
   ApiAiPecaRoute: typeof ApiAiPecaRoute
   ApiAiPlanoRoute: typeof ApiAiPlanoRoute
+  ApiAiTriagemResumoRoute: typeof ApiAiTriagemResumoRoute
   ApiAiTriagemTranscreverRoute: typeof ApiAiTriagemTranscreverRoute
   EntrarCodeRoute: typeof EntrarCodeRoute
   MockupReelsRoute: typeof MockupReelsRoute
@@ -847,6 +860,13 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-plano'
       fullPath: '/api/ai-plano'
       preLoaderRoute: typeof ApiAiPlanoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-triagem-resumo': {
+      id: '/api/ai-triagem-resumo'
+      path: '/api/ai-triagem-resumo'
+      fullPath: '/api/ai-triagem-resumo'
+      preLoaderRoute: typeof ApiAiTriagemResumoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ai-triagem-transcrever': {
@@ -1095,6 +1115,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiDocumentoLeituraRoute: ApiAiDocumentoLeituraRoute,
   ApiAiPecaRoute: ApiAiPecaRoute,
   ApiAiPlanoRoute: ApiAiPlanoRoute,
+  ApiAiTriagemResumoRoute: ApiAiTriagemResumoRoute,
   ApiAiTriagemTranscreverRoute: ApiAiTriagemTranscreverRoute,
   EntrarCodeRoute: EntrarCodeRoute,
   MockupReelsRoute: MockupReelsRoute,
