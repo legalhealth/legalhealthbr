@@ -275,3 +275,21 @@ export function useSalvarClinica() {
     },
   });
 }
+
+/**
+ * Papel da sessão: `true` quando o usuário logado é assistente de uma clínica
+ * (não é o dono da conta em uso). Usado para restringir menu e telas.
+ */
+export function useEhAssistente() {
+  return useQuery({
+    queryKey: ["clinica", "eh-assistente"],
+    queryFn: async (): Promise<boolean> => {
+      const { data: auth } = await supabase.auth.getUser();
+      const userId = auth.user?.id;
+      if (!userId) return false;
+      const dono = await contaAtivaId();
+      return dono !== userId;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
