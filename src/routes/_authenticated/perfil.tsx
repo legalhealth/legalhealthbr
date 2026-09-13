@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { ResumoPacientes } from "@/components/pacientes/resumo-pacientes";
-import { useClinica, useEquipe } from "@/lib/clinica";
+import { useClinica, useEhAssistente, useEquipe } from "@/lib/clinica";
 import { resumoHorarios } from "@/lib/clinica-horarios";
 import { normalizarWhatsApp } from "@/lib/whatsapp";
 
@@ -107,6 +107,7 @@ const profileSchema = z.object({
 function Page() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { data: ehAssistente } = useEhAssistente();
   const clinicaResumo = useClinica();
   const equipeResumo = useEquipe();
 
