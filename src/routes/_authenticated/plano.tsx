@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { TrilhaRodape } from "@/components/onboarding/trilha-progresso";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   BellRing,
@@ -449,6 +450,8 @@ function Page() {
           </div>
         </>
       )}
+
+      <TrilhaRodape depoisDe="riscos" />
 
       <p className="mt-8 text-xs leading-relaxed text-subtle">
         ⚠️ Plano preventivo gerado por IA — não substitui parecer jurídico individualizado.

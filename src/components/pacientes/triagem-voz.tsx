@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { abrirWhatsApp } from "@/lib/whatsapp";
 import {
+  AUDIO_RETENCAO_TEXTO,
   criarTriagem,
   salvarTriagem,
   urgenciaMeta,
@@ -233,6 +234,16 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
               transcrição é mantida.
             </span>
           </label>
+          <div className="rounded-xl border border-border p-4 text-[11px] leading-relaxed text-muted-foreground">
+            <p className="text-xs text-foreground">O que é guardado e por quanto tempo</p>
+            <p className="mt-1">
+              Guardamos a transcrição da conversa e, se autorizado, o arquivo de áudio.{" "}
+              {AUDIO_RETENCAO_TEXTO} Podem acessar o profissional dono da conta e o assistente com
+              vínculo ativo na clínica. A organização do conteúdo é feita por um serviço de
+              inteligência artificial contratado, sob obrigação de sigilo, e toda leitura fica
+              registrada. A revisão do profissional é obrigatória antes de qualquer uso.
+            </p>
+          </div>
           <Button
             onClick={() => void iniciar()}
             className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:brightness-105"
@@ -405,9 +416,7 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
                     `Prioridade: ${urgenciaMeta(resumo.urgencia).label}`,
                     resumo.resumo.join("\n"),
                     resumo.encaminhamento ? `Encaminhamento: ${resumo.encaminhamento}` : "",
-                    resumo.pendencias.length
-                      ? `A confirmar: ${resumo.pendencias.join("; ")}`
-                      : "",
+                    resumo.pendencias.length ? `A confirmar: ${resumo.pendencias.join("; ")}` : "",
                   ]
                     .filter(Boolean)
                     .join("\n\n"),
