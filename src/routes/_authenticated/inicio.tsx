@@ -15,6 +15,7 @@ import {
 
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
+import { TrilhaProgresso } from "@/components/onboarding/trilha-progresso";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -351,6 +352,8 @@ function Page() {
         </div>
       ) : (
         <div className="mt-8 space-y-8">
+          <TrilhaProgresso />
+
           {/* Cartão principal */}
           <section className="rounded-2xl glass-card p-6 md:p-8">
             <div className="flex flex-col items-center gap-7 text-center md:flex-row md:items-center md:gap-10 md:text-left">

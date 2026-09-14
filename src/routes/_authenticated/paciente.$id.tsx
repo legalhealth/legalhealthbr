@@ -19,8 +19,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatarData, eventoLabel } from "@/lib/pacientes";
+import { GravacoesPaciente } from "@/components/pacientes/gravacoes-paciente";
+import { DadosTitular } from "@/components/pacientes/dados-titular";
 import {
-  registrarAuditoria,
+  registrarAcesso,
   useAtualizarPaciente,
   useCriarEvento,
   useDocumentosDoPaciente,
@@ -97,11 +99,10 @@ function Page() {
     setConvenio(paciente.convenio ?? "");
     setResponsavel(paciente.responsavel_legal ?? "");
     setObservacoes(paciente.observacoes ?? "");
-    void registrarAuditoria({
+    registrarAcesso({
       patientId: paciente.id,
       entidade: "paciente",
       entidadeId: paciente.id,
-      acao: "visualizacao",
     });
   }, [paciente]);
 
@@ -179,6 +180,8 @@ function Page() {
         <TriagemVoz patientId={id} />
 
         <TriagemFormulario patientId={id} />
+
+        <GravacoesPaciente patientId={id} />
 
         {/* Dados cadastrais */}
         <section className="rounded-2xl glass-card p-5 md:p-6">
@@ -384,6 +387,8 @@ function Page() {
             </ul>
           </section>
         ) : null}
+
+        <DadosTitular paciente={paciente} />
 
         <AiDisclaimer />
       </div>

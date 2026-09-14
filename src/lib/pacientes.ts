@@ -2,10 +2,22 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
 import { contaAtivaId } from "@/lib/clinica";
+import {
+  apagarPacienteDefinitivo,
+  excluirAudioTriagem,
+  exportarPaciente,
+  registrarAuditoria as registrarAuditoriaServer,
+  registrarHistoricoCampos,
+  urlAudioTriagem,
+} from "@/lib/pacientes.functions";
 
 export const AUDIO_BUCKET = "patient-audio";
-/** Retenção padrão do áudio bruto; depois disso resta apenas a transcrição. */
-export const AUDIO_RETENCAO_DIAS = 90;
+/**
+ * A gravação fica guardada até que alguém da conta a apague na ficha.
+ * Não há prazo automático de expiração — é isso que o termo de consentimento informa.
+ */
+export const AUDIO_RETENCAO_TEXTO =
+  "A gravação e a transcrição ficam guardadas na ficha do paciente até que você as apague. Não há prazo automático de exclusão.";
 
 export type Paciente = {
   id: string;
@@ -113,30 +125,44 @@ async function exigirUsuario(): Promise<string> {
   return id;
 }
 
-export type AuditoriaAcao = "visualizacao" | "exportacao" | "edicao" | "exclusao";
+export type { AuditoriaAcao } from "@/lib/pacientes.functions";
 
-/** Registra quem fez o quê — sustenta a responsabilização exigida pela LGPD. */
+/**
+ * Registra quem fez o quê. A gravação acontece no servidor: o navegador não
+ * escreve no registro de acessos, e falhas ficam visíveis em vez de silenciosas.
+ */
 export async function registrarAuditoria(input: {
   patientId: string | null;
   entidade: string;
   entidadeId?: string | null;
-  acao: AuditoriaAcao;
+  acao: AuditoriaAcaoLocal;
   detalhe?: string;
 }): Promise<void> {
-  try {
-    const [conta, autor] = await Promise.all([contaAtivaId(), exigirUsuario()]);
-    await supabase.from("patient_audit_log").insert({
-      user_id: conta,
-      autor_user_id: autor,
-      patient_id: input.patientId,
+  const conta = await contaAtivaId();
+  await registrarAuditoriaServer({
+    data: {
+      patientId: input.patientId,
       entidade: input.entidade,
-      entidade_id: input.entidadeId ?? null,
+      entidadeId: input.entidadeId ?? null,
       acao: input.acao,
       detalhe: input.detalhe ?? null,
-    });
-  } catch {
-    /* auditoria não deve interromper o uso da ficha */
-  }
+      contaId: conta,
+    },
+  });
+}
+
+type AuditoriaAcaoLocal =
+  "visualizacao" | "exportacao" | "edicao" | "exclusao" | "exportacao_titular" | "exclusao_titular";
+
+/** Registro de simples visualização: não interrompe a tela, mas deixa o erro visível no console. */
+export function registrarAcesso(input: {
+  patientId: string | null;
+  entidade: string;
+  entidadeId?: string | null;
+}): void {
+  void registrarAuditoria({ ...input, acao: "visualizacao" }).catch((e: unknown) => {
+    console.error("[auditoria] acesso não registrado", e);
+  });
 }
 
 export function usePacientes(busca = "") {
@@ -225,7 +251,6 @@ export function useAtualizarPaciente() {
       anterior: Paciente;
       valores: Partial<Record<CampoFicha, string | null>>;
     }) => {
-      const userId = await contaAtivaId();
       const alteracoes = CAMPOS_FICHA.filter((campo) => {
         if (!(campo in valores)) return false;
         const novo = valores[campo] ?? null;
@@ -250,21 +275,16 @@ export function useAtualizarPaciente() {
       const { error } = await supabase.from("patients").update(patch).eq("id", anterior.id);
       if (error) throw error;
 
-      await supabase.from("patient_field_history").insert(
-        alteracoes.map((campo) => ({
-          patient_id: anterior.id,
-          user_id: userId,
-          campo,
-          valor_anterior: (anterior[campo] as string | null) ?? null,
-          valor_novo: valores[campo] || null,
-        })),
-      );
-      await registrarAuditoria({
-        patientId: anterior.id,
-        entidade: "paciente",
-        entidadeId: anterior.id,
-        acao: "edicao",
-        detalhe: alteracoes.join(", "),
+      // histórico e registro de acesso são gravados no servidor, na mesma chamada
+      await registrarHistoricoCampos({
+        data: {
+          patientId: anterior.id,
+          alteracoes: alteracoes.map((campo) => ({
+            campo,
+            anterior: (anterior[campo] as string | null) ?? null,
+            novo: valores[campo] || null,
+          })),
+        },
       });
     },
     onSuccess: (_data, variables) => {
@@ -432,10 +452,15 @@ export function useDocumentosDoPaciente(patientId: string) {
   });
 }
 
-export async function audioAssinado(path: string): Promise<string | null> {
-  const { data, error } = await supabase.storage.from(AUDIO_BUCKET).createSignedUrl(path, 3600);
-  if (error) return null;
-  return data.signedUrl;
+/** Link temporário da gravação, emitido pelo servidor (o bucket não é lido pelo navegador). */
+export async function audioAssinado(triageId: string): Promise<string | null> {
+  try {
+    const { url } = await urlAudioTriagem({ data: { triageId } });
+    return url;
+  } catch (e) {
+    console.error("[audio-triagem] falha ao abrir", e);
+    return null;
+  }
 }
 
 /** Cria a triagem já com os consentimentos registrados e devolve o id. */
@@ -563,20 +588,36 @@ export function useExcluirTriagem() {
   });
 }
 
-/** Apaga o áudio bruto que passou do prazo de retenção, mantendo a transcrição. */
-export async function limparAudiosExpirados(patientId: string): Promise<void> {
-  const limite = new Date(Date.now() - AUDIO_RETENCAO_DIAS * 24 * 60 * 60 * 1000).toISOString();
-  const { data } = await supabase
-    .from("patient_triages")
-    .select("id, audio_path")
-    .eq("patient_id", patientId)
-    .not("audio_path", "is", null)
-    .lt("created_at", limite);
-  for (const triagem of data ?? []) {
-    if (!triagem.audio_path) continue;
-    await supabase.storage.from(AUDIO_BUCKET).remove([triagem.audio_path]);
-    await supabase.from("patient_triages").update({ audio_path: null }).eq("id", triagem.id);
-  }
+/** Apaga só o arquivo de áudio de uma triagem, mantendo a transcrição. */
+export function useExcluirAudioTriagem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (triagem: Triagem) => {
+      await excluirAudioTriagem({ data: { triageId: triagem.id } });
+    },
+    onSuccess: (_d, triagem) => {
+      void queryClient.invalidateQueries({ queryKey: ["paciente-triagens", triagem.patient_id] });
+    },
+  });
+}
+
+/** Exportação completa a pedido do titular. */
+export function useExportarPaciente() {
+  return useMutation({
+    mutationFn: async (patientId: string) => exportarPaciente({ data: { patientId } }),
+  });
+}
+
+/** Exclusão definitiva a pedido do titular (só o dono da conta). */
+export function useApagarPacienteDefinitivo() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { patientId: string; confirmacao: string }) =>
+      apagarPacienteDefinitivo({ data: input }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["pacientes"] });
+    },
+  });
 }
 
 /**

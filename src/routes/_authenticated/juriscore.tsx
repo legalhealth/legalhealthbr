@@ -7,6 +7,7 @@ import { PolarAngleAxis, PolarGrid, Radar, RadarChart, ResponsiveContainer } fro
 
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
+import { TrilhaRodape } from "@/components/onboarding/trilha-progresso";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -184,6 +185,7 @@ function Page() {
             Gerar Plano de Ação a partir deste Juriscore®
           </Button>
         </div>
+        <TrilhaRodape depoisDe="juriscore" />
       </PageShell>
     );
   }
