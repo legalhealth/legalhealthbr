@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Building2, Loader2, Settings2, Sparkles, UserRound } from "lucide-react";
+import { Building2, Loader2, Settings2, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
@@ -317,6 +317,20 @@ function Page() {
             >
               <UserRound aria-hidden="true" />
               Pacientes
+            </Button>
+          )}
+          {ehAssistente ? null : (
+            <Button
+              asChild
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-xl border-border bg-transparent px-5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            >
+              <Link to="/conformidade">
+                <ShieldCheck aria-hidden="true" />
+                Conformidade
+              </Link>
             </Button>
           )}
           {ehAssistente ? null : (

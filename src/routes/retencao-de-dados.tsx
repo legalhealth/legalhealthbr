@@ -56,6 +56,17 @@ function RetencaoPage() {
             para pedidos de titulares.
           </p>
           <p>
+            Se você já tem conta, a política de retenção aplicada à sua clínica e o contrato de
+            tratamento de dados ficam em{" "}
+            <Link
+              to="/conformidade"
+              className="text-gold underline underline-offset-4 hover:text-gold-light"
+            >
+              Biblioteca › Conformidade
+            </Link>
+            , com versão para anexar ao e-mail do seu advogado.
+          </p>
+          <p>
             Dúvidas ou solicitações:{" "}
             <a
               href="mailto:privacidade@legalhealthbr.app"
