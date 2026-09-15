@@ -94,7 +94,7 @@ function Page() {
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
         <Button
           onClick={seguir}
-          className="h-11 rounded-xl gold-gradient px-6 font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
+          className="h-12 w-full rounded-xl gold-gradient px-6 font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105 sm:h-11 sm:w-auto"
         >
           {comecou ? "Continuar de onde parei" : "Começar agora"}
           <ArrowRight className="h-4 w-4" />
@@ -102,7 +102,7 @@ function Page() {
         <Button
           variant="outline"
           onClick={depois}
-          className="h-11 rounded-xl border-border px-6 hover:bg-accent hover:text-accent-foreground"
+          className="h-12 w-full rounded-xl border-border px-6 hover:bg-accent hover:text-accent-foreground sm:h-11 sm:w-auto"
         >
           <Check className="h-4 w-4" />
           Ir para o início
