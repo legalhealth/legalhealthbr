@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Activity, ArrowRight, Check, FileSignature, ShieldCheck } from "lucide-react";
+import { Activity, ArrowRight, Check, FileSignature, Mic, ShieldCheck } from "lucide-react";
 
 import monograma from "@/assets/lh-monograma.png.asset.json";
 import { markWelcomeSeen, TRILHA, useProgressoTrilha } from "@/lib/onboarding";
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/bem-vindo")({
   component: Page,
 });
 
-const ICONES = [Activity, ShieldCheck, FileSignature];
+const ICONES = [Activity, ShieldCheck, Mic, FileSignature];
 
 function Page() {
   const navigate = useNavigate();
@@ -38,7 +38,11 @@ function Page() {
   function seguir() {
     markWelcomeSeen();
     if (proximo.to === "/biblioteca") {
-      void navigate({ to: "/biblioteca", search: { cat: "minutas" }, replace: true });
+      void navigate({
+        to: "/biblioteca",
+        search: { cat: proximo.cat ?? "minutas" },
+        replace: true,
+      });
       return;
     }
     void navigate({ to: proximo.to, replace: true });
@@ -57,12 +61,12 @@ function Page() {
           Bem-vindo ao Legal Health
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-          Em três passos você sai daqui com o seu nível de risco medido, as prioridades definidas e
-          o primeiro documento pronto para revisar.
+          Em quatro passos você sai daqui com o seu nível de risco medido, as prioridades
+          definidas, uma triagem por voz gravada e o primeiro documento pronto para revisar.
         </p>
       </div>
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-3">
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {TRILHA.map((passo, index) => {
           const Icon = ICONES[index] ?? Activity;
           const concluido = Boolean(progresso?.[passo.id]);
