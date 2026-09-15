@@ -380,20 +380,25 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
               <p className="mt-1 text-[11px] text-muted-foreground">
                 Ao tocar, o modelo abre na Biblioteca já vinculado a este paciente.
               </p>
-              <div className="mt-3 flex flex-wrap gap-3">
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 {resumo.documentos.map((doc) => (
                   <Button
                     key={doc.slug}
                     asChild
                     variant="outline"
                     size="sm"
-                    className="rounded-xl border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+                    className="h-11 w-full rounded-xl border-gold/40 bg-transparent text-gold hover:bg-gold/10 sm:h-9 sm:w-auto"
                   >
                     <Link
                       to="/biblioteca"
-                      search={{ cat: "minutas", doc: doc.slug, pac: patientId }}
+                      search={{
+                        cat: "minutas",
+                        doc: doc.slug,
+                        pac: patientId,
+                        ctx: contextoDaTriagem(resumo),
+                      }}
                     >
-                      {doc.label}
+                      Gerar esta minuta: {doc.label}
                     </Link>
                   </Button>
                 ))}
@@ -401,11 +406,11 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
             </div>
           ) : null}
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button
               onClick={() => void handleConfirmar()}
               disabled={confirmar.isPending}
-              className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:brightness-105"
+              className="h-12 w-full gold-gradient text-background shadow-[var(--shadow-gold)] hover:brightness-105 sm:h-11 sm:w-auto"
             >
               {confirmar.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Confirmar triagem
