@@ -39,6 +39,20 @@ import {
 
 type Etapa = "consentimento" | "gravando" | "processando" | "revisao";
 
+/** Resumo curto do atendimento, enviado como contexto para a geração da minuta. */
+function contextoDaTriagem(r: TriagemResumo): string {
+  return [
+    `Motivo: ${r.motivo || "não informado"}`,
+    `Prioridade: ${urgenciaMeta(r.urgencia).label}`,
+    r.resumo.length ? `Pontos do atendimento: ${r.resumo.join("; ")}` : "",
+    r.encaminhamento ? `Encaminhamento: ${r.encaminhamento}` : "",
+    r.pendencias.length ? `A confirmar: ${r.pendencias.join("; ")}` : "",
+  ]
+    .filter(Boolean)
+    .join(" | ")
+    .slice(0, 1500);
+}
+
 export function TriagemVoz({ patientId }: { patientId: string }) {
   const [etapa, setEtapa] = useState<Etapa>("consentimento");
   const [consenteAtendimento, setConsenteAtendimento] = useState(false);
