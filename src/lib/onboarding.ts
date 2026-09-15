@@ -10,7 +10,7 @@ export function markWelcomeSeen() {
   }
 }
 
-export type PassoId = "juriscore" | "riscos" | "minuta";
+export type PassoId = "juriscore" | "riscos" | "voz" | "minuta";
 
 export type PassoTrilha = {
   id: PassoId;
@@ -18,6 +18,8 @@ export type PassoTrilha = {
   descricao: string;
   acao: string;
   to: "/juriscore" | "/plano" | "/biblioteca";
+  /** aba da Biblioteca aberta pelo passo, quando o destino é a Biblioteca */
+  cat?: "pacientes" | "minutas";
 };
 
 /** Trilha fixa: do Juriscore até a primeira minuta pronta. */
@@ -37,17 +39,27 @@ export const TRILHA: PassoTrilha[] = [
     to: "/plano",
   },
   {
+    id: "voz",
+    titulo: "Grave uma triagem por voz",
+    descricao: "Abra a ficha de um paciente e use o microfone do celular para captar o contato.",
+    acao: "Gravar triagem",
+    to: "/biblioteca",
+    cat: "pacientes",
+  },
+  {
     id: "minuta",
     titulo: "Gere sua primeira minuta",
     descricao: "Escolha um modelo da aba Minutas e receba o documento pronto para revisar.",
     acao: "Gerar minuta",
     to: "/biblioteca",
+    cat: "minutas",
   },
 ];
 
 export type ProgressoTrilha = {
   juriscore: boolean;
   riscos: boolean;
+  voz: boolean;
   minuta: boolean;
   concluida: boolean;
   proximo: PassoTrilha | null;
@@ -65,15 +77,22 @@ export function useProgressoTrilha() {
         return {
           juriscore: false,
           riscos: false,
+          voz: false,
           minuta: false,
           concluida: false,
           proximo: TRILHA[0]!,
         };
       }
 
-      const [score, plano, minuta] = await Promise.all([
+      const [score, plano, voz, minuta] = await Promise.all([
         supabase.from("juriscore_results").select("id").eq("user_id", userId).limit(1),
         supabase.from("action_plans").select("id").eq("user_id", userId).limit(1),
+        supabase
+          .from("patient_triages")
+          .select("id")
+          .eq("user_id", userId)
+          .not("transcricao", "is", null)
+          .limit(1),
         supabase
           .from("generated_docs")
           .select("id")
@@ -86,6 +105,7 @@ export function useProgressoTrilha() {
       const feito = {
         juriscore: Boolean(score.data?.length),
         riscos: Boolean(plano.data?.length),
+        voz: Boolean(voz.data?.length),
         minuta: Boolean(minuta.data?.length),
       };
       const proximo = TRILHA.find((passo) => !feito[passo.id]) ?? null;
