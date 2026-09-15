@@ -258,8 +258,8 @@ function Page() {
             {lendo ? "Lendo documento..." : "Anexar documento do caso"}
           </Button>
           <p className="text-xs text-subtle">
-            Intimação, notificação, sindicância do CRM, reclamação, glosa ou citação judicial. PDF ou
-            imagem, até 15 MB por arquivo.
+            Intimação, notificação, sindicância do CRM, reclamação, glosa ou citação judicial. PDF
+            ou imagem, até 15 MB por arquivo.
           </p>
 
           {anexos.length > 0 ? (
