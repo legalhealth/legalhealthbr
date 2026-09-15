@@ -132,6 +132,7 @@ function Page() {
   const [docId, setDocId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const draftRef = useRef<HTMLElement | null>(null);
+  const gerarRef = useRef<HTMLButtonElement | null>(null);
   const gerandoRef = useRef(false);
 
   const { data: pacientes } = usePacientes();
@@ -230,8 +231,13 @@ function Page() {
 
       const cabecalho =
         incluirClinica && clinicaData?.clinica ? cabecalhoClinica(clinicaData.clinica) : null;
-      if (cabecalho) {
-        text = `${cabecalho}\n\n${text}`;
+      const pacienteNome = pacienteId
+        ? pacientes?.find((p) => p.id === pacienteId)?.nome ?? null
+        : null;
+      const identificacao = pacienteNome ? `Paciente: ${pacienteNome}` : null;
+      const prefixo = [cabecalho, identificacao].filter(Boolean).join("\n\n");
+      if (prefixo) {
+        text = `${prefixo}\n\n${text}`;
         setDraft(text);
       }
       requestAnimationFrame(() => draftRef.current?.scrollIntoView({ behavior: "smooth" }));
