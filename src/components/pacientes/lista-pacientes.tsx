@@ -122,6 +122,43 @@ export function ListaPacientes() {
         </Dialog>
       </div>
 
+      <Dialog open={criado !== null} onOpenChange={(v) => !v && setCriado(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Paciente cadastrado</DialogTitle>
+            <DialogDescription>
+              {criado?.nome} já está na sua lista. O próximo passo é gerar a minuta com os dados da
+              clínica no cabeçalho.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button
+              className="h-11 w-full gold-gradient text-background hover:brightness-105 sm:h-10 sm:w-auto"
+              onClick={() => {
+                const id = criado?.id;
+                setCriado(null);
+                if (id)
+                  void navigate({ to: "/biblioteca", search: { cat: "minutas", pac: id } });
+              }}
+            >
+              <FileSignature className="mr-2 h-4 w-4" />
+              Gerar minuta deste paciente
+            </Button>
+            <Button
+              variant="outline"
+              className="h-11 w-full border-border bg-transparent sm:h-10 sm:w-auto"
+              onClick={() => {
+                const id = criado?.id;
+                setCriado(null);
+                if (id) void navigate({ to: "/paciente/$id", params: { id } });
+              }}
+            >
+              Abrir a ficha
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="mt-5 space-y-3">
         {isPending ? (
           <p className="text-sm text-muted-foreground">Carregando pacientes…</p>
