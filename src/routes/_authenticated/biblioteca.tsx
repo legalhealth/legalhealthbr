@@ -562,7 +562,7 @@ function Page() {
                 variant="outline"
                 size="sm"
                 disabled={generating || !draft}
-                className="border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+                className="h-11 w-full border-gold/40 bg-transparent text-gold hover:bg-gold/10 sm:h-9 sm:w-auto"
                 onClick={() =>
                   abrirWhatsApp(profile?.whatsapp, {
                     titulo: docAtual?.label ?? "Documento",
