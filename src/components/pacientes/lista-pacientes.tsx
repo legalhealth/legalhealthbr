@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Loader2, Plus, Search, UserRound } from "lucide-react";
+import { FileSignature, Loader2, Plus, Search, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,8 @@ export function ListaPacientes() {
   const [nome, setNome] = useState("");
   const [contato, setContato] = useState("");
   const [nascimento, setNascimento] = useState("");
+  const [criado, setCriado] = useState<{ id: string; nome: string } | null>(null);
+  const navigate = useNavigate();
 
   const { data: pacientes, isPending } = usePacientes(busca);
   const criar = useCriarPaciente();
@@ -33,12 +35,13 @@ export function ListaPacientes() {
       return;
     }
     try {
-      await criar.mutateAsync({
+      const id = await criar.mutateAsync({
         nome,
         ...(contato ? { contato } : {}),
         ...(nascimento ? { nascimento } : {}),
       });
       toast.success("Paciente cadastrado.");
+      setCriado({ id, nome: nome.trim() });
       setAberto(false);
       setNome("");
       setContato("");
@@ -118,6 +121,42 @@ export function ListaPacientes() {
           </DialogContent>
         </Dialog>
       </div>
+
+      <Dialog open={criado !== null} onOpenChange={(v) => !v && setCriado(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Paciente cadastrado</DialogTitle>
+            <DialogDescription>
+              {criado?.nome} já está na sua lista. O próximo passo é gerar a minuta com os dados da
+              clínica no cabeçalho.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button
+              className="h-11 w-full gold-gradient text-background hover:brightness-105 sm:h-10 sm:w-auto"
+              onClick={() => {
+                const id = criado?.id;
+                setCriado(null);
+                if (id) void navigate({ to: "/biblioteca", search: { cat: "minutas", pac: id } });
+              }}
+            >
+              <FileSignature className="mr-2 h-4 w-4" />
+              Gerar minuta deste paciente
+            </Button>
+            <Button
+              variant="outline"
+              className="h-11 w-full border-border bg-transparent sm:h-10 sm:w-auto"
+              onClick={() => {
+                const id = criado?.id;
+                setCriado(null);
+                if (id) void navigate({ to: "/paciente/$id", params: { id } });
+              }}
+            >
+              Abrir a ficha
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="mt-5 space-y-3">
         {isPending ? (

@@ -2,7 +2,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Building2, Loader2, Settings2, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import {
+  Building2,
+  Loader2,
+  Printer,
+  Settings2,
+  ShieldCheck,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
@@ -16,6 +24,7 @@ import { abrirWhatsApp } from "@/lib/whatsapp";
 import { useClinica, useEhAssistente, type Clinica } from "@/lib/clinica";
 import { resumoHorarios } from "@/lib/clinica-horarios";
 import { Switch } from "@/components/ui/switch";
+import { imprimirDocumento } from "@/lib/imprimir";
 
 /** Bloco de cabeçalho com os dados da clínica, inserido antes da minuta gerada. */
 function cabecalhoClinica(clinica: Clinica): string | null {
@@ -123,6 +132,7 @@ function Page() {
   const [docId, setDocId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const draftRef = useRef<HTMLElement | null>(null);
+  const gerarRef = useRef<HTMLButtonElement | null>(null);
   const gerandoRef = useRef(false);
 
   const { data: pacientes } = usePacientes();
@@ -189,6 +199,15 @@ function Page() {
     setCidade((v) => v || (profile.cidade ?? ""));
   }, [profile]);
 
+  // Quem chega da lista de pacientes já cai posicionado no botão de gerar.
+  useEffect(() => {
+    if (!search.pac) return;
+    const id = requestAnimationFrame(() =>
+      gerarRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }),
+    );
+    return () => cancelAnimationFrame(id);
+  }, [search.pac]);
+
   function trocarCategoria(value: BibliotecaCategoria) {
     setAba(value);
     setCategoria(value);
@@ -221,8 +240,13 @@ function Page() {
 
       const cabecalho =
         incluirClinica && clinicaData?.clinica ? cabecalhoClinica(clinicaData.clinica) : null;
-      if (cabecalho) {
-        text = `${cabecalho}\n\n${text}`;
+      const pacienteNome = pacienteId
+        ? (pacientes?.find((p) => p.id === pacienteId)?.nome ?? null)
+        : null;
+      const identificacao = pacienteNome ? `Paciente: ${pacienteNome}` : null;
+      const prefixo = [cabecalho, identificacao].filter(Boolean).join("\n\n");
+      if (prefixo) {
+        text = `${prefixo}\n\n${text}`;
         setDraft(text);
       }
       requestAnimationFrame(() => draftRef.current?.scrollIntoView({ behavior: "smooth" }));
@@ -520,9 +544,17 @@ function Page() {
               />
               Incluir dados da clínica no cabeçalho do documento
             </label>
-          ) : null}
+          ) : ehAssistente ? null : (
+            <p className="mt-5 text-sm text-muted-foreground">
+              Preencha os dados da clínica para o documento sair com cabeçalho.{" "}
+              <Link to="/clinica" className="text-gold underline underline-offset-4">
+                Preencher agora
+              </Link>
+            </p>
+          )}
 
           <Button
+            ref={gerarRef}
             onClick={() => void handleGenerate()}
             disabled={generating || !docAtual}
             className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
@@ -586,6 +618,25 @@ function Page() {
                 }
               >
                 Enviar no meu WhatsApp
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={generating || !draft}
+                className="h-11 w-full border-gold/40 bg-transparent text-gold hover:bg-gold/10 sm:h-9 sm:w-auto"
+                onClick={() => {
+                  const ok = imprimirDocumento({
+                    titulo: `${categoriaLabel(categoria)} — ${docAtual?.label ?? "Documento"}`,
+                    corpo: draft,
+                  });
+                  if (!ok)
+                    toast.error(
+                      "O navegador bloqueou a janela de impressão. Permita pop-ups para este site.",
+                    );
+                }}
+              >
+                <Printer className="mr-2 h-4 w-4" />
+                Imprimir / Salvar em PDF
               </Button>
               {!generating && draft && docId ? (
                 <EnviarRevisaoDialog
