@@ -23,6 +23,8 @@ export function ListaPacientes() {
   const [nome, setNome] = useState("");
   const [contato, setContato] = useState("");
   const [nascimento, setNascimento] = useState("");
+  const [criado, setCriado] = useState<{ id: string; nome: string } | null>(null);
+  const navigate = useNavigate();
 
   const { data: pacientes, isPending } = usePacientes(busca);
   const criar = useCriarPaciente();
@@ -33,12 +35,13 @@ export function ListaPacientes() {
       return;
     }
     try {
-      await criar.mutateAsync({
+      const id = await criar.mutateAsync({
         nome,
         ...(contato ? { contato } : {}),
         ...(nascimento ? { nascimento } : {}),
       });
       toast.success("Paciente cadastrado.");
+      setCriado({ id, nome: nome.trim() });
       setAberto(false);
       setNome("");
       setContato("");
