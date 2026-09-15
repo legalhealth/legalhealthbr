@@ -2,7 +2,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Building2, Loader2, Settings2, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import {
+  Building2,
+  Loader2,
+  Printer,
+  Settings2,
+  ShieldCheck,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/layout/page-shell";
@@ -16,6 +24,7 @@ import { abrirWhatsApp } from "@/lib/whatsapp";
 import { useClinica, useEhAssistente, type Clinica } from "@/lib/clinica";
 import { resumoHorarios } from "@/lib/clinica-horarios";
 import { Switch } from "@/components/ui/switch";
+import { imprimirDocumento } from "@/lib/imprimir";
 
 /** Bloco de cabeçalho com os dados da clínica, inserido antes da minuta gerada. */
 function cabecalhoClinica(clinica: Clinica): string | null {
