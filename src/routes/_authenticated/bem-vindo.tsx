@@ -61,8 +61,8 @@ function Page() {
           Bem-vindo ao Legal Health
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-          Em quatro passos você sai daqui com o seu nível de risco medido, as prioridades
-          definidas, uma triagem por voz gravada e o primeiro documento pronto para revisar.
+          Em quatro passos você sai daqui com o seu nível de risco medido, as prioridades definidas,
+          uma triagem por voz gravada e o primeiro documento pronto para revisar.
         </p>
       </div>
 
