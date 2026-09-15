@@ -199,6 +199,15 @@ function Page() {
     setCidade((v) => v || (profile.cidade ?? ""));
   }, [profile]);
 
+  // Quem chega da lista de pacientes já cai posicionado no botão de gerar.
+  useEffect(() => {
+    if (!search.pac) return;
+    const id = requestAnimationFrame(() =>
+      gerarRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }),
+    );
+    return () => cancelAnimationFrame(id);
+  }, [search.pac]);
+
   function trocarCategoria(value: BibliotecaCategoria) {
     setAba(value);
     setCategoria(value);
