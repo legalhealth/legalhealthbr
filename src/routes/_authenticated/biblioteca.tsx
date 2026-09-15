@@ -69,10 +69,11 @@ import {
 export const Route = createFileRoute("/_authenticated/biblioteca")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { cat?: string; doc?: string; pac?: string } => ({
+  ): { cat?: string; doc?: string; pac?: string; ctx?: string } => ({
     ...(typeof search["cat"] === "string" ? { cat: search["cat"] } : {}),
     ...(typeof search["doc"] === "string" ? { doc: search["doc"] } : {}),
     ...(typeof search["pac"] === "string" ? { pac: search["pac"] } : {}),
+    ...(typeof search["ctx"] === "string" ? { ctx: search["ctx"].slice(0, 1500) } : {}),
   }),
   head: () => ({
     meta: [
