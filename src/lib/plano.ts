@@ -247,7 +247,21 @@ export type Reminder = {
   read_at: string | null;
 };
 
-/** Lembretes de prazo (7 e 1 dia) do plano ativo. */
+/**
+ * Lembretes de prazo do plano ativo.
+ * O banco guarda dois avisos por prioridade (7 e 1 dia de antecedência) para o
+ * envio por e-mail; na tela cada prazo aparece uma única vez.
+ */
+function deduplicarPrazos(lista: Reminder[]): Reminder[] {
+  const porPrazo = new Map<string, Reminder>();
+  for (const item of lista) {
+    const chave = `${item.titulo}|${item.due_date}`;
+    const atual = porPrazo.get(chave);
+    if (!atual || item.offset_days < atual.offset_days) porPrazo.set(chave, item);
+  }
+  return [...porPrazo.values()].sort((a, b) => a.due_date.localeCompare(b.due_date));
+}
+
 export function usePlanReminders() {
   return useQuery({
     queryKey: ["plan-reminders"],
@@ -262,7 +276,7 @@ export function usePlanReminders() {
         .eq("user_id", userId)
         .gte("due_date", today)
         .order("due_date", { ascending: true });
-      return data ?? [];
+      return deduplicarPrazos(data ?? []);
     },
   });
 }
