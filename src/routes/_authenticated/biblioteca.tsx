@@ -48,6 +48,7 @@ import {
   useSemearModelosClinica,
 } from "@/lib/library-templates";
 import { saveHistoryItem } from "@/lib/ia-history";
+import { useProgressoTrilha } from "@/lib/onboarding";
 import { useCriarEvento, usePacientes } from "@/lib/pacientes";
 import { ListaPacientes } from "@/components/pacientes/lista-pacientes";
 import {
@@ -212,6 +213,7 @@ function Page() {
           especialidade,
           cidade,
           ...(docAtual.procedimento ? { procedimento } : {}),
+          ...(search.ctx ? { contexto: search.ctx } : {}),
         },
         (chunk) => setDraft((prev) => (prev ?? "") + chunk),
       );
