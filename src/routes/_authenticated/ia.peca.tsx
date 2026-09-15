@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { FileSignature, Paperclip, Sparkles, X } from "lucide-react";
+import { FileSignature, Paperclip, Sparkles, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { DiagnosticContextCard } from "@/components/ia/diagnostic-context-card";
@@ -17,7 +17,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
 import { saveHistoryItem } from "@/lib/ia-history";
-import { useRecommendations } from "@/lib/ia-recommendations";
+import { useDeleteRecommendation, useRecommendations } from "@/lib/ia-recommendations";
 import {
   formatSize,
   useAnalyzeDocument,
@@ -68,6 +68,7 @@ function Page() {
   const { data: ctx } = useDiagnosticContext();
   const queryClient = useQueryClient();
   const { data: recommendations } = useRecommendations();
+  const excluirRecomendacao = useDeleteRecommendation();
   const { refetch: refetchDocuments } = useDocuments();
   const upload = useUploadDocuments();
   const analyzeDoc = useAnalyzeDocument();
@@ -257,8 +258,8 @@ function Page() {
             {lendo ? "Lendo documento..." : "Anexar documento do caso"}
           </Button>
           <p className="text-xs text-subtle">
-            Intimação, notificação, sindicância do CRM, reclamação, glosa ou citação judicial. PDF ou
-            imagem, até 15 MB por arquivo.
+            Intimação, notificação, sindicância do CRM, reclamação, glosa ou citação judicial. PDF
+            ou imagem, até 15 MB por arquivo.
           </p>
 
           {anexos.length > 0 ? (
@@ -366,7 +367,7 @@ function Page() {
               {(recommendations ?? []).slice(0, 8).map((rec) => {
                 const active = selectedRecs.includes(rec.id);
                 return (
-                  <li key={rec.id}>
+                  <li key={rec.id} className="flex items-stretch gap-2">
                     <button
                       type="button"
                       onClick={() =>
@@ -374,7 +375,7 @@ function Page() {
                           active ? prev.filter((id) => id !== rec.id) : [...prev, rec.id],
                         )
                       }
-                      className={`w-full rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
+                      className={`flex-1 rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
                         active
                           ? "border-gold/60 bg-gold/10 text-foreground"
                           : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
@@ -384,6 +385,25 @@ function Page() {
                       <span className="mt-1 block text-xs text-subtle">
                         {new Date(rec.created_at).toLocaleDateString("pt-BR")}
                       </span>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Excluir recomendação"
+                      disabled={excluirRecomendacao.isPending}
+                      onClick={() => {
+                        if (!window.confirm("Excluir esta recomendação?")) return;
+                        excluirRecomendacao.mutate(rec.id, {
+                          onSuccess: () => {
+                            setSelectedRecs((prev) => prev.filter((id) => id !== rec.id));
+                            toast.success("Recomendação excluída.");
+                          },
+                          onError: () =>
+                            toast.error("Não foi possível excluir a recomendação agora."),
+                        });
+                      }}
+                      className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-muted/30 text-subtle transition-colors hover:border-danger/40 hover:text-danger disabled:opacity-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </li>
                 );
