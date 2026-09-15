@@ -246,11 +246,17 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
           </div>
           <Button
             onClick={() => void iniciar()}
-            className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:brightness-105"
+            className="h-12 w-full gold-gradient text-base text-background shadow-[var(--shadow-gold)] hover:brightness-105 sm:h-11 sm:w-auto sm:text-sm"
           >
-            <Mic className="mr-2 h-4 w-4" />
+            <Mic className="mr-2 h-5 w-5" />
             Iniciar triagem
           </Button>
+          {aviso ? (
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              Se o microfone não funcionar neste aparelho, use a triagem por escrito logo abaixo
+              nesta mesma ficha — o resultado é o mesmo.
+            </p>
+          ) : null}
         </div>
       ) : null}
 
