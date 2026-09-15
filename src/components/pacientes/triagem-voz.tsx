@@ -303,7 +303,11 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
           <div className="max-h-56 overflow-y-auto rounded-xl border border-border p-4 text-sm leading-relaxed text-muted-foreground">
             {transcricao || "Aguardando as primeiras palavras…"}
           </div>
-          <Button variant="outline" onClick={() => void encerrar()} className="border-border">
+          <Button
+            variant="outline"
+            onClick={() => void encerrar()}
+            className="h-12 w-full border-border sm:h-11 sm:w-auto"
+          >
             <Square className="mr-2 h-4 w-4" />
             Encerrar e organizar
           </Button>
