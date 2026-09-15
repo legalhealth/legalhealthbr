@@ -39,6 +39,20 @@ import {
 
 type Etapa = "consentimento" | "gravando" | "processando" | "revisao";
 
+/** Resumo curto do atendimento, enviado como contexto para a geração da minuta. */
+function contextoDaTriagem(r: TriagemResumo): string {
+  return [
+    `Motivo: ${r.motivo || "não informado"}`,
+    `Prioridade: ${urgenciaMeta(r.urgencia).label}`,
+    r.resumo.length ? `Pontos do atendimento: ${r.resumo.join("; ")}` : "",
+    r.encaminhamento ? `Encaminhamento: ${r.encaminhamento}` : "",
+    r.pendencias.length ? `A confirmar: ${r.pendencias.join("; ")}` : "",
+  ]
+    .filter(Boolean)
+    .join(" | ")
+    .slice(0, 1500);
+}
+
 export function TriagemVoz({ patientId }: { patientId: string }) {
   const [etapa, setEtapa] = useState<Etapa>("consentimento");
   const [consenteAtendimento, setConsenteAtendimento] = useState(false);
@@ -246,11 +260,17 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
           </div>
           <Button
             onClick={() => void iniciar()}
-            className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:brightness-105"
+            className="h-12 w-full gold-gradient text-base text-background shadow-[var(--shadow-gold)] hover:brightness-105 sm:h-11 sm:w-auto sm:text-sm"
           >
-            <Mic className="mr-2 h-4 w-4" />
+            <Mic className="mr-2 h-5 w-5" />
             Iniciar triagem
           </Button>
+          {aviso ? (
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              Se o microfone não funcionar neste aparelho, use a triagem por escrito logo abaixo
+              nesta mesma ficha — o resultado é o mesmo.
+            </p>
+          ) : null}
         </div>
       ) : null}
 
@@ -283,7 +303,11 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
           <div className="max-h-56 overflow-y-auto rounded-xl border border-border p-4 text-sm leading-relaxed text-muted-foreground">
             {transcricao || "Aguardando as primeiras palavras…"}
           </div>
-          <Button variant="outline" onClick={() => void encerrar()} className="border-border">
+          <Button
+            variant="outline"
+            onClick={() => void encerrar()}
+            className="h-12 w-full border-border sm:h-11 sm:w-auto"
+          >
             <Square className="mr-2 h-4 w-4" />
             Encerrar e organizar
           </Button>
@@ -374,20 +398,25 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
               <p className="mt-1 text-[11px] text-muted-foreground">
                 Ao tocar, o modelo abre na Biblioteca já vinculado a este paciente.
               </p>
-              <div className="mt-3 flex flex-wrap gap-3">
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 {resumo.documentos.map((doc) => (
                   <Button
                     key={doc.slug}
                     asChild
                     variant="outline"
                     size="sm"
-                    className="rounded-xl border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+                    className="h-11 w-full rounded-xl border-gold/40 bg-transparent text-gold hover:bg-gold/10 sm:h-9 sm:w-auto"
                   >
                     <Link
                       to="/biblioteca"
-                      search={{ cat: "minutas", doc: doc.slug, pac: patientId }}
+                      search={{
+                        cat: "minutas",
+                        doc: doc.slug,
+                        pac: patientId,
+                        ctx: contextoDaTriagem(resumo),
+                      }}
                     >
-                      {doc.label}
+                      Gerar esta minuta: {doc.label}
                     </Link>
                   </Button>
                 ))}
@@ -395,11 +424,11 @@ export function TriagemVoz({ patientId }: { patientId: string }) {
             </div>
           ) : null}
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button
               onClick={() => void handleConfirmar()}
               disabled={confirmar.isPending}
-              className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:brightness-105"
+              className="h-12 w-full gold-gradient text-background shadow-[var(--shadow-gold)] hover:brightness-105 sm:h-11 sm:w-auto"
             >
               {confirmar.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Confirmar triagem

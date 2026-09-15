@@ -48,6 +48,7 @@ import {
   useSemearModelosClinica,
 } from "@/lib/library-templates";
 import { saveHistoryItem } from "@/lib/ia-history";
+import { useProgressoTrilha } from "@/lib/onboarding";
 import { useCriarEvento, usePacientes } from "@/lib/pacientes";
 import { ListaPacientes } from "@/components/pacientes/lista-pacientes";
 import {
@@ -69,10 +70,11 @@ import {
 export const Route = createFileRoute("/_authenticated/biblioteca")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { cat?: string; doc?: string; pac?: string } => ({
+  ): { cat?: string; doc?: string; pac?: string; ctx?: string } => ({
     ...(typeof search["cat"] === "string" ? { cat: search["cat"] } : {}),
     ...(typeof search["doc"] === "string" ? { doc: search["doc"] } : {}),
     ...(typeof search["pac"] === "string" ? { pac: search["pac"] } : {}),
+    ...(typeof search["ctx"] === "string" ? { ctx: search["ctx"].slice(0, 1500) } : {}),
   }),
   head: () => ({
     meta: [
@@ -129,6 +131,7 @@ function Page() {
   const [incluirClinica, setIncluirClinica] = useState(true);
   const { data: ehAssistente } = useEhAssistente();
   const modoClinica = aba === "clinica";
+  const { data: progressoTrilha } = useProgressoTrilha();
 
   const { data: modelosDb } = useModelos();
   const semearClinica = useSemearModelosClinica();
@@ -211,6 +214,7 @@ function Page() {
           especialidade,
           cidade,
           ...(docAtual.procedimento ? { procedimento } : {}),
+          ...(search.ctx ? { contexto: search.ctx } : {}),
         },
         (chunk) => setDraft((prev) => (prev ?? "") + chunk),
       );
@@ -521,19 +525,32 @@ function Page() {
         </section>
 
         {draft !== null && aba !== "pacientes" ? (
-          <section ref={draftRef} className="rounded-2xl glass-card p-6">
+          <section ref={draftRef} className="rounded-2xl glass-card p-5 md:p-6">
+            {!generating && draft && docId && progressoTrilha?.concluida ? (
+              <div className="mb-4 rounded-xl border border-gold/30 bg-gold/5 p-4">
+                <p className="text-sm text-gold">
+                  Primeiros passos concluídos — este é o seu primeiro documento.
+                </p>
+                <Link
+                  to="/inicio"
+                  className="mt-1 inline-block text-xs text-muted-foreground underline underline-offset-4"
+                >
+                  Voltar ao Início
+                </Link>
+              </div>
+            ) : null}
             <h2 className="font-display text-lg text-foreground">
               {generating ? "Gerando…" : (docAtual?.label ?? "Documento")}
             </h2>
-            <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-muted-foreground">
+            <pre className="mt-4 whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-muted-foreground">
               {draft || "Aguardando a IA…"}
             </pre>
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button
                 variant="outline"
                 size="sm"
                 disabled={generating || !draft}
-                className="border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+                className="h-11 w-full border-gold/40 bg-transparent text-gold hover:bg-gold/10 sm:h-9 sm:w-auto"
                 onClick={() => {
                   void navigator.clipboard.writeText(draft);
                   toast.success("Documento copiado.");
@@ -545,7 +562,7 @@ function Page() {
                 variant="outline"
                 size="sm"
                 disabled={generating || !draft}
-                className="border-gold/40 bg-transparent text-gold hover:bg-gold/10"
+                className="h-11 w-full border-gold/40 bg-transparent text-gold hover:bg-gold/10 sm:h-9 sm:w-auto"
                 onClick={() =>
                   abrirWhatsApp(profile?.whatsapp, {
                     titulo: docAtual?.label ?? "Documento",

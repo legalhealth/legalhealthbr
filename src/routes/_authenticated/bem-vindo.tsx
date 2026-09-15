@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Activity, ArrowRight, Check, FileSignature, ShieldCheck } from "lucide-react";
+import { Activity, ArrowRight, Check, FileSignature, Mic, ShieldCheck } from "lucide-react";
 
 import monograma from "@/assets/lh-monograma.png.asset.json";
 import { markWelcomeSeen, TRILHA, useProgressoTrilha } from "@/lib/onboarding";
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/bem-vindo")({
   component: Page,
 });
 
-const ICONES = [Activity, ShieldCheck, FileSignature];
+const ICONES = [Activity, ShieldCheck, Mic, FileSignature];
 
 function Page() {
   const navigate = useNavigate();
@@ -38,7 +38,11 @@ function Page() {
   function seguir() {
     markWelcomeSeen();
     if (proximo.to === "/biblioteca") {
-      void navigate({ to: "/biblioteca", search: { cat: "minutas" }, replace: true });
+      void navigate({
+        to: "/biblioteca",
+        search: { cat: proximo.cat ?? "minutas" },
+        replace: true,
+      });
       return;
     }
     void navigate({ to: proximo.to, replace: true });
@@ -57,12 +61,12 @@ function Page() {
           Bem-vindo ao Legal Health
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-          Em três passos você sai daqui com o seu nível de risco medido, as prioridades definidas e
-          o primeiro documento pronto para revisar.
+          Em quatro passos você sai daqui com o seu nível de risco medido, as prioridades definidas,
+          uma triagem por voz gravada e o primeiro documento pronto para revisar.
         </p>
       </div>
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-3">
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {TRILHA.map((passo, index) => {
           const Icon = ICONES[index] ?? Activity;
           const concluido = Boolean(progresso?.[passo.id]);
@@ -90,7 +94,7 @@ function Page() {
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
         <Button
           onClick={seguir}
-          className="h-11 rounded-xl gold-gradient px-6 font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
+          className="h-12 w-full rounded-xl gold-gradient px-6 font-medium text-primary-foreground shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105 sm:h-11 sm:w-auto"
         >
           {comecou ? "Continuar de onde parei" : "Começar agora"}
           <ArrowRight className="h-4 w-4" />
@@ -98,7 +102,7 @@ function Page() {
         <Button
           variant="outline"
           onClick={depois}
-          className="h-11 rounded-xl border-border px-6 hover:bg-accent hover:text-accent-foreground"
+          className="h-12 w-full rounded-xl border-border px-6 hover:bg-accent hover:text-accent-foreground sm:h-11 sm:w-auto"
         >
           <Check className="h-4 w-4" />
           Ir para o início
