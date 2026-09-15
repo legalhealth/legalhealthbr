@@ -6,6 +6,7 @@ import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react";
 import { PageShell } from "@/components/layout/page-shell";
 import { AiDisclaimer } from "@/components/ia/ai-disclaimer";
 import { TriagemVoz } from "@/components/pacientes/triagem-voz";
+import { TrilhaRodape } from "@/components/onboarding/trilha-progresso";
 import { TriagemFormulario } from "@/components/pacientes/triagem-formulario";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -391,6 +392,8 @@ function Page() {
         <DadosTitular paciente={paciente} />
 
         <AiDisclaimer />
+
+        <TrilhaRodape depoisDe="voz" />
       </div>
     </PageShell>
   );
