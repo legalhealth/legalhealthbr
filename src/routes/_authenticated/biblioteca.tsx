@@ -535,9 +535,17 @@ function Page() {
               />
               Incluir dados da clínica no cabeçalho do documento
             </label>
-          ) : null}
+          ) : ehAssistente ? null : (
+            <p className="mt-5 text-sm text-muted-foreground">
+              Preencha os dados da clínica para o documento sair com cabeçalho.{" "}
+              <Link to="/clinica" className="text-gold underline underline-offset-4">
+                Preencher agora
+              </Link>
+            </p>
+          )}
 
           <Button
+            ref={gerarRef}
             onClick={() => void handleGenerate()}
             disabled={generating || !docAtual}
             className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
@@ -601,6 +609,25 @@ function Page() {
                 }
               >
                 Enviar no meu WhatsApp
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={generating || !draft}
+                className="h-11 w-full border-gold/40 bg-transparent text-gold hover:bg-gold/10 sm:h-9 sm:w-auto"
+                onClick={() => {
+                  const ok = imprimirDocumento({
+                    titulo: `${categoriaLabel(categoria)} — ${docAtual?.label ?? "Documento"}`,
+                    corpo: draft,
+                  });
+                  if (!ok)
+                    toast.error(
+                      "O navegador bloqueou a janela de impressão. Permita pop-ups para este site.",
+                    );
+                }}
+              >
+                <Printer className="mr-2 h-4 w-4" />
+                Imprimir / Salvar em PDF
               </Button>
               {!generating && draft && docId ? (
                 <EnviarRevisaoDialog
