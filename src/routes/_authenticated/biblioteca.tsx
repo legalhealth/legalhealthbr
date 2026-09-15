@@ -241,7 +241,7 @@ function Page() {
       const cabecalho =
         incluirClinica && clinicaData?.clinica ? cabecalhoClinica(clinicaData.clinica) : null;
       const pacienteNome = pacienteId
-        ? pacientes?.find((p) => p.id === pacienteId)?.nome ?? null
+        ? (pacientes?.find((p) => p.id === pacienteId)?.nome ?? null)
         : null;
       const identificacao = pacienteNome ? `Paciente: ${pacienteNome}` : null;
       const prefixo = [cabecalho, identificacao].filter(Boolean).join("\n\n");

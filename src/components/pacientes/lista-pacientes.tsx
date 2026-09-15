@@ -137,8 +137,7 @@ export function ListaPacientes() {
               onClick={() => {
                 const id = criado?.id;
                 setCriado(null);
-                if (id)
-                  void navigate({ to: "/biblioteca", search: { cat: "minutas", pac: id } });
+                if (id) void navigate({ to: "/biblioteca", search: { cat: "minutas", pac: id } });
               }}
             >
               <FileSignature className="mr-2 h-4 w-4" />
