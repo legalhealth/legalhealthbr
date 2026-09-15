@@ -48,6 +48,9 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminFontesRouteImport } from './routes/_authenticated/admin.fontes'
 import { Route as AuthenticatedAdminFunilRouteImport } from './routes/_authenticated/admin.funil'
 import { Route as AuthenticatedBibliotecaModelosRouteImport } from './routes/_authenticated/biblioteca.modelos'
+import { Route as AuthenticatedConformidadeIndexRouteImport } from './routes/_authenticated/conformidade.index'
+import { Route as AuthenticatedConformidadeContratoLgpdRouteImport } from './routes/_authenticated/conformidade.contrato-lgpd'
+import { Route as AuthenticatedConformidadeRetencaoRouteImport } from './routes/_authenticated/conformidade.retencao'
 import { Route as AuthenticatedIaIndexRouteImport } from './routes/_authenticated/ia.index'
 import { Route as AuthenticatedIaAssistenteRouteImport } from './routes/_authenticated/ia.assistente'
 import { Route as AuthenticatedIaDocumentosRouteImport } from './routes/_authenticated/ia.documentos'
@@ -264,6 +267,24 @@ const AuthenticatedBibliotecaModelosRoute =
     path: '/modelos',
     getParentRoute: () => AuthenticatedBibliotecaRoute,
   } as any)
+const AuthenticatedConformidadeIndexRoute =
+  AuthenticatedConformidadeIndexRouteImport.update({
+    id: '/conformidade/',
+    path: '/conformidade/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedConformidadeContratoLgpdRoute =
+  AuthenticatedConformidadeContratoLgpdRouteImport.update({
+    id: '/conformidade/contrato-lgpd',
+    path: '/conformidade/contrato-lgpd',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedConformidadeRetencaoRoute =
+  AuthenticatedConformidadeRetencaoRouteImport.update({
+    id: '/conformidade/retencao',
+    path: '/conformidade/retencao',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedIaIndexRoute = AuthenticatedIaIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -389,6 +410,8 @@ export interface FileRoutesByFullPath {
   '/admin/fontes': typeof AuthenticatedAdminFontesRoute
   '/admin/funil': typeof AuthenticatedAdminFunilRoute
   '/biblioteca/modelos': typeof AuthenticatedBibliotecaModelosRoute
+  '/conformidade/contrato-lgpd': typeof AuthenticatedConformidadeContratoLgpdRoute
+  '/conformidade/retencao': typeof AuthenticatedConformidadeRetencaoRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/ia/historico': typeof AuthenticatedIaHistoricoRoute
@@ -399,6 +422,7 @@ export interface FileRoutesByFullPath {
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/conformidade/': typeof AuthenticatedConformidadeIndexRoute
   '/ia/': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -444,6 +468,8 @@ export interface FileRoutesByTo {
   '/admin/fontes': typeof AuthenticatedAdminFontesRoute
   '/admin/funil': typeof AuthenticatedAdminFunilRoute
   '/biblioteca/modelos': typeof AuthenticatedBibliotecaModelosRoute
+  '/conformidade/contrato-lgpd': typeof AuthenticatedConformidadeContratoLgpdRoute
+  '/conformidade/retencao': typeof AuthenticatedConformidadeRetencaoRoute
   '/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/ia/historico': typeof AuthenticatedIaHistoricoRoute
@@ -454,6 +480,7 @@ export interface FileRoutesByTo {
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/conformidade': typeof AuthenticatedConformidadeIndexRoute
   '/ia': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -502,6 +529,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/fontes': typeof AuthenticatedAdminFontesRoute
   '/_authenticated/admin/funil': typeof AuthenticatedAdminFunilRoute
   '/_authenticated/biblioteca/modelos': typeof AuthenticatedBibliotecaModelosRoute
+  '/_authenticated/conformidade/contrato-lgpd': typeof AuthenticatedConformidadeContratoLgpdRoute
+  '/_authenticated/conformidade/retencao': typeof AuthenticatedConformidadeRetencaoRoute
   '/_authenticated/ia/assistente': typeof AuthenticatedIaAssistenteRoute
   '/_authenticated/ia/documentos': typeof AuthenticatedIaDocumentosRoute
   '/_authenticated/ia/historico': typeof AuthenticatedIaHistoricoRoute
@@ -512,6 +541,7 @@ export interface FileRoutesById {
   '/api/public/ai-chatbot': typeof ApiPublicAiChatbotRoute
   '/api/public/landing-event': typeof ApiPublicLandingEventRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/conformidade/': typeof AuthenticatedConformidadeIndexRoute
   '/_authenticated/ia/': typeof AuthenticatedIaIndexRoute
   '/api/public/hooks/base-juridica-sync': typeof ApiPublicHooksBaseJuridicaSyncRoute
   '/api/public/hooks/plan-reminders': typeof ApiPublicHooksPlanRemindersRoute
@@ -560,6 +590,8 @@ export interface FileRouteTypes {
     | '/admin/fontes'
     | '/admin/funil'
     | '/biblioteca/modelos'
+    | '/conformidade/contrato-lgpd'
+    | '/conformidade/retencao'
     | '/ia/assistente'
     | '/ia/documentos'
     | '/ia/historico'
@@ -570,6 +602,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-chatbot'
     | '/api/public/landing-event'
     | '/admin/'
+    | '/conformidade/'
     | '/ia/'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
@@ -615,6 +648,8 @@ export interface FileRouteTypes {
     | '/admin/fontes'
     | '/admin/funil'
     | '/biblioteca/modelos'
+    | '/conformidade/contrato-lgpd'
+    | '/conformidade/retencao'
     | '/ia/assistente'
     | '/ia/documentos'
     | '/ia/historico'
@@ -625,6 +660,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-chatbot'
     | '/api/public/landing-event'
     | '/admin'
+    | '/conformidade'
     | '/ia'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
@@ -672,6 +708,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/fontes'
     | '/_authenticated/admin/funil'
     | '/_authenticated/biblioteca/modelos'
+    | '/_authenticated/conformidade/contrato-lgpd'
+    | '/_authenticated/conformidade/retencao'
     | '/_authenticated/ia/assistente'
     | '/_authenticated/ia/documentos'
     | '/_authenticated/ia/historico'
@@ -682,6 +720,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-chatbot'
     | '/api/public/landing-event'
     | '/_authenticated/admin/'
+    | '/_authenticated/conformidade/'
     | '/_authenticated/ia/'
     | '/api/public/hooks/base-juridica-sync'
     | '/api/public/hooks/plan-reminders'
@@ -1003,6 +1042,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBibliotecaModelosRouteImport
       parentRoute: typeof AuthenticatedBibliotecaRoute
     }
+    '/_authenticated/conformidade/': {
+      id: '/_authenticated/conformidade/'
+      path: '/conformidade'
+      fullPath: '/conformidade/'
+      preLoaderRoute: typeof AuthenticatedConformidadeIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/conformidade/contrato-lgpd': {
+      id: '/_authenticated/conformidade/contrato-lgpd'
+      path: '/conformidade/contrato-lgpd'
+      fullPath: '/conformidade/contrato-lgpd'
+      preLoaderRoute: typeof AuthenticatedConformidadeContratoLgpdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/conformidade/retencao': {
+      id: '/_authenticated/conformidade/retencao'
+      path: '/conformidade/retencao'
+      fullPath: '/conformidade/retencao'
+      preLoaderRoute: typeof AuthenticatedConformidadeRetencaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ia/': {
       id: '/_authenticated/ia/'
       path: '/'
@@ -1168,8 +1228,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlanoRoute: typeof AuthenticatedPlanoRoute
   AuthenticatedAdminFontesRoute: typeof AuthenticatedAdminFontesRoute
   AuthenticatedAdminFunilRoute: typeof AuthenticatedAdminFunilRoute
+  AuthenticatedConformidadeContratoLgpdRoute: typeof AuthenticatedConformidadeContratoLgpdRoute
+  AuthenticatedConformidadeRetencaoRoute: typeof AuthenticatedConformidadeRetencaoRoute
   AuthenticatedPacienteIdRoute: typeof AuthenticatedPacienteIdRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedConformidadeIndexRoute: typeof AuthenticatedConformidadeIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1184,8 +1247,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPlanoRoute: AuthenticatedPlanoRoute,
   AuthenticatedAdminFontesRoute: AuthenticatedAdminFontesRoute,
   AuthenticatedAdminFunilRoute: AuthenticatedAdminFunilRoute,
+  AuthenticatedConformidadeContratoLgpdRoute:
+    AuthenticatedConformidadeContratoLgpdRoute,
+  AuthenticatedConformidadeRetencaoRoute:
+    AuthenticatedConformidadeRetencaoRoute,
   AuthenticatedPacienteIdRoute: AuthenticatedPacienteIdRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedConformidadeIndexRoute: AuthenticatedConformidadeIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

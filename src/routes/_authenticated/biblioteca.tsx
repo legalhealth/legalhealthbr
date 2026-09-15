@@ -327,6 +327,20 @@ function Page() {
               size="sm"
               className="rounded-xl border-border bg-transparent px-5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             >
+              <Link to="/conformidade">
+                <ShieldCheck aria-hidden="true" />
+                Conformidade
+              </Link>
+            </Button>
+          )}
+          {ehAssistente ? null : (
+            <Button
+              asChild
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-xl border-border bg-transparent px-5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            >
               <Link to="/biblioteca/modelos">
                 <Settings2 aria-hidden="true" />
                 Modelos
