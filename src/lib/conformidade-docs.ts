@@ -295,3 +295,18 @@ export function baixarWord(doc: ConformidadeDoc) {
   link.remove();
   URL.revokeObjectURL(url);
 }
+
+/**
+ * Abre o documento formatado em uma nova aba e chama a impressão,
+ * onde o próprio aparelho oferece "Salvar como PDF".
+ * Retorna false quando o navegador bloqueia a abertura.
+ */
+export function abrirImpressao(doc: ConformidadeDoc): boolean {
+  const janela = window.open("", "_blank");
+  if (!janela) return false;
+  janela.document.write(docParaHtml(doc));
+  janela.document.close();
+  janela.focus();
+  setTimeout(() => janela.print(), 300);
+  return true;
+}
