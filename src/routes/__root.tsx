@@ -114,6 +114,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "SO_pzW0PZZ0pZZvf1CS7-z5INyn_x56pZZeW8RU5WEQ",
       },
     ],
+    scripts: [jsonLdScript([organizationLd, webSiteLd])],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
