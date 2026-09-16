@@ -1,23 +1,34 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PublicHeader } from "@/components/landing/public-header";
 import { PublicFooter } from "@/components/landing/public-footer";
+import { abs, paginaLdScript } from "@/lib/seo";
+
+const TITLE = "Política de Privacidade | Legal Health";
+const DESCRIPTION =
+  "Como a Legal Health trata dados pessoais, prazos de retenção e o canal de privacidade para titulares.";
 
 export const Route = createFileRoute("/privacidade")({
   head: () => ({
     meta: [
-      { title: "Política de Privacidade | Legal Health" },
-      {
-        name: "description",
-        content:
-          "Como a Legal Health trata dados pessoais, prazos de retenção e o canal de privacidade para titulares.",
-      },
-      { property: "og:title", content: "Política de Privacidade | Legal Health" },
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
       {
         property: "og:description",
         content: "Tratamento de dados, retenção e canal de privacidade da Legal Health.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: abs("/privacidade") },
+    ],
+    links: [{ rel: "canonical", href: abs("/privacidade") }],
+    scripts: [
+      paginaLdScript({
+        path: "/privacidade",
+        name: TITLE,
+        description: DESCRIPTION,
+        breadcrumbLabel: "Política de Privacidade",
+      }),
     ],
   }),
   component: PrivacidadePage,

@@ -1,23 +1,34 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PublicHeader } from "@/components/landing/public-header";
 import { PublicFooter } from "@/components/landing/public-footer";
+import { abs, paginaLdScript } from "@/lib/seo";
+
+const TITLE = "Termos de Uso | Legal Health";
+const DESCRIPTION =
+  "Termos de uso da plataforma Legal Health e do programa de Embaixadores para profissionais da saúde.";
 
 export const Route = createFileRoute("/termos")({
   head: () => ({
     meta: [
-      { title: "Termos de Uso | Legal Health" },
-      {
-        name: "description",
-        content:
-          "Termos de uso da plataforma Legal Health e do programa de Embaixadores para profissionais da saúde.",
-      },
-      { property: "og:title", content: "Termos de Uso | Legal Health" },
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
       {
         property: "og:description",
         content: "Condições de uso da plataforma Legal Health e do programa de Embaixadores.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: abs("/termos") },
+    ],
+    links: [{ rel: "canonical", href: abs("/termos") }],
+    scripts: [
+      paginaLdScript({
+        path: "/termos",
+        name: TITLE,
+        description: DESCRIPTION,
+        breadcrumbLabel: "Termos de Uso",
+      }),
     ],
   }),
   component: TermosPage,
