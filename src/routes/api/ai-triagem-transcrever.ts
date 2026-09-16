@@ -16,6 +16,7 @@ export const Route = createFileRoute("/api/ai-triagem-transcrever")({
       POST: async ({ request }) => {
         const guard = await guardAiRequest(request, "ai-triagem-transcrever", {
           registrarUso: false,
+          recurso: "triagem_voz",
         });
         if (!guard.ok) return guard.response;
 

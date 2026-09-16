@@ -63,7 +63,9 @@ export const Route = createFileRoute("/api/ai-triagem-resumo")({
     handlers: {
       OPTIONS: () => new Response(null, { status: 204, headers: corsHeaders }),
       POST: async ({ request }) => {
-        const guard = await guardAiRequest(request, "ai-triagem-resumo");
+        const guard = await guardAiRequest(request, "ai-triagem-resumo", {
+          recurso: "triagem_voz",
+        });
         if (!guard.ok) return guard.response;
 
         let body: Record<string, unknown>;
