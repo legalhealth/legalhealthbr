@@ -4,6 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PublicHeader } from "@/components/landing/public-header";
 import { PublicFooter } from "@/components/landing/public-footer";
 import { DeferredSection } from "@/components/landing/deferred-section";
+import { abs, paginaLdScript } from "@/lib/seo";
 
 // Formulário (selects, checkbox, cliente do banco) sob demanda: o topo da página
 // é HTML/CSS estático, o que mantém LCP e TBT baixos no mobile.
@@ -24,6 +25,16 @@ export const Route = createFileRoute("/embaixadores")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: abs("/embaixadores") },
+    ],
+    links: [{ rel: "canonical", href: abs("/embaixadores") }],
+    scripts: [
+      paginaLdScript({
+        path: "/embaixadores",
+        name: TITLE,
+        description: DESCRIPTION,
+        breadcrumbLabel: "Embaixadores",
+      }),
     ],
   }),
   component: EmbaixadoresPage,

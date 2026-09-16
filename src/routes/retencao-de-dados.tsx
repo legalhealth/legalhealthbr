@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PublicHeader } from "@/components/landing/public-header";
 import { PublicFooter } from "@/components/landing/public-footer";
+import { abs, paginaLdScript } from "@/lib/seo";
 
 const TITLE = "Retenção de Dados | Legal Health";
 const DESCRIPTION =
@@ -15,6 +16,16 @@ export const Route = createFileRoute("/retencao-de-dados")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: abs("/retencao-de-dados") },
+    ],
+    links: [{ rel: "canonical", href: abs("/retencao-de-dados") }],
+    scripts: [
+      paginaLdScript({
+        path: "/retencao-de-dados",
+        name: TITLE,
+        description: DESCRIPTION,
+        breadcrumbLabel: "Retenção de Dados",
+      }),
     ],
   }),
   component: RetencaoPage,
