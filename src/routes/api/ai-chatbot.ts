@@ -130,6 +130,7 @@ export const Route = createFileRoute("/api/ai-chatbot")({
 
 
 
+        const plano = await limiteDoPlano(supabase, userId);
         const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         const { count, error: countError } = await supabase
           .from("ai_usage")
