@@ -244,9 +244,9 @@ Em "fontes" cite de 2 a 4 bases normativas REAIS do Direito brasileiro que justi
           return jsonError("A IA não conseguiu gerar o plano agora. Tente novamente.", 502);
         }
 
-        const payload = (await upstream.json().catch(() => null)) as
-          | { choices?: { message?: { content?: string } }[] }
-          | null;
+        const payload = (await upstream.json().catch(() => null)) as {
+          choices?: { message?: { content?: string } }[];
+        } | null;
         const content = payload?.choices?.[0]?.message?.content ?? "";
         const plan = validatePlan(content);
         if (!plan) {
@@ -262,10 +262,7 @@ Em "fontes" cite de 2 a 4 bases normativas REAIS do Direito brasileiro que justi
           (oldPlans ?? []).reduce((max, p) => Math.max(max, p.versao ?? 1), 0) + 1;
         const activeIds = (oldPlans ?? []).filter((p) => p.status === "ativo").map((p) => p.id);
         if (activeIds.length > 0) {
-          await supabase
-            .from("action_plans")
-            .update({ status: "arquivado" })
-            .in("id", activeIds);
+          await supabase.from("action_plans").update({ status: "arquivado" }).in("id", activeIds);
         }
 
         const { data: inserted, error: insertError } = await supabase

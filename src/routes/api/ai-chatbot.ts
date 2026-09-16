@@ -59,14 +59,19 @@ export const Route = createFileRoute("/api/ai-chatbot")({
           return jsonError("Requisição inválida.", 400);
         }
 
-        const rawMessages = Array.isArray(body.messages) ? (body.messages as IncomingMessage[]) : [];
+        const rawMessages = Array.isArray(body.messages)
+          ? (body.messages as IncomingMessage[])
+          : [];
         const messages = rawMessages
           .filter(
             (m) =>
               m && typeof m.content === "string" && (m.role === "user" || m.role === "assistant"),
           )
           .slice(-14)
-          .map((m) => ({ role: m.role as "user" | "assistant", content: m.content.slice(0, 6000) }));
+          .map((m) => ({
+            role: m.role as "user" | "assistant",
+            content: m.content.slice(0, 6000),
+          }));
 
         if (messages.length === 0) return jsonError("Envie ao menos uma mensagem.", 400);
 
@@ -89,7 +94,8 @@ export const Route = createFileRoute("/api/ai-chatbot")({
           rodapeDeFontes,
         } = await import("@/lib/legal-sources.server");
 
-        const ultimaPergunta = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+        const ultimaPergunta =
+          [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
         const base = await buscarNaBase(ultimaPergunta);
         const fontes = await recuperarFontes(ultimaPergunta);
 
@@ -128,8 +134,6 @@ export const Route = createFileRoute("/api/ai-chatbot")({
           exigeAdvogado: fontes.exigeAdvogado,
         });
 
-
-
         const plano = await limiteDoPlano(supabase, userId);
         const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         const { count, error: countError } = await supabase
@@ -157,7 +161,6 @@ export const Route = createFileRoute("/api/ai-chatbot")({
         ]
           .filter(Boolean)
           .join("\n\n");
-
 
         const responderPelasFontes = (motivo: string) => {
           if (!fontes.suficiente) return null;

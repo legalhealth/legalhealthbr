@@ -19,8 +19,7 @@ type ContentBlock =
   | { type: "file"; file: { filename: string; file_data: string } };
 
 type OutgoingMessage =
-  | { role: "user" | "assistant"; content: string }
-  | { role: "user"; content: ContentBlock[] };
+  { role: "user" | "assistant"; content: string } | { role: "user"; content: ContentBlock[] };
 
 const MAX_ATTACHMENTS = 4;
 const MAX_ATTACHMENT_CHARS = 12 * 1024 * 1024; // ~8 MB em base64
@@ -108,14 +107,19 @@ export const Route = createFileRoute("/api/ai-chat")({
           return jsonError("Requisição inválida.", 400);
         }
 
-        const rawMessages = Array.isArray(body.messages) ? (body.messages as IncomingMessage[]) : [];
+        const rawMessages = Array.isArray(body.messages)
+          ? (body.messages as IncomingMessage[])
+          : [];
         const messages = rawMessages
           .filter(
             (m) =>
               m && typeof m.content === "string" && (m.role === "user" || m.role === "assistant"),
           )
           .slice(-20)
-          .map((m) => ({ role: m.role as "user" | "assistant", content: m.content.slice(0, 12000) }));
+          .map((m) => ({
+            role: m.role as "user" | "assistant",
+            content: m.content.slice(0, 12000),
+          }));
 
         if (messages.length === 0) {
           return jsonError("Envie ao menos uma mensagem.", 400);
@@ -155,8 +159,7 @@ export const Route = createFileRoute("/api/ai-chat")({
           rodapeDeFontes,
         } = await import("@/lib/legal-sources.server");
         const { sseFromText } = await import("@/lib/legal-qa.server");
-        const perguntaAtual =
-          [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+        const perguntaAtual = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
         const fontes = await recuperarFontes(perguntaAtual);
         const contextoFontes = contextoDasFontes(fontes);
 

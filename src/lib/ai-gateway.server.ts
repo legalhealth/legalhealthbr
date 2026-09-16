@@ -162,7 +162,6 @@ export async function guardAiRequest(
     await supabase.from("ai_usage").insert({ user_id: userId, endpoint });
   }
 
-
   return { ok: true, userId, apiKey, supabase };
 }
 
