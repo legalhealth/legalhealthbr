@@ -135,11 +135,8 @@ export const Route = createFileRoute("/api/ai-chat")({
         if (countError) {
           return jsonError("Não foi possível verificar seu limite de uso. Tente novamente.", 500);
         }
-        if ((count ?? 0) >= DAILY_LIMIT) {
-          return jsonError(
-            `Você atingiu o limite de ${DAILY_LIMIT} consultas de IA em 24 horas. O contador é liberado automaticamente conforme as consultas mais antigas completam 24 horas.`,
-            429,
-          );
+        if (plano.limiteIaDia !== null && (count ?? 0) >= plano.limiteIaDia) {
+          return jsonError(mensagemLimiteDiario(plano), 429);
         }
 
         const apiKey = process.env["AI_API_KEY"] ?? process.env["LOVABLE_API_KEY"];

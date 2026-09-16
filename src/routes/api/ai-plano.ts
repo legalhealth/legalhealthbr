@@ -170,6 +170,7 @@ export const Route = createFileRoute("/api/ai-plano")({
           return jsonError("Faça o diagnóstico Juriscore® antes de gerar o plano.", 400);
         }
 
+        const plano = await limiteDoPlano(supabase, userId);
         const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         const { count, error: countError } = await supabase
           .from("ai_usage")
@@ -179,11 +180,8 @@ export const Route = createFileRoute("/api/ai-plano")({
         if (countError) {
           return jsonError("Não foi possível verificar seu limite de uso. Tente novamente.", 500);
         }
-        if ((count ?? 0) >= DAILY_LIMIT) {
-          return jsonError(
-            `Você atingiu o limite de ${DAILY_LIMIT} consultas de IA em 24 horas. Tente novamente mais tarde.`,
-            429,
-          );
+        if (plano.limiteIaDia !== null && (count ?? 0) >= plano.limiteIaDia) {
+          return jsonError(mensagemLimiteDiario(plano), 429);
         }
 
         const apiKey = process.env["AI_API_KEY"] ?? process.env["LOVABLE_API_KEY"];
