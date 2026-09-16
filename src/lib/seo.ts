@@ -6,6 +6,7 @@ export const SITE_NAME = "Legal Health";
 export const SITE_DESCRIPTION =
   "Plataforma de inteligência jurídica preventiva para profissionais e clínicas de saúde no Brasil.";
 export const CONTATO_EMAIL = "contato@legalhealthbr.app";
+export const INSTAGRAM_URL = "https://www.instagram.com/legalhealthbr";
 
 export const ORG_ID = `${SITE_URL}/#organization`;
 export const SITE_ID = `${SITE_URL}/#website`;
@@ -19,14 +20,29 @@ export const organizationLd = {
   "@id": ORG_ID,
   name: SITE_NAME,
   url: `${SITE_URL}/`,
+  alternateName: "Legal Health",
   description: SITE_DESCRIPTION,
-  logo: `${SITE_URL}/pwa-192.png`,
+  logo: {
+    "@type": "ImageObject",
+    "@id": `${SITE_URL}/#logo`,
+    url: `${SITE_URL}/pwa-192.png`,
+    contentUrl: `${SITE_URL}/pwa-192.png`,
+    width: 192,
+    height: 192,
+    caption: SITE_NAME,
+  },
+  image: { "@id": `${SITE_URL}/#logo` },
+  email: CONTATO_EMAIL,
+  sameAs: [INSTAGRAM_URL],
+  knowsLanguage: "pt-BR",
+  areaServed: { "@type": "Country", name: "Brasil" },
   contactPoint: [
     {
       "@type": "ContactPoint",
       contactType: "customer support",
       email: CONTATO_EMAIL,
       availableLanguage: ["Portuguese"],
+      areaServed: "BR",
     },
   ],
 };
@@ -36,9 +52,11 @@ export const webSiteLd = {
   "@id": SITE_ID,
   url: `${SITE_URL}/`,
   name: SITE_NAME,
+  alternateName: "Legal Health",
   description: SITE_DESCRIPTION,
   inLanguage: "pt-BR",
   publisher: { "@id": ORG_ID },
+  copyrightHolder: { "@id": ORG_ID },
 };
 
 export function webPageLd(input: {
