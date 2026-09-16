@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { PILLARS } from "@/lib/juriscore";
-
-const DAILY_LIMIT = 30;
+import { limiteDoPlano, mensagemLimiteDiario } from "@/lib/ai-gateway.server";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
