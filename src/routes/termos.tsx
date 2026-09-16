@@ -51,10 +51,10 @@ function TermosPage() {
           <section>
             <h2 className="font-display text-xl text-foreground">1. Objeto</h2>
             <p className="mt-3">
-              A Legal Health é uma plataforma de organização de riscos jurídicos preventivos
-              voltada a profissionais da saúde. Os recursos oferecem apoio informativo e
-              organizacional. A plataforma não presta serviços de advocacia, não constitui
-              aconselhamento jurídico individual e não substitui advogado.
+              A Legal Health é uma plataforma de organização de riscos jurídicos preventivos voltada
+              a profissionais da saúde. Os recursos oferecem apoio informativo e organizacional. A
+              plataforma não presta serviços de advocacia, não constitui aconselhamento jurídico
+              individual e não substitui advogado.
             </p>
           </section>
 
@@ -73,29 +73,27 @@ function TermosPage() {
             </h2>
             <p className="mt-3">
               Respostas, minutas e planos de ação são apoio à decisão. Cada conteúdo deve ser
-              revisado por profissional habilitado antes de qualquer uso externo. Citações de
-              normas indicam a fonte oficial consultada e a data de vigência registrada na base.
+              revisado por profissional habilitado antes de qualquer uso externo. Citações de normas
+              indicam a fonte oficial consultada e a data de vigência registrada na base.
             </p>
           </section>
 
           <section>
-            <h2 className="font-display text-xl text-foreground">
-              4. Programa de Embaixadores
-            </h2>
+            <h2 className="font-display text-xl text-foreground">4. Programa de Embaixadores</h2>
             <p className="mt-3">
               A participação depende de análise de critérios e disponibilidade. A candidatura não
-              gera direito a aprovação, remuneração, comissão, desconto, certificação ou
-              benefício automático. Os recursos liberados, o prazo e as condições de continuidade
-              seguem o regulamento vigente do programa piloto.
+              gera direito a aprovação, remuneração, comissão, desconto, certificação ou benefício
+              automático. Os recursos liberados, o prazo e as condições de continuidade seguem o
+              regulamento vigente do programa piloto.
             </p>
           </section>
 
           <section>
             <h2 className="font-display text-xl text-foreground">5. Limitação</h2>
             <p className="mt-3">
-              A Legal Health não garante ausência de processos, sanções ou conformidade
-              regulatória. O resultado do Juriscore® é um indicador de organização e atenção, não
-              um parecer jurídico.
+              A Legal Health não garante ausência de processos, sanções ou conformidade regulatória.
+              O resultado do Juriscore® é um indicador de organização e atenção, não um parecer
+              jurídico.
             </p>
           </section>
 
@@ -103,7 +101,10 @@ function TermosPage() {
             <h2 className="font-display text-xl text-foreground">6. Contato</h2>
             <p className="mt-3">
               Dúvidas sobre estes termos:{" "}
-              <a className="text-gold hover:text-gold-light" href="mailto:contato@legalhealthbr.app">
+              <a
+                className="text-gold hover:text-gold-light"
+                href="mailto:contato@legalhealthbr.app"
+              >
                 contato@legalhealthbr.app
               </a>
               .

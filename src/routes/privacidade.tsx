@@ -56,9 +56,9 @@ function PrivacidadePage() {
                 uso da plataforma.
               </li>
               <li>
-                <strong className="text-foreground">Candidatura ao programa:</strong> nome,
-                e-mail, profissão, cidade, estado, tipo de atuação, link profissional opcional e
-                motivo do interesse.
+                <strong className="text-foreground">Candidatura ao programa:</strong> nome, e-mail,
+                profissão, cidade, estado, tipo de atuação, link profissional opcional e motivo do
+                interesse.
               </li>
               <li>
                 <strong className="text-foreground">Uso da plataforma:</strong> respostas do
@@ -98,8 +98,8 @@ function PrivacidadePage() {
             <h2 className="font-display text-xl text-foreground">Seus direitos</h2>
             <p className="mt-3">
               Você pode solicitar confirmação de tratamento, acesso, correção, portabilidade,
-              anonimização ou eliminação dos seus dados, além de revogar o consentimento de
-              contato sobre o programa a qualquer momento.
+              anonimização ou eliminação dos seus dados, além de revogar o consentimento de contato
+              sobre o programa a qualquer momento.
             </p>
           </section>
 

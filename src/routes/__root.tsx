@@ -10,7 +10,6 @@ import {
 } from "@tanstack/react-router";
 import { Suspense, lazy, useEffect, type ReactNode } from "react";
 
-
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ChatbotMount } from "@/components/chatbot/chatbot-mount";
@@ -27,9 +26,7 @@ const SiteFooter = lazy(() =>
 const MobileNav = lazy(() =>
   import("@/components/layout/mobile-nav").then((m) => ({ default: m.MobileNav })),
 );
-const Toaster = lazy(() =>
-  import("@/components/ui/sonner").then((m) => ({ default: m.Toaster })),
-);
+const Toaster = lazy(() => import("@/components/ui/sonner").then((m) => ({ default: m.Toaster })));
 
 function NotFoundComponent() {
   return (
@@ -99,8 +96,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Legal Health | Inteligência Jurídica para Saúde" },
       {
         name: "description",
-        content:
-          "Plataforma de inteligência jurídica para médicos e clínicas no Brasil.",
+        content: "Plataforma de inteligência jurídica para médicos e clínicas no Brasil.",
       },
       { name: "author", content: "Legal Health" },
       { name: "theme-color", content: "#0A0A0A" },
@@ -208,7 +204,13 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col">
         <Suspense fallback={null}>{!isAuthRoute && <SiteHeader />}</Suspense>
-        <main className={cn("flex-1", !isAuthRoute && "pt-[calc(var(--header-h)+1rem)] pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+1.5rem)] lg:pb-0")}>
+        <main
+          className={cn(
+            "flex-1",
+            !isAuthRoute &&
+              "pt-[calc(var(--header-h)+1rem)] pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+1.5rem)] lg:pb-0",
+          )}
+        >
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
         </main>
