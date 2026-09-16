@@ -29,6 +29,7 @@ import { ResumoPacientes } from "@/components/pacientes/resumo-pacientes";
 import { useClinica, useEhAssistente, useEquipe } from "@/lib/clinica";
 import { resumoHorarios } from "@/lib/clinica-horarios";
 import { normalizarWhatsApp } from "@/lib/whatsapp";
+import { PLANOS, planoComercial } from "@/lib/planos";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   head: () => ({
@@ -49,33 +50,6 @@ export const Route = createFileRoute("/_authenticated/perfil")({
   }),
   component: Page,
 });
-
-const PLANS = [
-  {
-    id: "essential",
-    name: "Essential",
-    price: "R$ 197",
-    period: "/mês",
-    description: "Médicos individuais e consultórios de menor porte",
-    featured: false,
-  },
-  {
-    id: "professional",
-    name: "Professional",
-    price: "R$ 497",
-    period: "/mês",
-    description: "Gama completa para clínicas integradas e equipes",
-    featured: true,
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    price: "Sob consulta",
-    period: "",
-    description: "Grandes redes hospitalares e operadoras de saúde",
-    featured: false,
-  },
-] as const;
 
 const optionalText = (max: number, label: string) =>
   z
@@ -161,7 +135,7 @@ function Page() {
     setSpecialty(p.especialidade ?? "");
     setCity(p.cidade ?? "");
     setWhatsapp(p.whatsapp ?? "");
-    setPlan(p.plano ?? "essential");
+    setPlan(p.plano ?? "free");
     setPreferences({
       push: p.push,
       biometria: p.biometria,
@@ -199,7 +173,6 @@ function Page() {
           especialidade: values.especialidade || null,
           cidade: values.cidade || null,
           whatsapp: values.whatsapp ? normalizarWhatsApp(values.whatsapp) : null,
-          plano: plan,
           push: preferences.push,
           biometria: preferences.biometria,
           offline: preferences.offline,
