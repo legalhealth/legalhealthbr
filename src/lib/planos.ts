@@ -96,5 +96,5 @@ export const PLANOS: readonly PlanoComercial[] = [
 export const PLANO_PADRAO: PlanoSlug = "free";
 
 export function planoComercial(slug: string | null | undefined): PlanoComercial {
-  return PLANOS.find((p) => p.slug === slug) ?? PLANOS[0];
+  return PLANOS.find((p) => p.slug === slug) ?? PLANOS[0]!;
 }
