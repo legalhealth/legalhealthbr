@@ -436,30 +436,27 @@ function Page() {
               </CardTitle>
               <CardDescription>Escolha o plano adequado ao porte da sua operação.</CardDescription>
             </CardHeader>
-            <CardContent className="grid gap-4 lg:grid-cols-3">
-              {PLANS.map((item) => {
-                const active = plan === item.id;
+            <CardContent className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {PLANOS.map((item) => {
+                const active = planoComercial(plan).slug === item.slug;
                 return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setPlan(item.id)}
-                    aria-pressed={active}
-                    className={`relative flex h-full flex-col items-start gap-3 rounded-2xl border p-5 text-left transition-colors ${
+                  <div
+                    key={item.slug}
+                    className={`relative flex h-full flex-col gap-3 rounded-2xl border p-5 ${
                       active
                         ? "border-gold bg-gold/5"
-                        : item.featured
-                          ? "border-gold/40 bg-background hover:border-gold"
-                          : "border-border bg-background hover:border-gold/40"
+                        : item.destaque
+                          ? "border-gold/40 bg-background"
+                          : "border-border bg-background"
                     }`}
                   >
                     <div className="flex w-full flex-wrap items-center gap-2">
                       <span
-                        className={`text-sm font-medium tracking-wide ${item.featured ? "text-gold" : "text-foreground"}`}
+                        className={`text-sm font-medium tracking-wide ${item.destaque ? "text-gold" : "text-foreground"}`}
                       >
-                        {item.name}
+                        {item.nome}
                       </span>
-                      {item.featured && !active ? (
+                      {item.destaque && !active ? (
                         <span className="rounded-full border border-gold/40 px-2 py-0.5 text-[0.6rem] tracking-[0.16em] text-gold uppercase">
                           Recomendado
                         </span>
@@ -467,20 +464,57 @@ function Page() {
                       {active ? (
                         <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-[0.65rem] font-medium text-success">
                           <Check className="h-3 w-3" />
-                          Ativo
+                          Seu plano
                         </span>
                       ) : null}
                     </div>
                     <p className="text-2xl font-medium text-foreground">
-                      {item.price}
+                      {item.preco}
                       <span className="text-sm font-normal text-muted-foreground">
-                        {item.period}
+                        {item.periodo}
                       </span>
                     </p>
                     <p className="text-sm leading-relaxed text-muted-foreground">
-                      {item.description}
+                      {item.descricao}
                     </p>
-                  </button>
+                    <ul className="flex flex-col gap-1.5 border-t border-border/60 pt-3">
+                      {item.recursos.map((recurso) => (
+                        <li
+                          key={recurso}
+                          className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground"
+                        >
+                          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold" />
+                          {recurso}
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-auto pt-3">
+                      {active ? (
+                        <Button variant="outline" className="w-full rounded-xl" disabled>
+                          Plano atual
+                        </Button>
+                      ) : item.cta === "assinar" ? (
+                        <Button
+                          type="button"
+                          className="w-full rounded-xl"
+                          onClick={() =>
+                            toast.info("A cobrança online será ligada em breve.", {
+                              description:
+                                "Para assinar agora, fale com a equipe em contato@legalhealthbr.app.",
+                            })
+                          }
+                        >
+                          Assinar {item.nome}
+                        </Button>
+                      ) : item.cta === "contato" ? (
+                        <Button variant="outline" className="w-full rounded-xl" asChild>
+                          <a href="mailto:contato@legalhealthbr.app?subject=Plano%20Enterprise">
+                            Falar com a equipe
+                          </a>
+                        </Button>
+                      ) : null}
+                    </div>
+                  </div>
                 );
               })}
             </CardContent>
