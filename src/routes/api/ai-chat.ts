@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { systemPromptFor } from "@/lib/ai-prompts.server";
-
-const DAILY_LIMIT = 30;
+import { limiteDoPlano, mensagemLimiteDiario } from "@/lib/ai-gateway.server";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -124,7 +123,8 @@ export const Route = createFileRoute("/api/ai-chat")({
 
         const task = typeof body.task === "string" ? body.task : "assistente";
 
-        // Limite de uso: 30 chamadas por usuário nas últimas 24 horas.
+        // Limite de uso conforme o plano, em janela de 24 horas.
+        const plano = await limiteDoPlano(supabase, userId);
         const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         const { count, error: countError } = await supabase
           .from("ai_usage")
