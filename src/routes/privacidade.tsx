@@ -1,23 +1,34 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PublicHeader } from "@/components/landing/public-header";
 import { PublicFooter } from "@/components/landing/public-footer";
+import { abs, paginaLdScript } from "@/lib/seo";
+
+const TITLE = "Política de Privacidade | Legal Health";
+const DESCRIPTION =
+  "Como a Legal Health trata dados pessoais, prazos de retenção e o canal de privacidade para titulares.";
 
 export const Route = createFileRoute("/privacidade")({
   head: () => ({
     meta: [
-      { title: "Política de Privacidade | Legal Health" },
-      {
-        name: "description",
-        content:
-          "Como a Legal Health trata dados pessoais, prazos de retenção e o canal de privacidade para titulares.",
-      },
-      { property: "og:title", content: "Política de Privacidade | Legal Health" },
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
       {
         property: "og:description",
         content: "Tratamento de dados, retenção e canal de privacidade da Legal Health.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: abs("/privacidade") },
+    ],
+    links: [{ rel: "canonical", href: abs("/privacidade") }],
+    scripts: [
+      paginaLdScript({
+        path: "/privacidade",
+        name: TITLE,
+        description: DESCRIPTION,
+        breadcrumbLabel: "Política de Privacidade",
+      }),
     ],
   }),
   component: PrivacidadePage,
@@ -45,9 +56,9 @@ function PrivacidadePage() {
                 uso da plataforma.
               </li>
               <li>
-                <strong className="text-foreground">Candidatura ao programa:</strong> nome,
-                e-mail, profissão, cidade, estado, tipo de atuação, link profissional opcional e
-                motivo do interesse.
+                <strong className="text-foreground">Candidatura ao programa:</strong> nome, e-mail,
+                profissão, cidade, estado, tipo de atuação, link profissional opcional e motivo do
+                interesse.
               </li>
               <li>
                 <strong className="text-foreground">Uso da plataforma:</strong> respostas do
@@ -87,8 +98,8 @@ function PrivacidadePage() {
             <h2 className="font-display text-xl text-foreground">Seus direitos</h2>
             <p className="mt-3">
               Você pode solicitar confirmação de tratamento, acesso, correção, portabilidade,
-              anonimização ou eliminação dos seus dados, além de revogar o consentimento de
-              contato sobre o programa a qualquer momento.
+              anonimização ou eliminação dos seus dados, além de revogar o consentimento de contato
+              sobre o programa a qualquer momento.
             </p>
           </section>
 

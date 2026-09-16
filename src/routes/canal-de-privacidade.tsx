@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PublicHeader } from "@/components/landing/public-header";
 import { PublicFooter } from "@/components/landing/public-footer";
+import { abs, paginaLdScript } from "@/lib/seo";
 
 const TITLE = "Canal de Privacidade | Legal Health";
 const DESCRIPTION =
@@ -15,6 +16,17 @@ export const Route = createFileRoute("/canal-de-privacidade")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: abs("/canal-de-privacidade") },
+    ],
+    links: [{ rel: "canonical", href: abs("/canal-de-privacidade") }],
+    scripts: [
+      paginaLdScript({
+        path: "/canal-de-privacidade",
+        name: TITLE,
+        description: DESCRIPTION,
+        breadcrumbLabel: "Canal de Privacidade",
+        tipo: "ContactPage",
+      }),
     ],
   }),
   component: CanalPage,
