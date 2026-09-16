@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { systemPromptFor } from "@/lib/ai-prompts.server";
-
-const DAILY_LIMIT = 30;
+import { limiteDoPlano, mensagemLimiteDiario } from "@/lib/ai-gateway.server";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,8 +19,7 @@ type ContentBlock =
   | { type: "file"; file: { filename: string; file_data: string } };
 
 type OutgoingMessage =
-  | { role: "user" | "assistant"; content: string }
-  | { role: "user"; content: ContentBlock[] };
+  { role: "user" | "assistant"; content: string } | { role: "user"; content: ContentBlock[] };
 
 const MAX_ATTACHMENTS = 4;
 const MAX_ATTACHMENT_CHARS = 12 * 1024 * 1024; // ~8 MB em base64
@@ -109,14 +107,19 @@ export const Route = createFileRoute("/api/ai-chat")({
           return jsonError("Requisição inválida.", 400);
         }
 
-        const rawMessages = Array.isArray(body.messages) ? (body.messages as IncomingMessage[]) : [];
+        const rawMessages = Array.isArray(body.messages)
+          ? (body.messages as IncomingMessage[])
+          : [];
         const messages = rawMessages
           .filter(
             (m) =>
               m && typeof m.content === "string" && (m.role === "user" || m.role === "assistant"),
           )
           .slice(-20)
-          .map((m) => ({ role: m.role as "user" | "assistant", content: m.content.slice(0, 12000) }));
+          .map((m) => ({
+            role: m.role as "user" | "assistant",
+            content: m.content.slice(0, 12000),
+          }));
 
         if (messages.length === 0) {
           return jsonError("Envie ao menos uma mensagem.", 400);
@@ -124,7 +127,8 @@ export const Route = createFileRoute("/api/ai-chat")({
 
         const task = typeof body.task === "string" ? body.task : "assistente";
 
-        // Limite de uso: 30 chamadas por usuário nas últimas 24 horas.
+        // Limite de uso conforme o plano, em janela de 24 horas.
+        const plano = await limiteDoPlano(supabase, userId);
         const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         const { count, error: countError } = await supabase
           .from("ai_usage")
@@ -135,11 +139,8 @@ export const Route = createFileRoute("/api/ai-chat")({
         if (countError) {
           return jsonError("Não foi possível verificar seu limite de uso. Tente novamente.", 500);
         }
-        if ((count ?? 0) >= DAILY_LIMIT) {
-          return jsonError(
-            `Você atingiu o limite de ${DAILY_LIMIT} consultas de IA em 24 horas. O contador é liberado automaticamente conforme as consultas mais antigas completam 24 horas.`,
-            429,
-          );
+        if (plano.limiteIaDia !== null && (count ?? 0) >= plano.limiteIaDia) {
+          return jsonError(mensagemLimiteDiario(plano), 429);
         }
 
         const apiKey = process.env["AI_API_KEY"] ?? process.env["LOVABLE_API_KEY"];
@@ -158,8 +159,7 @@ export const Route = createFileRoute("/api/ai-chat")({
           rodapeDeFontes,
         } = await import("@/lib/legal-sources.server");
         const { sseFromText } = await import("@/lib/legal-qa.server");
-        const perguntaAtual =
-          [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+        const perguntaAtual = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
         const fontes = await recuperarFontes(perguntaAtual);
         const contextoFontes = contextoDasFontes(fontes);
 

@@ -210,6 +210,34 @@ export function useCriarPaciente() {
   return useMutation({
     mutationFn: async (input: { nome: string; contato?: string; nascimento?: string }) => {
       const userId = await contaAtivaId();
+
+      // Limite de pacientes conforme o plano do dono da conta.
+      const { data: perfilPlano } = await supabase
+        .from("profiles")
+        .select("plano")
+        .eq("user_id", userId)
+        .maybeSingle();
+      const { data: limitePlano } = await supabase
+        .from("plan_limits")
+        .select("nome, max_pacientes")
+        .eq("slug", perfilPlano?.plano || "free")
+        .maybeSingle();
+      const maxPacientes = limitePlano?.max_pacientes ?? 1;
+      if (maxPacientes !== null) {
+        const { count } = await supabase
+          .from("patients")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", userId)
+          .eq("ativo", true);
+        if ((count ?? 0) >= maxPacientes) {
+          throw new Error(
+            `Seu plano ${limitePlano?.nome ?? "atual"} permite até ${maxPacientes} ${
+              maxPacientes === 1 ? "paciente ativo" : "pacientes ativos"
+            }. Para cadastrar mais, veja os planos em Perfil › Assinatura.`,
+          );
+        }
+      }
+
       const { data, error } = await supabase
         .from("patients")
         .insert({

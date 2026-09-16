@@ -25,6 +25,40 @@ export const convidarAssistente = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const token = gerarToken();
 
+    // Limite de assistentes conforme o plano do responsável pela conta.
+    const { data: perfilPlano } = await supabase
+      .from("profiles")
+      .select("plano")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const { data: limitePlano } = await supabase
+      .from("plan_limits")
+      .select("nome, max_assistentes")
+      .eq("slug", perfilPlano?.plano || "free")
+      .maybeSingle();
+    const maxAssistentes = limitePlano?.max_assistentes ?? 0;
+    if (maxAssistentes !== null) {
+      const [{ count: ativos }, { count: pendentes }] = await Promise.all([
+        supabase
+          .from("clinic_members")
+          .select("id", { count: "exact", head: true })
+          .eq("medico_user_id", userId)
+          .eq("status", "ativo"),
+        supabase
+          .from("clinic_invites")
+          .select("id", { count: "exact", head: true })
+          .eq("medico_user_id", userId)
+          .eq("status", "pendente"),
+      ]);
+      if ((ativos ?? 0) + (pendentes ?? 0) >= maxAssistentes) {
+        throw new Error(
+          maxAssistentes === 0
+            ? `O envio de convites para assistentes está disponível a partir do plano Professional. Veja os planos em Perfil › Assinatura.`
+            : `Seu plano ${limitePlano?.nome ?? "atual"} permite até ${maxAssistentes} assistentes (ativos + convites em aberto). Remova um vínculo ou fale com a equipe.`,
+        );
+      }
+    }
+
     const { data: convite, error } = await supabase
       .from("clinic_invites")
       .insert({

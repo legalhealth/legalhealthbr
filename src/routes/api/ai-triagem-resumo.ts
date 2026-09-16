@@ -31,7 +31,9 @@ const VAZIO: Resumo = {
 function normalizar(bruto: unknown): Resumo {
   const obj = (bruto ?? {}) as Record<string, unknown>;
   const lista = (valor: unknown): string[] =>
-    Array.isArray(valor) ? valor.filter((v): v is string => typeof v === "string").slice(0, 12) : [];
+    Array.isArray(valor)
+      ? valor.filter((v): v is string => typeof v === "string").slice(0, 12)
+      : [];
   const urgenciaBruta = typeof obj["urgencia"] === "string" ? obj["urgencia"] : "media";
   const documentos = Array.isArray(obj["documentos"])
     ? obj["documentos"]
@@ -63,7 +65,9 @@ export const Route = createFileRoute("/api/ai-triagem-resumo")({
     handlers: {
       OPTIONS: () => new Response(null, { status: 204, headers: corsHeaders }),
       POST: async ({ request }) => {
-        const guard = await guardAiRequest(request, "ai-triagem-resumo");
+        const guard = await guardAiRequest(request, "ai-triagem-resumo", {
+          recurso: "triagem_voz",
+        });
         if (!guard.ok) return guard.response;
 
         let body: Record<string, unknown>;
@@ -126,10 +130,16 @@ export const Route = createFileRoute("/api/ai-triagem-resumo")({
             try {
               resumo = normalizar(JSON.parse(limpo.slice(inicio, fim + 1)));
             } catch {
-              return jsonError("A IA não devolveu a triagem em formato válido. Tente novamente.", 502);
+              return jsonError(
+                "A IA não devolveu a triagem em formato válido. Tente novamente.",
+                502,
+              );
             }
           } else {
-            return jsonError("A IA não devolveu a triagem em formato válido. Tente novamente.", 502);
+            return jsonError(
+              "A IA não devolveu a triagem em formato válido. Tente novamente.",
+              502,
+            );
           }
         }
 

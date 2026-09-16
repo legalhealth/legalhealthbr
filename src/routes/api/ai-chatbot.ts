@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { systemPromptFor } from "@/lib/ai-prompts.server";
-
-const DAILY_LIMIT = 30;
+import { limiteDoPlano, mensagemLimiteDiario } from "@/lib/ai-gateway.server";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -60,14 +59,19 @@ export const Route = createFileRoute("/api/ai-chatbot")({
           return jsonError("Requisição inválida.", 400);
         }
 
-        const rawMessages = Array.isArray(body.messages) ? (body.messages as IncomingMessage[]) : [];
+        const rawMessages = Array.isArray(body.messages)
+          ? (body.messages as IncomingMessage[])
+          : [];
         const messages = rawMessages
           .filter(
             (m) =>
               m && typeof m.content === "string" && (m.role === "user" || m.role === "assistant"),
           )
           .slice(-14)
-          .map((m) => ({ role: m.role as "user" | "assistant", content: m.content.slice(0, 6000) }));
+          .map((m) => ({
+            role: m.role as "user" | "assistant",
+            content: m.content.slice(0, 6000),
+          }));
 
         if (messages.length === 0) return jsonError("Envie ao menos uma mensagem.", 400);
 
@@ -90,7 +94,8 @@ export const Route = createFileRoute("/api/ai-chatbot")({
           rodapeDeFontes,
         } = await import("@/lib/legal-sources.server");
 
-        const ultimaPergunta = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+        const ultimaPergunta =
+          [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
         const base = await buscarNaBase(ultimaPergunta);
         const fontes = await recuperarFontes(ultimaPergunta);
 
@@ -129,8 +134,7 @@ export const Route = createFileRoute("/api/ai-chatbot")({
           exigeAdvogado: fontes.exigeAdvogado,
         });
 
-
-
+        const plano = await limiteDoPlano(supabase, userId);
         const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         const { count, error: countError } = await supabase
           .from("ai_usage")
@@ -141,11 +145,8 @@ export const Route = createFileRoute("/api/ai-chatbot")({
         if (countError) {
           return jsonError("Não foi possível verificar seu limite de uso. Tente novamente.", 500);
         }
-        if ((count ?? 0) >= DAILY_LIMIT) {
-          return jsonError(
-            `Você atingiu o limite de ${DAILY_LIMIT} consultas de IA em 24 horas. O contador é liberado automaticamente conforme as consultas mais antigas completam 24 horas.`,
-            429,
-          );
+        if (plano.limiteIaDia !== null && (count ?? 0) >= plano.limiteIaDia) {
+          return jsonError(mensagemLimiteDiario(plano), 429);
         }
 
         const apiKey = process.env["AI_API_KEY"] ?? process.env["LOVABLE_API_KEY"];
@@ -160,7 +161,6 @@ export const Route = createFileRoute("/api/ai-chatbot")({
         ]
           .filter(Boolean)
           .join("\n\n");
-
 
         const responderPelasFontes = (motivo: string) => {
           if (!fontes.suficiente) return null;

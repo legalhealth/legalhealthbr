@@ -1572,6 +1572,45 @@ export type Database = {
         }
         Relationships: []
       }
+      plan_limits: {
+        Row: {
+          created_at: string
+          juriscore_mes: number | null
+          limite_ia_dia: number | null
+          max_assistentes: number | null
+          max_pacientes: number | null
+          nome: string
+          ordem: number
+          revisoes_mes: number
+          slug: string
+          triagem_voz: boolean
+        }
+        Insert: {
+          created_at?: string
+          juriscore_mes?: number | null
+          limite_ia_dia?: number | null
+          max_assistentes?: number | null
+          max_pacientes?: number | null
+          nome: string
+          ordem?: number
+          revisoes_mes?: number
+          slug: string
+          triagem_voz?: boolean
+        }
+        Update: {
+          created_at?: string
+          juriscore_mes?: number | null
+          limite_ia_dia?: number | null
+          max_assistentes?: number | null
+          max_pacientes?: number | null
+          nome?: string
+          ordem?: number
+          revisoes_mes?: number
+          slug?: string
+          triagem_voz?: boolean
+        }
+        Relationships: []
+      }
       plan_reminders: {
         Row: {
           channel: string
