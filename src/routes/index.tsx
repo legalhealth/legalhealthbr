@@ -6,6 +6,15 @@ import { PublicFooter } from "@/components/landing/public-footer";
 import { Hero, TrustBar } from "@/components/landing/landing-hero";
 import { DeferredSection } from "@/components/landing/deferred-section";
 import { track } from "@/lib/analytics";
+import {
+  ORG_ID,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+  abs,
+  jsonLdScript,
+  webPageLd,
+} from "@/lib/seo";
 
 // Seções abaixo da dobra (inclui formulário, accordion e selects) em chunk próprio.
 const LandingBelowFold = lazy(() => import("@/components/landing/landing-below-fold"));
@@ -25,6 +34,29 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
+      { property: "og:url", content: abs("/") },
+    ],
+    links: [{ rel: "canonical", href: abs("/") }],
+    scripts: [
+      jsonLdScript([
+        webPageLd({ path: "/", name: TITLE, description: DESCRIPTION }),
+        {
+          "@type": "SoftwareApplication",
+          "@id": `${SITE_URL}/#aplicativo`,
+          name: SITE_NAME,
+          url: `${SITE_URL}/`,
+          description: SITE_DESCRIPTION,
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web",
+          inLanguage: "pt-BR",
+          provider: { "@id": ORG_ID },
+          audience: {
+            "@type": "Audience",
+            audienceType: "Profissionais e clínicas de saúde no Brasil",
+            geographicArea: { "@type": "Country", name: "Brasil" },
+          },
+        },
+      ]),
     ],
   }),
   component: LandingPage,

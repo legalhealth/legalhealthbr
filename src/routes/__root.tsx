@@ -14,6 +14,7 @@ import { Suspense, lazy, useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ChatbotMount } from "@/components/chatbot/chatbot-mount";
+import { jsonLdScript, organizationLd, webSiteLd } from "@/lib/seo";
 
 // Chrome do app e toaster só existem nas rotas autenticadas: carregados sob
 // demanda para não entrar no bundle inicial das páginas públicas.
