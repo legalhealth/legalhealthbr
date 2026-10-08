@@ -25,7 +25,11 @@ function anthropicToOpenAiSse(body: ReadableStream<Uint8Array>): ReadableStream<
               type?: string;
               delta?: { type?: string; text?: string };
             };
-            if (ev.type === "content_block_delta" && ev.delta?.type === "text_delta" && ev.delta.text) {
+            if (
+              ev.type === "content_block_delta" &&
+              ev.delta?.type === "text_delta" &&
+              ev.delta.text
+            ) {
               const out = { choices: [{ delta: { content: ev.delta.text } }] };
               controller.enqueue(encoder.encode(`data: ${JSON.stringify(out)}\n\n`));
             } else if (ev.type === "message_stop") {

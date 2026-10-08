@@ -1,14 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import {
-  AI_GATEWAY_URL,
-  corsHeaders,
-  gatewayHeaders,
-  guardAiRequest,
-  jsonError,
-  upstreamError,
-} from "@/lib/ai-gateway.server";
+import { corsHeaders, guardAiRequest, jsonError, upstreamError } from "@/lib/ai-gateway.server";
 import { systemPromptFor } from "@/lib/ai-prompts.server";
+import { streamJuridico } from "@/lib/anthropic.server";
 
 const FIELDS = [
   ["categoria", "Categoria"],
