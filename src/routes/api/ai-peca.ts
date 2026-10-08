@@ -1,14 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import {
-  AI_GATEWAY_URL,
-  corsHeaders,
-  gatewayHeaders,
-  guardAiRequest,
-  jsonError,
-  upstreamError,
-} from "@/lib/ai-gateway.server";
+import { corsHeaders, guardAiRequest, jsonError, upstreamError } from "@/lib/ai-gateway.server";
 import { systemPromptFor } from "@/lib/ai-prompts.server";
+import { streamJuridico } from "@/lib/anthropic.server";
 
 type DocPayload = {
   nome?: unknown;
@@ -102,17 +96,10 @@ export const Route = createFileRoute("/api/ai-peca")({
 
         let upstream: Response;
         try {
-          upstream = await fetch(AI_GATEWAY_URL, {
-            method: "POST",
-            headers: gatewayHeaders(guard.apiKey),
-            body: JSON.stringify({
-              model: "google/gemini-3.6-flash",
-              stream: true,
-              messages: [
-                { role: "system", content: systemPromptFor("peca") },
-                { role: "user", content: buildUserPrompt(body) },
-              ],
-            }),
+          upstream = await streamJuridico({
+            system: systemPromptFor("peca"),
+            user: buildUserPrompt(body),
+            gatewayKey: guard.apiKey,
           });
         } catch {
           return jsonError("Falha de rede ao consultar a IA. Tente novamente.", 502);
