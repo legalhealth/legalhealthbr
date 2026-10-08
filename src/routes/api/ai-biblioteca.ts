@@ -57,17 +57,10 @@ export const Route = createFileRoute("/api/ai-biblioteca")({
 
         let upstream: Response;
         try {
-          upstream = await fetch(AI_GATEWAY_URL, {
-            method: "POST",
-            headers: gatewayHeaders(guard.apiKey),
-            body: JSON.stringify({
-              model: "google/gemini-3.6-flash",
-              stream: true,
-              messages: [
-                { role: "system", content: systemPromptFor("biblioteca") },
-                { role: "user", content: buildUserPrompt(body) },
-              ],
-            }),
+          upstream = await streamJuridico({
+            system: systemPromptFor("biblioteca"),
+            user: buildUserPrompt(body),
+            gatewayKey: guard.apiKey,
           });
         } catch {
           return jsonError("Falha de rede ao consultar a IA. Tente novamente.", 502);
