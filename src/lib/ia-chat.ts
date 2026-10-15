@@ -90,7 +90,7 @@ export async function streamAiEndpoint(
     method: "POST",
     headers: { "content-type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(body),
-    signal: opts?.signal,
+    signal: opts?.signal ?? null,
   });
 
   if (!response.ok || !response.body) {

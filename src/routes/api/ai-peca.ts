@@ -21,11 +21,12 @@ function parseArquivos(raw: unknown): ClaudeAttachment[] {
     if (typeof a.dataUrl !== "string") continue;
     const m = /^data:([^;]+);base64,(.+)$/s.exec(a.dataUrl);
     if (!m) continue;
-    const mime = (typeof a.mime === "string" && a.mime) || m[1];
+    const mime = (typeof a.mime === "string" && a.mime) || m[1] || "";
+    const data = m[2] ?? "";
     if (![...CLAUDE_DOC_MIMES, ...CLAUDE_IMAGE_MIMES].includes(mime)) continue;
-    total += m[2].length;
+    total += data.length;
     if (total > MAX_TOTAL_BASE64) break;
-    out.push({ nome: typeof a.nome === "string" ? a.nome : "documento", mime, base64: m[2] });
+    out.push({ nome: typeof a.nome === "string" ? a.nome : "documento", mime, base64: data });
   }
   return out;
 }
