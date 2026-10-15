@@ -2,7 +2,33 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { corsHeaders, guardAiRequest, jsonError, upstreamError } from "@/lib/ai-gateway.server";
 import { systemPromptFor } from "@/lib/ai-prompts.server";
-import { streamJuridico } from "@/lib/anthropic.server";
+import {
+  CLAUDE_DOC_MIMES,
+  CLAUDE_IMAGE_MIMES,
+  streamJuridico,
+  type ClaudeAttachment,
+} from "@/lib/anthropic.server";
+
+const MAX_ARQUIVOS = 4;
+const MAX_TOTAL_BASE64 = 28 * 1024 * 1024; // ~20 MB de arquivo
+
+function parseArquivos(raw: unknown): ClaudeAttachment[] {
+  if (!Array.isArray(raw)) return [];
+  const out: ClaudeAttachment[] = [];
+  let total = 0;
+  for (const item of raw.slice(0, MAX_ARQUIVOS)) {
+    const a = (item ?? {}) as { nome?: unknown; mime?: unknown; dataUrl?: unknown };
+    if (typeof a.dataUrl !== "string") continue;
+    const m = /^data:([^;]+);base64,(.+)$/s.exec(a.dataUrl);
+    if (!m) continue;
+    const mime = (typeof a.mime === "string" && a.mime) || m[1];
+    if (![...CLAUDE_DOC_MIMES, ...CLAUDE_IMAGE_MIMES].includes(mime)) continue;
+    total += m[2].length;
+    if (total > MAX_TOTAL_BASE64) break;
+    out.push({ nome: typeof a.nome === "string" ? a.nome : "documento", mime, base64: m[2] });
+  }
+  return out;
+}
 
 type DocPayload = {
   nome?: unknown;
@@ -94,12 +120,16 @@ export const Route = createFileRoute("/api/ai-peca")({
           );
         }
 
+        const arquivos = parseArquivos(body["arquivos"]);
+
         let upstream: Response;
         try {
           upstream = await streamJuridico({
             system: systemPromptFor("peca"),
             user: buildUserPrompt(body),
             gatewayKey: guard.apiKey,
+            attachments: arquivos,
+            signal: request.signal,
           });
         } catch {
           return jsonError("Falha de rede ao consultar a IA. Tente novamente.", 502);

@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { FileSignature, Paperclip, Sparkles, Trash2, X } from "lucide-react";
+import { FileSignature, Paperclip, Sparkles, Square, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { DiagnosticContextCard } from "@/components/ia/diagnostic-context-card";
@@ -19,6 +19,7 @@ import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
 import { saveHistoryItem } from "@/lib/ia-history";
 import { useDeleteRecommendation, useRecommendations } from "@/lib/ia-recommendations";
 import {
+  downloadAsDataUrl,
   formatSize,
   useAnalyzeDocument,
   useDocuments,
@@ -31,6 +32,7 @@ import {
   TIPO_AUTO,
   TIPOS_PECA,
   tipoPecaLabel,
+  type PecaArquivo,
   type PecaDocumento,
 } from "@/lib/ia-peca";
 import { AiDisclaimer } from "@/components/ia/ai-disclaimer";
@@ -82,8 +84,10 @@ function Page() {
   const [docId, setDocId] = useState<string | null>(null);
   const [docTitulo, setDocTitulo] = useState<string>("");
   const [generating, setGenerating] = useState(false);
+  const [provider, setProvider] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const gerandoRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
   const draftRef = useRef<HTMLDivElement>(null);
 
   const lendo = upload.isPending || analyzeDoc.isPending;
@@ -178,16 +182,37 @@ function Page() {
     setGenerating(true);
     setDraft("");
     setDocId(null);
+    setProvider(null);
+    const controller = new AbortController();
+    abortRef.current = controller;
     try {
+      const arquivos: PecaArquivo[] = [];
+      for (const a of legiveis.slice(0, 4)) {
+        const mime = a.doc.mime ?? "";
+        if (!/^(application\/pdf|image\/(jpeg|png|gif|webp))$/.test(mime)) continue;
+        if ((a.doc.size_bytes ?? 0) > 10 * 1024 * 1024) continue;
+        try {
+          const { dataUrl } = await downloadAsDataUrl(a.doc.storage_path);
+          arquivos.push({ nome: a.doc.nome, mime, dataUrl });
+        } catch {
+          /* segue só com o texto extraído */
+        }
+      }
       const text = await streamPeca(
         {
           tipo,
           documentos: anexos.map((a) => a.dados),
+          arquivos,
           complemento: complemento.trim(),
           contexto,
         },
         (chunk) => setDraft((prev) => (prev ?? "") + chunk),
+        { signal: controller.signal, onProvider: setProvider },
       );
+      if (controller.signal.aborted) {
+        toast.info("Redação interrompida. O texto parcial foi mantido.");
+        if (!text.trim()) return;
+      }
       try {
         const base = anexos[0]?.doc.nome;
         const titulo = base ? `${tipoLabel} — ${base}` : tipoLabel;
@@ -201,16 +226,21 @@ function Page() {
         setDocId(savedId);
         setDocTitulo(titulo);
         void queryClient.invalidateQueries({ queryKey: ["ia-history"] });
-        toast.success("Defesa gerada e salva no histórico.");
+        if (!controller.signal.aborted) toast.success("Defesa gerada e salva no histórico.");
       } catch {
         toast.error("Defesa gerada, mas não foi salva no histórico.");
       }
     } catch (error) {
-      setDraft(null);
-      toast.error(error instanceof Error ? error.message : "Não foi possível gerar a peça.");
+      if (controller.signal.aborted) {
+        toast.info("Redação interrompida.");
+      } else {
+        setDraft((prev) => (prev ? prev : null));
+        toast.error(error instanceof Error ? error.message : "Não foi possível gerar a peça.");
+      }
     } finally {
       setGenerating(false);
       gerandoRef.current = false;
+      abortRef.current = null;
       draftRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
@@ -412,14 +442,22 @@ function Page() {
           </div>
         ) : null}
 
-        <Button
-          onClick={() => void handleGenerate()}
-          disabled={generating || lendo || !podeGerar}
-          className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
-        >
-          <Sparkles className="mr-2 h-4 w-4" />
-          {generating ? "Redigindo defesa..." : "Redigir defesa técnica"}
-        </Button>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button
+            onClick={() => void handleGenerate()}
+            disabled={generating || lendo || !podeGerar}
+            className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            {generating ? "Redigindo defesa..." : "Redigir defesa técnica"}
+          </Button>
+          {generating ? (
+            <Button variant="outline" onClick={() => abortRef.current?.abort()}>
+              <Square className="mr-2 h-4 w-4" />
+              Parar
+            </Button>
+          ) : null}
+        </div>
         {!podeGerar ? (
           <p className="mt-2 text-xs text-subtle">Anexe o documento que originou o caso.</p>
         ) : null}
@@ -427,9 +465,16 @@ function Page() {
 
       {draft !== null ? (
         <section ref={draftRef} className="rounded-2xl glass-card p-6">
-          <h3 className="font-display text-lg text-foreground">
-            {generating ? "Redigindo…" : "Defesa redigida"}
-          </h3>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="font-display text-lg text-foreground">
+              {generating ? "Redigindo…" : "Defesa redigida"}
+            </h3>
+            {provider ? (
+              <span className="rounded-full border border-gold/40 px-3 py-1 text-xs text-gold">
+                {provider === "claude" ? "Redigido com Claude Opus" : "Redigido com IA reserva"}
+              </span>
+            ) : null}
+          </div>
           <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-muted-foreground">
             {draft || "Aguardando a IA…"}
           </pre>

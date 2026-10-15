@@ -139,7 +139,7 @@ export async function documentSignedUrl(path: string): Promise<string | null> {
   return data.signedUrl;
 }
 
-async function downloadAsDataUrl(path: string): Promise<{ dataUrl: string; mime: string }> {
+export async function downloadAsDataUrl(path: string): Promise<{ dataUrl: string; mime: string }> {
   const { data, error } = await supabase.storage.from(DOC_BUCKET).download(path);
   if (error || !data) throw new Error("Não foi possível baixar o arquivo para leitura.");
   const mime = data.type || "application/octet-stream";

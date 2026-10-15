@@ -55,16 +55,24 @@ export type PecaDocumento = {
   transcricao: string[];
 };
 
+export type PecaArquivo = { nome: string; mime: string; dataUrl: string };
+
 export type PecaInput = {
   /** Tipo escolhido pelo usuário; `auto` deixa a IA decidir. */
   tipo: string;
   documentos: PecaDocumento[];
+  /** Arquivos originais (PDF/imagem) para o Claude ler diretamente. */
+  arquivos?: PecaArquivo[];
   complemento?: string;
   contexto?: string;
 };
 
 /** Redige a peça via rota protegida /api/ai-peca (chave de IA só no servidor). */
-export function streamPeca(input: PecaInput, onDelta: (chunk: string) => void): Promise<string> {
+export function streamPeca(
+  input: PecaInput,
+  onDelta: (chunk: string) => void,
+  opts?: { signal?: AbortSignal; onProvider?: (provider: string) => void },
+): Promise<string> {
   return streamAiEndpoint(
     "/api/ai-peca",
     {
@@ -72,5 +80,6 @@ export function streamPeca(input: PecaInput, onDelta: (chunk: string) => void): 
       tipo: input.tipo === TIPO_AUTO ? "" : tipoPecaLabel(input.tipo),
     },
     onDelta,
+    opts,
   );
 }

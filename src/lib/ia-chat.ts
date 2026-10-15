@@ -80,6 +80,7 @@ export async function streamAiEndpoint(
   url: string,
   body: unknown,
   onDelta: (chunk: string) => void,
+  opts?: { signal?: AbortSignal; onProvider?: (provider: string) => void },
 ): Promise<string> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
@@ -89,6 +90,7 @@ export async function streamAiEndpoint(
     method: "POST",
     headers: { "content-type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(body),
+    signal: opts?.signal,
   });
 
   if (!response.ok || !response.body) {
@@ -106,9 +108,17 @@ export async function streamAiEndpoint(
   const decoder = new TextDecoder();
   let buffer = "";
   let full = "";
+  let streamError: string | null = null;
 
   for (;;) {
-    const { done, value } = await reader.read();
+    let chunk: ReadableStreamReadResult<Uint8Array>;
+    try {
+      chunk = await reader.read();
+    } catch (err) {
+      if (opts?.signal?.aborted) return full;
+      throw err;
+    }
+    const { done, value } = chunk;
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
     const lines = buffer.split("\n");
@@ -121,7 +131,11 @@ export async function streamAiEndpoint(
       try {
         const parsed = JSON.parse(payload) as {
           choices?: { delta?: { content?: string } }[];
+          provider?: string;
+          error?: string;
         };
+        if (parsed.provider) opts?.onProvider?.(parsed.provider);
+        if (parsed.error) streamError = parsed.error;
         const delta = parsed.choices?.[0]?.delta?.content;
         if (delta) {
           full += delta;
@@ -133,6 +147,7 @@ export async function streamAiEndpoint(
     }
   }
 
+  if (streamError) throw new Error(streamError);
   if (!full.trim()) {
     throw new Error("A IA não retornou conteúdo. Tente novamente.");
   }
