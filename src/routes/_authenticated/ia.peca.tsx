@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { FileSignature, Paperclip, Sparkles, Trash2, X } from "lucide-react";
+import { FileSignature, Paperclip, Sparkles, Square, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { DiagnosticContextCard } from "@/components/ia/diagnostic-context-card";
@@ -442,14 +442,22 @@ function Page() {
           </div>
         ) : null}
 
-        <Button
-          onClick={() => void handleGenerate()}
-          disabled={generating || lendo || !podeGerar}
-          className="mt-6 gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
-        >
-          <Sparkles className="mr-2 h-4 w-4" />
-          {generating ? "Redigindo defesa..." : "Redigir defesa técnica"}
-        </Button>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button
+            onClick={() => void handleGenerate()}
+            disabled={generating || lendo || !podeGerar}
+            className="gold-gradient text-background shadow-[var(--shadow-gold)] hover:shadow-[var(--shadow-gold-lg)] hover:brightness-105"
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            {generating ? "Redigindo defesa..." : "Redigir defesa técnica"}
+          </Button>
+          {generating ? (
+            <Button variant="outline" onClick={() => abortRef.current?.abort()}>
+              <Square className="mr-2 h-4 w-4" />
+              Parar
+            </Button>
+          ) : null}
+        </div>
         {!podeGerar ? (
           <p className="mt-2 text-xs text-subtle">Anexe o documento que originou o caso.</p>
         ) : null}
@@ -457,9 +465,16 @@ function Page() {
 
       {draft !== null ? (
         <section ref={draftRef} className="rounded-2xl glass-card p-6">
-          <h3 className="font-display text-lg text-foreground">
-            {generating ? "Redigindo…" : "Defesa redigida"}
-          </h3>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="font-display text-lg text-foreground">
+              {generating ? "Redigindo…" : "Defesa redigida"}
+            </h3>
+            {provider ? (
+              <span className="rounded-full border border-gold/40 px-3 py-1 text-xs text-gold">
+                {provider === "claude" ? "Redigido com Claude Opus" : "Redigido com IA reserva"}
+              </span>
+            ) : null}
+          </div>
           <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-muted-foreground">
             {draft || "Aguardando a IA…"}
           </pre>
