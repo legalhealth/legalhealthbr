@@ -19,6 +19,7 @@ import { contextSummary, useDiagnosticContext } from "@/lib/diagnostic-context";
 import { saveHistoryItem } from "@/lib/ia-history";
 import { useDeleteRecommendation, useRecommendations } from "@/lib/ia-recommendations";
 import {
+  downloadAsDataUrl,
   formatSize,
   useAnalyzeDocument,
   useDocuments,
@@ -31,6 +32,7 @@ import {
   TIPO_AUTO,
   TIPOS_PECA,
   tipoPecaLabel,
+  type PecaArquivo,
   type PecaDocumento,
 } from "@/lib/ia-peca";
 import { AiDisclaimer } from "@/components/ia/ai-disclaimer";
@@ -82,8 +84,10 @@ function Page() {
   const [docId, setDocId] = useState<string | null>(null);
   const [docTitulo, setDocTitulo] = useState<string>("");
   const [generating, setGenerating] = useState(false);
+  const [provider, setProvider] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const gerandoRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
   const draftRef = useRef<HTMLDivElement>(null);
 
   const lendo = upload.isPending || analyzeDoc.isPending;
@@ -178,16 +182,37 @@ function Page() {
     setGenerating(true);
     setDraft("");
     setDocId(null);
+    setProvider(null);
+    const controller = new AbortController();
+    abortRef.current = controller;
     try {
+      const arquivos: PecaArquivo[] = [];
+      for (const a of legiveis.slice(0, 4)) {
+        const mime = a.doc.mime ?? "";
+        if (!/^(application\/pdf|image\/(jpeg|png|gif|webp))$/.test(mime)) continue;
+        if ((a.doc.size_bytes ?? 0) > 10 * 1024 * 1024) continue;
+        try {
+          const { dataUrl } = await downloadAsDataUrl(a.doc.storage_path);
+          arquivos.push({ nome: a.doc.nome, mime, dataUrl });
+        } catch {
+          /* segue só com o texto extraído */
+        }
+      }
       const text = await streamPeca(
         {
           tipo,
           documentos: anexos.map((a) => a.dados),
+          arquivos,
           complemento: complemento.trim(),
           contexto,
         },
         (chunk) => setDraft((prev) => (prev ?? "") + chunk),
+        { signal: controller.signal, onProvider: setProvider },
       );
+      if (controller.signal.aborted) {
+        toast.info("Redação interrompida. O texto parcial foi mantido.");
+        if (!text.trim()) return;
+      }
       try {
         const base = anexos[0]?.doc.nome;
         const titulo = base ? `${tipoLabel} — ${base}` : tipoLabel;
@@ -201,16 +226,21 @@ function Page() {
         setDocId(savedId);
         setDocTitulo(titulo);
         void queryClient.invalidateQueries({ queryKey: ["ia-history"] });
-        toast.success("Defesa gerada e salva no histórico.");
+        if (!controller.signal.aborted) toast.success("Defesa gerada e salva no histórico.");
       } catch {
         toast.error("Defesa gerada, mas não foi salva no histórico.");
       }
     } catch (error) {
-      setDraft(null);
-      toast.error(error instanceof Error ? error.message : "Não foi possível gerar a peça.");
+      if (controller.signal.aborted) {
+        toast.info("Redação interrompida.");
+      } else {
+        setDraft((prev) => (prev ? prev : null));
+        toast.error(error instanceof Error ? error.message : "Não foi possível gerar a peça.");
+      }
     } finally {
       setGenerating(false);
       gerandoRef.current = false;
+      abortRef.current = null;
       draftRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
