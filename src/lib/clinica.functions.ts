@@ -36,7 +36,8 @@ export const convidarAssistente = createServerFn({ method: "POST" })
       .select("nome, max_assistentes")
       .eq("slug", perfilPlano?.plano || "free")
       .maybeSingle();
-    const maxAssistentes = limitePlano?.max_assistentes ?? 0;
+    // max_assistentes null = sem teto; 0 só quando o plano não existe em plan_limits.
+    const maxAssistentes = limitePlano ? limitePlano.max_assistentes : 0;
     if (maxAssistentes !== null) {
       const [{ count: ativos }, { count: pendentes }] = await Promise.all([
         supabase
