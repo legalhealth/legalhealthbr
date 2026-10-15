@@ -107,7 +107,7 @@ export async function streamJuridico(opts: {
     try {
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        signal: opts.signal,
+        signal: opts.signal ?? null,
         headers: {
           "x-api-key": key,
           "anthropic-version": "2023-06-01",
@@ -139,7 +139,7 @@ export async function streamJuridico(opts: {
   }
   const res = await fetch(AI_GATEWAY_URL, {
     method: "POST",
-    signal: opts.signal,
+    signal: opts.signal ?? null,
     headers: gatewayHeaders(opts.gatewayKey),
     body: JSON.stringify({
       model: FALLBACK_MODEL,
